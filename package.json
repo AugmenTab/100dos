@@ -9,6 +9,7 @@
     "lint": "echo \"TODO: implement lint\""
   },
   "devDependencies": {
+    "@types/node": "^25.9.1",
     "typescript": "^5",
     "vite": "^6",
     "vite-plugin-static-copy": "^2"

@@ -2,10 +2,13 @@
   "compilerOptions": {
     "target": "ES2022",
     "module": "ESNext",
+    // bundler resolution matches Vite's module handling
     "moduleResolution": "bundler",
+    // strict: all checks enabled; Foundry globals typed via src/types/ rather
+    // than a third-party package, keeping accuracy under our control
     "strict": true,
     "sourceMap": true,
     "lib": ["ES2022", "DOM"]
   },
-  "include": ["src/**/*", "vite.config.ts"]
+  "include": ["src/**/*"]
 }
