@@ -2,13 +2,6 @@
 
 A Foundry VTT implementation for the 100DOS TTRPG system, targeting Foundry Virtual Tabletop v14.
 
-## Setup
-
-1. Install [Node.js](https://nodejs.org/) (v18 or later recommended).
-2. Clone this repository.
-3. Install dependencies: `npm install`
-4. Build the project: `npm run build`
-
 ## Local Development with Docker
 
 Docker runs a local Foundry instance with the `100dos` system mounted directly from `dist/`.
@@ -66,6 +59,8 @@ The `dev` service is excluded from `docker compose up` by default (it uses a Doc
 | `npm run watch` | Watch for changes and rebuild automatically |
 | `npm run typecheck` | Run TypeScript type checking |
 | `npm run lint` | Lint source files |
+| `npm run format` | Format source files with Prettier |
+| `npm run format:check` | Check formatting without writing |
 
 ## Project Structure
 
