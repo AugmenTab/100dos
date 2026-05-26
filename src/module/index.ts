@@ -1,4 +1,5 @@
 import { debug } from "./logger.js";
+import { Dos100Actor } from "./documents/actor.js";
 
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
 interface Dos100System {
@@ -20,6 +21,8 @@ Hooks.once("init", (): void => {
     type: Boolean,
     default: false,
   });
+
+  CONFIG.Actor.documentClass = Dos100Actor;
 
   debug("Initializing");
   game.dos100 = {};

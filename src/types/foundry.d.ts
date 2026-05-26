@@ -23,6 +23,19 @@ interface SettingConfig {
 
 declare const game: Game;
 
+declare class Actor {
+  readonly type: string;
+  prepareData(): void;
+  prepareBaseData(): void;
+  prepareDerivedData(): void;
+}
+
+declare const CONFIG: {
+  Actor: {
+    documentClass: typeof Actor;
+  };
+};
+
 declare const Hooks: {
   once(hook: string, fn: (...args: unknown[]) => void): number;
   on(hook: string, fn: (...args: unknown[]) => void): number;

@@ -17,7 +17,11 @@
   "styles": [],
   "languages": [],
   "documentTypes": {
-    "Actor": {},
+    "Actor": {
+      "pc": {},
+      "npc": {},
+      "vehicle": {}
+    },
     "Item": {}
   },
   "socket": false,
