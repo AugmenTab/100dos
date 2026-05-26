@@ -20,4 +20,8 @@ services:
     working_dir: /workspace
     volumes:
       - .:/workspace
+      - node_modules:/workspace/node_modules
     profiles: [dev]
+
+volumes:
+  node_modules:

@@ -8,7 +8,7 @@
     "verified": "14"
   },
   "authors": [],
-  "esmodules": [],
+  "esmodules": ["100dos.mjs"],
   "styles": [],
   "languages": [],
   "socket": false,

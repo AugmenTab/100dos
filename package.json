@@ -3,9 +3,14 @@
   "version": "0.0.1",
   "description": "A Foundry VTT implementation for the 100DOS TTRPG system.",
   "scripts": {
-    "build": "mkdir -p dist && cp -r static/. dist/",
-    "watch": "node -e \"const {execSync}=require('child_process'),{watch}=require('fs');const b=()=>{execSync('mkdir -p dist && cp -r static/. dist/');console.log('rebuilt')};b();watch('static',{recursive:true},b)\"",
-    "typecheck": "echo \"TODO: implement typecheck\"",
+    "build": "vite build",
+    "watch": "vite build --watch",
+    "typecheck": "tsc --noEmit",
     "lint": "echo \"TODO: implement lint\""
+  },
+  "devDependencies": {
+    "typescript": "^5",
+    "vite": "^6",
+    "vite-plugin-static-copy": "^2"
   }
 }
