@@ -1,0 +1,23 @@
+services:
+  foundry:
+    image: felddy/foundryvtt:release
+    hostname: foundry
+    init: true
+    restart: "no"
+    volumes:
+      - ./foundrydata:/data
+      - ./dist:/data/Data/systems/100dos
+    env_file: .env
+    ports:
+      - "30000:30000"
+    user: "0"
+    environment:
+      CONTAINER_PRESERVE_CONFIG: "true"
+      FOUNDRY_ACCEPT_EULA: "true"
+
+  dev:
+    image: node:22
+    working_dir: /workspace
+    volumes:
+      - .:/workspace
+    profiles: [dev]

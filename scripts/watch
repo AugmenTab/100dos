@@ -1,0 +1,6 @@
+#!/usr/bin/env sh
+mkdir -p dist && cp -r static/. dist/
+docker compose run --rm dev npm run watch &
+WATCHER=$!
+docker compose up foundry
+kill $WATCHER 2>/dev/null

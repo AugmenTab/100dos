@@ -3,8 +3,8 @@
   "version": "0.0.1",
   "description": "A Foundry VTT implementation for the 100DOS TTRPG system.",
   "scripts": {
-    "build": "echo \"TODO: implement build\"",
-    "watch": "echo \"TODO: implement watch\"",
+    "build": "mkdir -p dist && cp -r static/. dist/",
+    "watch": "node -e \"const {execSync}=require('child_process'),{watch}=require('fs');const b=()=>{execSync('mkdir -p dist && cp -r static/. dist/');console.log('rebuilt')};b();watch('static',{recursive:true},b)\"",
     "typecheck": "echo \"TODO: implement typecheck\"",
     "lint": "echo \"TODO: implement lint\""
   }
