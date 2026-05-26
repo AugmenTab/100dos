@@ -1,5 +1,27 @@
 // Hand-rolled Foundry VTT v14 ambient declarations.
 // Add types here as APIs are introduced into the system codebase.
+// Extend Game via declaration merging in the relevant module, not here.
+
+interface Game {
+  settings: ClientSettings;
+  system: { id: string };
+}
+
+interface ClientSettings {
+  get(scope: string, key: string): unknown;
+  register(scope: string, key: string, config: SettingConfig): void;
+}
+
+interface SettingConfig {
+  name: string;
+  hint?: string;
+  scope: "world" | "client";
+  config: boolean;
+  type: unknown;
+  default: unknown;
+}
+
+declare const game: Game;
 
 declare const Hooks: {
   once(hook: string, fn: (...args: unknown[]) => void): number;
