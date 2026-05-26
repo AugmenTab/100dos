@@ -1,0 +1,11 @@
+{
+  "name": "100dos",
+  "version": "0.0.1",
+  "description": "A Foundry VTT implementation for the 100DOS TTRPG system.",
+  "scripts": {
+    "build": "echo \"TODO: implement build\"",
+    "watch": "echo \"TODO: implement watch\"",
+    "typecheck": "echo \"TODO: implement typecheck\"",
+    "lint": "echo \"TODO: implement lint\""
+  }
+}
