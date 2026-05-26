@@ -62,6 +62,10 @@ The `dev` service is excluded from `docker compose up` by default (it uses a Doc
 | `npm run format` | Format source files with Prettier |
 | `npm run format:check` | Check formatting without writing |
 
+## Manifest
+
+`static/system.json` is the Foundry system manifest. The `url`, `manifest`, and `download` fields are intentionally empty — they will be filled in once the project has a public release.
+
 ## Project Structure
 
 ```

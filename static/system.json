@@ -7,10 +7,19 @@
     "minimum": "14",
     "verified": "14"
   },
-  "authors": [],
+  "authors": [
+    {
+      "name": "AugmenTab",
+      "discord": "augmentab"
+    }
+  ],
   "esmodules": ["100dos.mjs"],
   "styles": [],
   "languages": [],
+  "documentTypes": {
+    "Actor": {},
+    "Item": {}
+  },
   "socket": false,
   "url": "",
   "manifest": "",
