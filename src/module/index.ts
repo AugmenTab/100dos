@@ -1,5 +1,7 @@
 import { debug } from "./logger.js";
 import { Dos100Actor } from "./documents/actor.js";
+import { Dos100Item } from "./documents/item.js";
+import { Dos100ItemSheet } from "./sheets/item-sheet.js";
 
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
 interface Dos100System {
@@ -23,6 +25,11 @@ Hooks.once("init", (): void => {
   });
 
   CONFIG.Actor.documentClass = Dos100Actor;
+  CONFIG.Item.documentClass = Dos100Item;
+  Items.registerSheet(game.system.id, Dos100ItemSheet, {
+    types: ["equipment"],
+    makeDefault: true,
+  });
 
   debug("Initializing");
   game.dos100 = {};

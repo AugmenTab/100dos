@@ -23,6 +23,21 @@ interface SettingConfig {
 
 declare const game: Game;
 
+interface ApplicationOptions {
+  classes?: string[];
+  template?: string;
+  width?: number | "auto";
+  height?: number | "auto";
+  resizable?: boolean;
+  title?: string;
+}
+
+interface SheetRegistrationOptions {
+  types?: string[];
+  makeDefault?: boolean;
+  label?: string;
+}
+
 declare class Actor {
   readonly type: string;
   prepareData(): void;
@@ -30,10 +45,34 @@ declare class Actor {
   prepareDerivedData(): void;
 }
 
+declare class Item {
+  readonly type: string;
+  readonly name: string;
+  prepareData(): void;
+  prepareBaseData(): void;
+  prepareDerivedData(): void;
+}
+
+declare class ItemSheet {
+  static get defaultOptions(): ApplicationOptions;
+  getData(): Promise<Record<string, unknown>>;
+}
+
 declare const CONFIG: {
   Actor: {
     documentClass: typeof Actor;
   };
+  Item: {
+    documentClass: typeof Item;
+  };
+};
+
+declare const Items: {
+  registerSheet(
+    scope: string,
+    sheetClass: typeof ItemSheet,
+    options?: SheetRegistrationOptions,
+  ): void;
 };
 
 declare const Hooks: {

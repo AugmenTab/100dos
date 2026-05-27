@@ -22,7 +22,9 @@
       "npc": {},
       "vehicle": {}
     },
-    "Item": {}
+    "Item": {
+      "equipment": {}
+    }
   },
   "socket": false,
   "url": "",
