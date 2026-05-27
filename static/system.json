@@ -14,7 +14,7 @@
     }
   ],
   "esmodules": ["100dos.mjs"],
-  "styles": [],
+  "styles": ["styles/100dos.css"],
   "languages": [
     {
       "lang": "en",
