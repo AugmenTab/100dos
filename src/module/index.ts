@@ -1,6 +1,9 @@
 import { debug } from "./logger.js";
 import { Dos100Actor } from "./documents/actor.js";
 import { Dos100Item } from "./documents/item.js";
+import { PcActorSheet } from "./sheets/actors/pc-sheet.js";
+import { NpcActorSheet } from "./sheets/actors/npc-sheet.js";
+import { VehicleActorSheet } from "./sheets/actors/vehicle-sheet.js";
 import { Dos100ItemSheet } from "./sheets/item-sheet.js";
 
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
@@ -25,6 +28,19 @@ Hooks.once("init", (): void => {
   });
 
   CONFIG.Actor.documentClass = Dos100Actor;
+  Actors.registerSheet(game.system.id, PcActorSheet, {
+    types: ["pc"],
+    makeDefault: true,
+  });
+  Actors.registerSheet(game.system.id, NpcActorSheet, {
+    types: ["npc"],
+    makeDefault: true,
+  });
+  Actors.registerSheet(game.system.id, VehicleActorSheet, {
+    types: ["vehicle"],
+    makeDefault: true,
+  });
+
   CONFIG.Item.documentClass = Dos100Item;
   Items.registerSheet(game.system.id, Dos100ItemSheet, {
     types: ["equipment"],

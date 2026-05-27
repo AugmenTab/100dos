@@ -40,9 +40,16 @@ interface SheetRegistrationOptions {
 
 declare class Actor {
   readonly type: string;
+  readonly name: string;
   prepareData(): void;
   prepareBaseData(): void;
   prepareDerivedData(): void;
+}
+
+declare class ActorSheet {
+  readonly actor: Actor;
+  static get defaultOptions(): ApplicationOptions;
+  getData(): Promise<Record<string, unknown>>;
 }
 
 declare class Item {
@@ -65,6 +72,14 @@ declare const CONFIG: {
   Item: {
     documentClass: typeof Item;
   };
+};
+
+declare const Actors: {
+  registerSheet(
+    scope: string,
+    sheetClass: typeof ActorSheet,
+    options?: SheetRegistrationOptions,
+  ): void;
 };
 
 declare const Items: {
