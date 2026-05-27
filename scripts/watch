@@ -1,6 +1,10 @@
 #!/usr/bin/env sh
+
 docker compose run --rm dev sh -c "npm install && npm run build"
 docker compose run --rm dev sh -c "npm install && npm run watch" &
+
 WATCHER=$!
+
 docker compose up foundry
+
 kill $WATCHER 2>/dev/null
