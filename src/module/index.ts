@@ -19,8 +19,8 @@ declare global {
 
 Hooks.once("init", (): void => {
   game.settings.register(game.system.id, "debugMode", {
-    name: "Debug Mode",
-    hint: "Enable debug logging for the 100DOS system.",
+    name: "DOS100.setting.debugMode.name",
+    hint: "DOS100.setting.debugMode.hint",
     scope: "world",
     config: true,
     type: Boolean,

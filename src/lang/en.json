@@ -1,0 +1,26 @@
+{
+  "TYPES": {
+    "Actor": {
+      "pc": "PC",
+      "npc": "NPC",
+      "vehicle": "Vehicle"
+    },
+    "Item": {
+      "equipment": "Equipment"
+    }
+  },
+  "DOS100": {
+    "actor": {
+      "name": "Name"
+    },
+    "item": {
+      "name": "Name"
+    },
+    "setting": {
+      "debugMode": {
+        "name": "Debug Mode",
+        "hint": "Enable debug logging for the 100DOS system."
+      }
+    }
+  }
+}
