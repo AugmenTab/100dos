@@ -45,7 +45,12 @@ Docker was chosen to avoid requiring contributors to manage a local Foundry inst
 
 ## Actor types
 
-The system defines three actor types: `pc`, `npc`, and `vehicle`. These are the only types expected for the foreseeable future. No catch-all or generic actor type exists — everything maps to one of these three.
+The system defines three actor types: `pc`, `npc`, and `vehicle`. No catch-all or generic actor type exists — everything maps to one of these three.
+
+Two additional actor types are planned for the future but not yet designed:
+
+- **`companion`**: A persistent follower NPC linked to a specific PC (e.g., a Ghost, a War Dog). The linking mechanism and resource-sharing behavior are not yet defined.
+- **`group`**: Represents a party or collective entity. Intended to hold party-level resources (e.g., shared Luck pools). What it tracks and how it relates to its member actors is not yet understood well enough to design.
 
 ---
 

@@ -37,6 +37,13 @@ Characteristics are derived values — composed from multiple inputs including b
 
 **Mythic Characteristics**: A second layer of bonus values on top of base Characteristics. Not universal to all character types. Some formulas use the Mythic value directly rather than as a modifier, so they are tracked separately.
 
+**Characteristic Flags**: Each Characteristic carries two independent boolean flags.
+
+- **Active/Inactive**: Some character types (e.g., Sentinels, certain Forerunner creatures, Cyborgs) have Characteristics fully deactivated — removed from calculation rather than set to zero. The inactive flag controls this.
+- **Advanceable/Non-advanceable**: Not all Characteristics on all character types can be advanced. This flag controls whether advancements are permitted for a given Characteristic.
+
+Both flags are potentially addressable via the Changes system.
+
 ---
 
 ## Resources
@@ -51,17 +58,23 @@ Five resource types appear on actor sheets.
 | **Credits (cR)** | Currency. |
 | **Support Points (SP)** | Discrete resource consumed during play. Replenishment mechanism is setting-specific. |
 
+**Item-owned resources**: Many item types (not only abilities) carry current/maximum counters for setting-specific pools or limited-use tracking. The replenishment model is configurable per item:
+
+- **Period-based**: Automatically replenishes on a defined trigger (per encounter, daily, per rest, etc.)
+- **Charge-based**: A finite pool of charges that depletes and is not automatically refilled — spent permanently until restocked (e.g., wands)
+- **Non-replenishing**: No automatic recovery; current value changes only through explicit action (e.g., Oripathy counting toward a death threshold)
+
 ---
 
 ## Actor Types
 
 ### PC
 
-Tracks all ten Characteristics plus Mythic variants, all five resources, an extensible Skill set, acquired Abilities/Traits/Educations, Size, and a gear loadout.
+Tracks all ten Characteristics plus Mythic variants, all five resources, an extensible Skill set, acquired Abilities/Traits/Educations, Size, and a gear loadout. Also carries Natural Armor (standalone numeric value), Hardpoints by body location (see Hardpoints section), and informational text fields for physical attributes (Height, Weight — not mechanically enforced).
 
 ### NPC
 
-Shares the Characteristic structure. Resource tracking includes Wounds, Luck (not always present), XP Payout, and Bestiary Rank (1–5, drives stat scaling). Carries a gear loadout.
+Shares the Characteristic structure. Resource tracking includes Wounds, Luck (not always present), XP Payout, and Bestiary Rank (1–5, drives stat scaling). Carries a gear loadout. Also carries Natural Armor and Hardpoints by body location.
 
 ### Vehicle
 
@@ -76,6 +89,16 @@ Largely distinct from character actors, but will reference other actor types to 
 | Weapon Points | Total budget and allocated amount |
 | Size | Drives grid occupation, reach, and some combat interactions |
 | Weapons | Linked loadout |
+| Conceal | How effectively the vehicle hides from sensors — opposes Sensor in detection tests |
+| Sensor | The vehicle's ability to spot concealed vehicles — opposes Conceal in detection tests |
+
+### companion *(planned, not yet designed)*
+
+A persistent follower NPC linked to a specific PC. Appears in multiple settings (Ghost in Destiny, War Dog in Titanfall/Frontier, etc.). The linking mechanism and any resource-sharing behavior between a companion and its owner are undecided.
+
+### group *(planned, not yet designed)*
+
+Represents a party or collective entity. Intended to accommodate party-level resources (e.g., a shared Luck pool). What fields it tracks and how it relates to member actors is not yet understood well enough to design.
 
 ---
 
@@ -84,6 +107,20 @@ Largely distinct from character actors, but will reference other actor types to 
 This list is a minimum — additional Item types will be identified during implementation. Weapons and armor are each likely to be their own Item type. Modifications represent a broad and varied category.
 
 **Confirmed Item types:**
+
+### race
+
+Covers the biological baseline of a character.
+
+Fields: Base Characteristics (all ten), Mythic Characteristics, a flag controlling whether Mythic Characteristics advance for NPCs of this race, race-granted Abilities and Educations, Tier, XP Cost.
+
+Settings with sub-races represent them as separate Race items rather than nested structures.
+
+### soldierType
+
+Covers the faction or occupation framework through which a character advances.
+
+Fields: Characteristic Advancements by tier (Simple through Mastery), faction/occupation-granted Abilities and Educations, Training (weapon training categories granted), Tier, XP Cost.
 
 ### ability
 
@@ -96,6 +133,30 @@ Fields: Name, Effect description. All trait content is module-provided.
 ### education
 
 Fields: Name, Effect description. All education content is module-provided.
+
+### effect
+
+Represents a temporary or conditional modifier — a buff, debuff, spell effect, cover bonus, status effect, or similar. Carries a Changes list that is applied when the effect is active.
+
+Effects have an active/inactive toggle that can be set manually. Optionally time-based: when a duration expires, the effect de-activates automatically. Duration tracking ties into the Foundry combat tracker and system clock.
+
+### outlier
+
+A character-specific modifier item that applies bonuses via the Changes system. Unlike standard abilities, Outliers can cost Luck (in addition to or instead of XP). Whether this is a standalone item type or a subtype of a more generic item is undecided.
+
+### spell
+
+Spells are a confirmed Item type. Fields are not yet fully specified.
+
+---
+
+## Undecided Item Types
+
+**Upbringing / Environment / Lifestyle**: Character background factors present in the sourcebook. Will likely be unified under a single item type (possibly with others) and applied to the actor. Schema is undecided. Soldier Type selection does not mechanically enforce a particular Upbringing.
+
+**Jobs** (Paranoia Station setting): A confirmed item type with fields including Description, Traits, Access Locations, PDA Programs, and Starting Equipment. No XP Cost and no Characteristic Advancements. Requires a deeper dive before implementation.
+
+**Specialization Packs**: Bundles of granted Abilities and Skills at specified training tiers (e.g., `Athletics (Trained)`, `Camouflage (+10)`), observed as granted by certain Soldier Types or acquired independently. Whether these become a dedicated item type is undecided.
 
 ---
 
@@ -118,11 +179,34 @@ The system will initialize a default set of skills on new PC sheets. Additional 
 
 ## Armor
 
-Two distinct mechanical subsystems can coexist on the same character.
+Three distinct armor subsystems can coexist on the same character.
 
 **Physical Armor**: Locational. Each body location has an independent armor rating. Standard character locations are Head, Arms, Chest, Legs. Vehicles and some character types use different location sets.
 
+**Natural Armor**: A standalone numeric armor value tracked directly on PC and NPC actors. Not derived solely from equipped items.
+
 **Energy Shields**: Defined by three values — Shield Integrity (total HP), Recharge Delay (rounds after last hit before recharge begins), Recharge Rate (SI restored per round). Energy shield values are provided by items rather than being an item type themselves.
+
+---
+
+## Hardpoints
+
+A body-location capacity system governing how many cybernetics or integrated items can be installed at each location. Confirmed as a core system, not setting-specific.
+
+| Location | Default Capacity |
+|---|---|
+| Head | 3 |
+| Chest | 6 |
+| Arms | 3 per arm |
+| Legs | 4 per leg |
+
+Default capacities can be adjusted — either directly or via the Changes system; the mechanism is undecided. Cybernetics are linked to a body location. When that location takes damage, the cybernetic's breakpoints take damage.
+
+---
+
+## Blood Sugar / Strain
+
+Both "Blood Sugar" (observed in at least one setting) and "Strain" (observed in others) describe a mechanic tracking the cumulative biological cost of cybernetic implants against a character threshold. Whether these are mechanically identical across settings or differ in any meaningful way has not been fully verified — they are recorded here together as likely the same schema but that equivalence is not confirmed.
 
 ---
 
@@ -146,3 +230,13 @@ Size affects reach, grid occupation, carry capacity, and some combat interaction
 | Colossal | 120.01–500.0 m |
 | Vast | 500.01–1,000.0 m |
 | Unscalable | 1,001+ m |
+
+---
+
+## Open Questions
+
+**Buildings**: Not expected to be a standard actor or item type. If modeled at all, a non-placeable actor is the more likely path. Undecided.
+
+**Ship-specific vehicle fields**: Ships observed in splatbooks carry additional fields not present on standard vehicles — Manpower (a resource), Ship Type classification (Corvette through Supercarrier), and Ship Size derived from a length/width/height sum. Whether these belong on the vehicle schema universally, as ship-subtype fields, or elsewhere is undecided.
+
+**Weapon modification tiers**: At least one splatbook uses Standard/Variant/Unique as a tier classification on weapon modifications. Whether this is a core item field or setting-specific content is undecided.
