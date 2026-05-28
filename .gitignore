@@ -13,3 +13,6 @@ foundrydata/
 
 # secrets
 .env
+
+# local reference files not for version control
+.local/
