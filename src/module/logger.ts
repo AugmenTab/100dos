@@ -1,10 +1,15 @@
 export function debug(message: string, ...args: unknown[]): void {
-  if (game.settings.get(game.system.id, "debugMode")) {
-    console.debug(`100DOS | ${message}`, ...args);
+  let enabled = false;
+  try {
+    // game is unavailable before Foundry initializes (e.g. in tests)
+    enabled = !!game.settings.get(game.system.id, "debugMode");
+  } catch {
+    // not initialized; treat as disabled
   }
+  if (enabled) console.debug(`100DOS | ${message}`, ...args);
 }
 
-export function log(message: string, ...args: unknown[]): void {
+export function info(message: string, ...args: unknown[]): void {
   console.log(`100DOS | ${message}`, ...args);
 }
 
