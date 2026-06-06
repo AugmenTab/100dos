@@ -70,6 +70,32 @@ Artificer defers to this system on all structural and naming decisions. If there
 
 ---
 
+## Error handling strategy: `Result<T, E>`
+
+Calculations, formula evaluation, change application, and validation return a `Result<T, E>` discriminated union rather than throwing for expected failures. This keeps error paths explicit and composable without relying on try/catch.
+
+```ts
+type Result<T, E = string[]> =
+  | { ok: true; value: T; warnings: string[] }
+  | { ok: false; errors: E; warnings: string[] }
+```
+
+`warnings` is always present on both arms so callers never need to guard it. The default error type is `string[]`; the `E` parameter is available for structured errors where needed.
+
+The helper module at `src/module/result.ts` exports:
+
+- `ok(value, warnings?)` / `err(errors, warnings?)` — constructors
+- `map(result, fn)` — transform a success value (fmap)
+- `bind(result, fn)` — chain steps that can each fail; merges warnings (>>=)
+- `traverse(items, fn)` — apply fn to each item in order, short-circuit on first failure
+- `collect(results)` — fold over already-computed results, accumulate all errors
+
+`traverse` and `collect` differ in error semantics: `traverse` stops at the first failure (suited for dependent pipeline steps), `collect` gathers every error (suited for independent validation).
+
+No external functional programming library is used.
+
+---
+
 ## Character creation wizard is post-MVP
 
 No interactive character creation flow is planned during skeleton or initial sheet development. Characters are created by filling in sheet fields directly. A guided wizard may be added after the core sheet and data model are stable.
