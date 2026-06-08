@@ -1,16 +1,18 @@
-export abstract class Dos100ActorSheet extends ActorSheet {
-  static override get defaultOptions(): ApplicationOptions {
-    return {
-      ...super.defaultOptions,
-      classes: ["dos100", "sheet", "actor"],
-      width: 720,
-      height: 680,
-      resizable: true,
-    };
-  }
+const { HandlebarsApplicationMixin } = foundry.applications.api;
+const { ActorSheetV2 } = foundry.applications.sheets;
 
-  override async getData(): Promise<Record<string, unknown>> {
-    const data = await super.getData();
-    return { ...data, actor: this.actor };
+export abstract class Dos100ActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
+  static override DEFAULT_OPTIONS = {
+    classes: ["dos100", "sheet", "actor"],
+    position: { width: 720, height: 680 },
+    window: { resizable: true },
+    form: { submitOnChange: true, closeOnSubmit: false },
+  };
+
+  override async _prepareContext(options: Record<string, unknown>): Promise<Record<string, unknown>> {
+    return {
+      ...await super._prepareContext(options),
+      actor: this.actor,
+    };
   }
 }

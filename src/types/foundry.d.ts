@@ -23,15 +23,6 @@ interface SettingConfig {
 
 declare const game: Game;
 
-interface ApplicationOptions {
-  classes?: string[];
-  template?: string;
-  width?: number | "auto";
-  height?: number | "auto";
-  resizable?: boolean;
-  title?: string;
-}
-
 interface SheetRegistrationOptions {
   types?: string[];
   makeDefault?: boolean;
@@ -46,12 +37,6 @@ declare class Actor {
   prepareDerivedData(): void;
 }
 
-declare class ActorSheet {
-  readonly actor: Actor;
-  static get defaultOptions(): ApplicationOptions;
-  getData(): Promise<Record<string, unknown>>;
-}
-
 declare class Item {
   readonly type: string;
   readonly name: string;
@@ -60,24 +45,15 @@ declare class Item {
   prepareDerivedData(): void;
 }
 
-declare class ItemSheet {
-  static get defaultOptions(): ApplicationOptions;
-  getData(): Promise<Record<string, unknown>>;
-}
-
 declare const CONFIG: {
-  Actor: {
-    documentClass: typeof Actor;
-  };
-  Item: {
-    documentClass: typeof Item;
-  };
+  Actor: { documentClass: typeof Actor };
+  Item: { documentClass: typeof Item };
 };
 
 declare const Actors: {
   registerSheet(
     scope: string,
-    sheetClass: typeof ActorSheet,
+    sheetClass: new (...args: unknown[]) => unknown,
     options?: SheetRegistrationOptions,
   ): void;
 };
@@ -85,7 +61,7 @@ declare const Actors: {
 declare const Items: {
   registerSheet(
     scope: string,
-    sheetClass: typeof ItemSheet,
+    sheetClass: new (...args: unknown[]) => unknown,
     options?: SheetRegistrationOptions,
   ): void;
 };
@@ -97,3 +73,31 @@ declare const Hooks: {
   call(hook: string, ...args: unknown[]): boolean;
   callAll(hook: string, ...args: unknown[]): boolean;
 };
+
+declare namespace foundry {
+  namespace applications {
+    namespace api {
+      class ApplicationV2 {
+        static DEFAULT_OPTIONS: Record<string, unknown>;
+        static PARTS: Record<string, { template: string }>;
+      }
+      // Provides _renderHTML and _replaceHTML via PARTS-based Handlebars rendering.
+      // Typed as identity (returns T) so that extends expressions remain simple.
+      function HandlebarsApplicationMixin<
+        T extends new (...args: unknown[]) => ApplicationV2,
+      >(Base: T): T;
+    }
+    namespace sheets {
+      class ActorSheetV2 extends api.ApplicationV2 {
+        get actor(): Actor;
+        get document(): Actor;
+        _prepareContext(options: Record<string, unknown>): Promise<Record<string, unknown>>;
+      }
+      class ItemSheetV2 extends api.ApplicationV2 {
+        get item(): Item;
+        get document(): Item;
+        _prepareContext(options: Record<string, unknown>): Promise<Record<string, unknown>>;
+      }
+    }
+  }
+}
