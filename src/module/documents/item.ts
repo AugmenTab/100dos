@@ -7,14 +7,14 @@ export class Dos100Item extends Item {
     super.prepareDerivedData();
     switch (this.type) {
       case "ability":
-        this.#prepareAbilityData();
+        this._prepareAbilityData();
         break;
       case "trait":
-        this.#prepareTraitData();
+        this._prepareTraitData();
         break;
     }
   }
 
-  #prepareAbilityData(): void {}
-  #prepareTraitData(): void {}
+  protected _prepareAbilityData(): void {}
+  protected _prepareTraitData(): void {}
 }

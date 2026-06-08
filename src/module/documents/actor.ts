@@ -7,18 +7,18 @@ export class Dos100Actor extends Actor {
     super.prepareDerivedData();
     switch (this.type) {
       case "pc":
-        this.#preparePcData();
+        this._preparePcData();
         break;
       case "npc":
-        this.#prepareNpcData();
+        this._prepareNpcData();
         break;
       case "vehicle":
-        this.#prepareVehicleData();
+        this._prepareVehicleData();
         break;
     }
   }
 
-  #preparePcData(): void {}
-  #prepareNpcData(): void {}
-  #prepareVehicleData(): void {}
+  protected _preparePcData(): void {}
+  protected _prepareNpcData(): void {}
+  protected _prepareVehicleData(): void {}
 }
