@@ -4,6 +4,7 @@ import { Dos100Item } from "./documents/item.js";
 import { PcActorSheet } from "./sheets/actors/pc-sheet.js";
 import { NpcActorSheet } from "./sheets/actors/npc-sheet.js";
 import { VehicleActorSheet } from "./sheets/actors/vehicle-sheet.js";
+import { AbilityItemSheet } from "./sheets/items/ability-sheet.js";
 import { TraitItemSheet } from "./sheets/items/trait-sheet.js";
 
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
@@ -42,6 +43,10 @@ Hooks.once("init", (): void => {
   });
 
   CONFIG.Item.documentClass = Dos100Item;
+  Items.registerSheet(game.system.id, AbilityItemSheet, {
+    types: ["ability"],
+    makeDefault: true,
+  });
   Items.registerSheet(game.system.id, TraitItemSheet, {
     types: ["trait"],
     makeDefault: true,

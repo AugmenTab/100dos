@@ -29,6 +29,7 @@
       "vehicle": {}
     },
     "Item": {
+      "ability": {},
       "trait": {}
     }
   },

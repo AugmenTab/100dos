@@ -6,6 +6,7 @@
       "vehicle": "Vehicle"
     },
     "Item": {
+      "ability": "Ability",
       "trait": "Trait"
     }
   },
