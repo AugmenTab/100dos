@@ -29,7 +29,7 @@
       "vehicle": {}
     },
     "Item": {
-      "equipment": {}
+      "trait": {}
     }
   },
   "socket": false,

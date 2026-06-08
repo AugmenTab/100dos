@@ -6,11 +6,11 @@ export class Dos100Item extends Item {
   override prepareDerivedData(): void {
     super.prepareDerivedData();
     switch (this.type) {
-      case "equipment":
-        this.#prepareEquipmentData();
+      case "trait":
+        this.#prepareTraitData();
         break;
     }
   }
 
-  #prepareEquipmentData(): void {}
+  #prepareTraitData(): void {}
 }

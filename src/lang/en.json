@@ -6,7 +6,7 @@
       "vehicle": "Vehicle"
     },
     "Item": {
-      "equipment": "Equipment"
+      "trait": "Trait"
     }
   },
   "DOS100": {
