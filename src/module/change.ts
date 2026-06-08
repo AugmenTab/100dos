@@ -1,11 +1,11 @@
 export type ChangeMode = "add" | "set";
 
-export interface ChangeSourceRef {
+export type ChangeSourceRef = {
   id: string;
   name: string;
-}
+};
 
-export interface ChangeData {
+export type ChangeData = {
   // Stable identity used when removing a change via the UI.
   id: string;
   enabled: boolean;
@@ -13,13 +13,18 @@ export interface ChangeData {
   mode: ChangeMode;
   formula: string;
   source: ChangeSourceRef;
-}
+};
 
-export interface ConditionalChangeData {
+export type ConditionalChangeData = {
   // Stable identity used when removing a change via the UI.
   id: string;
   enabled: boolean;
   target: string;
   value: string;
   source: ChangeSourceRef;
-}
+};
+
+export type Changes = {
+  computed: ChangeData[];
+  conditional: ConditionalChangeData[];
+};

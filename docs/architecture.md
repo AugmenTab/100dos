@@ -100,32 +100,43 @@ No external functional programming library is used.
 
 A change is a discrete modification applied to a derived stat during actor data preparation. Changes are stored on owned items; when an actor prepares its data it collects all changes from its embedded items and applies them.
 
+Items that grant changes carry a `Changes` container with two arrays:
+
 ```ts
-interface ChangeData {
+type Changes = {
+  computed: ChangeData[];
+  conditional: ConditionalChangeData[];
+};
+```
+
+`ChangeData` represents changes the system applies automatically during actor data preparation:
+
+```ts
+type ChangeData = {
   id: string;          // stable identity for UI operations such as removal
   enabled: boolean;
   target: string;      // semantic path to the stat being modified
   mode: ChangeMode;    // "add" | "set"
   formula: string;     // value or roll expression
   source: ChangeSourceRef;
-}
-
-interface ChangeSourceRef {
-  id: string;
-  name: string;
-}
+};
 ```
 
-A companion type, `ConditionalChangeData`, represents changes that apply only under conditions the system cannot evaluate programmatically. These are descriptive rather than computed — shown to the player as a reminder rather than applied automatically.
+`ConditionalChangeData` represents changes that apply only under conditions the system cannot evaluate programmatically. These are descriptive rather than computed — shown to the player as a reminder rather than applied automatically.
 
 ```ts
-interface ConditionalChangeData {
+type ConditionalChangeData = {
   id: string;
   enabled: boolean;
   target: string;
   value: string;  // freeform description, e.g. "+2 when attacking from elevation"
   source: ChangeSourceRef;
-}
+};
+
+type ChangeSourceRef = {
+  id: string;
+  name: string;
+};
 ```
 
 The model carries no bonus type or stacking category. There is no Pathfinder-style distinction between bonus types; whether two changes of the same mode stack is determined by the target and application logic, not the change itself.
