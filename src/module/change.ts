@@ -6,8 +6,7 @@ export type ChangeSourceRef = {
 };
 
 export type ChangeData = {
-  // Stable identity used when removing a change via the UI.
-  id: string;
+  readonly id: string;
   enabled: boolean;
   target: string;
   mode: ChangeMode;
@@ -16,8 +15,7 @@ export type ChangeData = {
 };
 
 export type ConditionalChangeData = {
-  // Stable identity used when removing a change via the UI.
-  id: string;
+  readonly id: string;
   enabled: boolean;
   target: string;
   value: string;
@@ -28,3 +26,33 @@ export type Changes = {
   computed: ChangeData[];
   conditional: ConditionalChangeData[];
 };
+
+export function changesField(): foundry.data.fields.SchemaField {
+  const { SchemaField, ArrayField, BooleanField, StringField } = foundry.data.fields;
+  const sourceSchema = () =>
+    new SchemaField({
+      id: new StringField({ required: true, initial: "" }),
+      name: new StringField({ required: true, initial: "" }),
+    });
+  return new SchemaField({
+    computed: new ArrayField(
+      new SchemaField({
+        id: new StringField({ required: true, initial: () => foundry.utils.randomID() }),
+        enabled: new BooleanField({ required: true, initial: true }),
+        target: new StringField({ required: true, initial: "" }),
+        mode: new StringField({ required: true, initial: "add" }),
+        formula: new StringField({ required: true, initial: "" }),
+        source: sourceSchema(),
+      }),
+    ),
+    conditional: new ArrayField(
+      new SchemaField({
+        id: new StringField({ required: true, initial: () => foundry.utils.randomID() }),
+        enabled: new BooleanField({ required: true, initial: true }),
+        target: new StringField({ required: true, initial: "" }),
+        value: new StringField({ required: true, initial: "" }),
+        source: sourceSchema(),
+      }),
+    ),
+  });
+}

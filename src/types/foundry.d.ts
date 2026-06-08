@@ -79,6 +79,9 @@ declare const Hooks: {
 };
 
 declare namespace foundry {
+  namespace utils {
+    function randomID(length?: number): string;
+  }
   namespace abstract {
     class TypeDataModel {
       static defineSchema(): Record<string, foundry.data.fields.DataField>;
@@ -100,10 +103,22 @@ declare namespace foundry {
       class StringField extends DataField {
         constructor(options?: {
           required?: boolean;
-          initial?: string;
+          initial?: string | (() => string);
           blank?: boolean;
           nullable?: boolean;
         });
+      }
+      class BooleanField extends DataField {
+        constructor(options?: { required?: boolean; initial?: boolean });
+      }
+      class ArrayField extends DataField {
+        constructor(element: DataField, options?: { required?: boolean; initial?: unknown[] });
+      }
+      class SchemaField extends DataField {
+        constructor(
+          fields: Record<string, DataField>,
+          options?: { required?: boolean },
+        );
       }
     }
   }
