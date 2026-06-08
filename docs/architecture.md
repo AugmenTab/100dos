@@ -116,6 +116,18 @@ interface ChangeSourceRef {
 }
 ```
 
+A companion type, `ConditionalChangeData`, represents changes that apply only under conditions the system cannot evaluate programmatically. These are descriptive rather than computed — shown to the player as a reminder rather than applied automatically.
+
+```ts
+interface ConditionalChangeData {
+  id: string;
+  enabled: boolean;
+  target: string;
+  value: string;  // freeform description, e.g. "+2 when attacking from elevation"
+  source: ChangeSourceRef;
+}
+```
+
 The model carries no bonus type or stacking category. There is no Pathfinder-style distinction between bonus types; whether two changes of the same mode stack is determined by the target and application logic, not the change itself.
 
 ---

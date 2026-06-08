@@ -14,3 +14,12 @@ export interface ChangeData {
   formula: string;
   source: ChangeSourceRef;
 }
+
+export interface ConditionalChangeData {
+  // Stable identity used when removing a change via the UI.
+  id: string;
+  enabled: boolean;
+  target: string;
+  value: string;
+  source: ChangeSourceRef;
+}
