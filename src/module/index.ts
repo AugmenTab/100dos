@@ -7,6 +7,7 @@ import { VehicleActorSheet } from "./sheets/actors/vehicle-sheet.js";
 import { AbilityItemSheet } from "./sheets/items/ability-sheet.js";
 import { TraitItemSheet } from "./sheets/items/trait-sheet.js";
 import { AbilityDataModel } from "./items/ability.js";
+import { TraitDataModel } from "./items/trait.js";
 
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
 interface Dos100System {
@@ -45,6 +46,7 @@ Hooks.once("init", (): void => {
 
   CONFIG.Item.documentClass = Dos100Item;
   CONFIG.Item.dataModels["ability"] = AbilityDataModel;
+  CONFIG.Item.dataModels["trait"] = TraitDataModel;
   Items.registerSheet(game.system.id, AbilityItemSheet, {
     types: ["ability"],
     makeDefault: true,
