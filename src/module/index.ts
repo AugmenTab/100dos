@@ -31,15 +31,15 @@ Hooks.once("init", (): void => {
   });
 
   CONFIG.Actor.documentClass = Dos100Actor;
-  Actors.registerSheet(game.system.id, PcActorSheet, {
+  foundry.documents.collections.Actors.registerSheet(game.system.id, PcActorSheet, {
     types: ["pc"],
     makeDefault: true,
   });
-  Actors.registerSheet(game.system.id, NpcActorSheet, {
+  foundry.documents.collections.Actors.registerSheet(game.system.id, NpcActorSheet, {
     types: ["npc"],
     makeDefault: true,
   });
-  Actors.registerSheet(game.system.id, VehicleActorSheet, {
+  foundry.documents.collections.Actors.registerSheet(game.system.id, VehicleActorSheet, {
     types: ["vehicle"],
     makeDefault: true,
   });
@@ -47,11 +47,11 @@ Hooks.once("init", (): void => {
   CONFIG.Item.documentClass = Dos100Item;
   CONFIG.Item.dataModels["ability"] = AbilityDataModel;
   CONFIG.Item.dataModels["trait"] = TraitDataModel;
-  Items.registerSheet(game.system.id, AbilityItemSheet, {
+  foundry.documents.collections.Items.registerSheet(game.system.id, AbilityItemSheet, {
     types: ["ability"],
     makeDefault: true,
   });
-  Items.registerSheet(game.system.id, TraitItemSheet, {
+  foundry.documents.collections.Items.registerSheet(game.system.id, TraitItemSheet, {
     types: ["trait"],
     makeDefault: true,
   });

@@ -54,21 +54,6 @@ declare const CONFIG: {
   };
 };
 
-declare const Actors: {
-  registerSheet(
-    scope: string,
-    sheetClass: new (...args: unknown[]) => unknown,
-    options?: SheetRegistrationOptions,
-  ): void;
-};
-
-declare const Items: {
-  registerSheet(
-    scope: string,
-    sheetClass: new (...args: unknown[]) => unknown,
-    options?: SheetRegistrationOptions,
-  ): void;
-};
 
 declare const Hooks: {
   once(hook: string, fn: (...args: unknown[]) => void): number;
@@ -119,6 +104,24 @@ declare namespace foundry {
           fields: Record<string, DataField>,
           options?: { required?: boolean },
         );
+      }
+    }
+  }
+  namespace documents {
+    namespace collections {
+      class Actors {
+        static registerSheet(
+          scope: string,
+          sheetClass: new (...args: unknown[]) => unknown,
+          options?: SheetRegistrationOptions,
+        ): void;
+      }
+      class Items {
+        static registerSheet(
+          scope: string,
+          sheetClass: new (...args: unknown[]) => unknown,
+          options?: SheetRegistrationOptions,
+        ): void;
       }
     }
   }
