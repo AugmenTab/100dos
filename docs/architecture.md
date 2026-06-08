@@ -96,6 +96,30 @@ No external functional programming library is used.
 
 ---
 
+## Change data model
+
+A change is a discrete modification applied to a derived stat during actor data preparation. Changes are stored on owned items; when an actor prepares its data it collects all changes from its embedded items and applies them.
+
+```ts
+interface ChangeData {
+  id: string;          // stable identity for UI operations such as removal
+  enabled: boolean;
+  target: string;      // semantic path to the stat being modified
+  mode: ChangeMode;    // "add" | "set"
+  formula: string;     // value or roll expression
+  source: ChangeSourceRef;
+}
+
+interface ChangeSourceRef {
+  id: string;
+  name: string;
+}
+```
+
+The model carries no bonus type or stacking category. There is no Pathfinder-style distinction between bonus types; whether two changes of the same mode stack is determined by the target and application logic, not the change itself.
+
+---
+
 ## Character creation wizard is post-MVP
 
 No interactive character creation flow is planned during skeleton or initial sheet development. Characters are created by filling in sheet fields directly. A guided wizard may be added after the core sheet and data model are stable.
