@@ -143,6 +143,18 @@ The model carries no bonus type or stacking category. There is no Pathfinder-sty
 
 ---
 
+## Testing
+
+The project uses two complementary testing strategies.
+
+**Vitest** covers pure TypeScript modules — code with no Foundry dependency. Tests live alongside the modules they cover as `*.test.ts` files and run inside the dev container via `./scripts/test`. They are also run as part of `./scripts/build`, so they are enforced on every build. Any new pure-logic module must have a corresponding test file that covers all exported functions and their edge cases.
+
+**Quench** (sc-00146) will cover Foundry-integrated behavior — document initialization, data model defaults, and sheet interactions. These tests require a running Foundry instance and are registered from within the system code, gated behind the `debugMode` setting.
+
+**Rule:** whenever a new data type or utility module is added to `src/module/`, a test file must be added alongside it before the story is considered complete. The test must cover every field default (for data models) or every exported function (for utility modules).
+
+---
+
 ## Character creation wizard is post-MVP
 
 No interactive character creation flow is planned during skeleton or initial sheet development. Characters are created by filling in sheet fields directly. A guided wizard may be added after the core sheet and data model are stable.
