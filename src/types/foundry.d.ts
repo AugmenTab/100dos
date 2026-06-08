@@ -40,6 +40,7 @@ declare class Actor {
 declare class Item {
   readonly type: string;
   readonly name: string;
+  readonly system: object;
   prepareData(): void;
   prepareBaseData(): void;
   prepareDerivedData(): void;
@@ -47,7 +48,10 @@ declare class Item {
 
 declare const CONFIG: {
   Actor: { documentClass: typeof Actor };
-  Item: { documentClass: typeof Item };
+  Item: {
+    documentClass: typeof Item;
+    dataModels: Record<string, typeof foundry.abstract.TypeDataModel>;
+  };
 };
 
 declare const Actors: {
@@ -75,6 +79,34 @@ declare const Hooks: {
 };
 
 declare namespace foundry {
+  namespace abstract {
+    class TypeDataModel {
+      static defineSchema(): Record<string, foundry.data.fields.DataField>;
+    }
+  }
+  namespace data {
+    namespace fields {
+      class DataField {}
+      class NumberField extends DataField {
+        constructor(options?: {
+          required?: boolean;
+          initial?: number;
+          integer?: boolean;
+          min?: number;
+          max?: number;
+          nullable?: boolean;
+        });
+      }
+      class StringField extends DataField {
+        constructor(options?: {
+          required?: boolean;
+          initial?: string;
+          blank?: boolean;
+          nullable?: boolean;
+        });
+      }
+    }
+  }
   namespace applications {
     namespace api {
       class ApplicationV2 {

@@ -6,6 +6,7 @@ import { NpcActorSheet } from "./sheets/actors/npc-sheet.js";
 import { VehicleActorSheet } from "./sheets/actors/vehicle-sheet.js";
 import { AbilityItemSheet } from "./sheets/items/ability-sheet.js";
 import { TraitItemSheet } from "./sheets/items/trait-sheet.js";
+import { AbilityDataModel } from "./items/ability.js";
 
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
 interface Dos100System {
@@ -43,6 +44,7 @@ Hooks.once("init", (): void => {
   });
 
   CONFIG.Item.documentClass = Dos100Item;
+  CONFIG.Item.dataModels["ability"] = AbilityDataModel;
   Items.registerSheet(game.system.id, AbilityItemSheet, {
     types: ["ability"],
     makeDefault: true,
