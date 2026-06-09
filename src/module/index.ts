@@ -67,3 +67,26 @@ Hooks.once("setup", (): void => {
 Hooks.once("ready", (): void => {
   debug("Ready");
 });
+
+// Recharge per-encounter ability uses at both combat start and combat end,
+// so abilities are always fresh entering a fight and restored after one ends.
+// GM-only to avoid simultaneous updates from multiple connected clients.
+async function rechargeEncounterUses(combat: Combat): Promise<void> {
+  if (!game.user?.isGM) return;
+  for (const combatant of combat.combatants) {
+    if (!combatant.actor) continue;
+    for (const item of combatant.actor.items) {
+      if (item.type === "ability") {
+        await (item as Dos100Item).rechargeActions("encounter");
+      }
+    }
+  }
+}
+
+Hooks.on("combatStart", (combat: unknown): void => {
+  void rechargeEncounterUses(combat as Combat);
+});
+
+Hooks.on("deleteCombat", (combat: unknown): void => {
+  void rechargeEncounterUses(combat as Combat);
+});

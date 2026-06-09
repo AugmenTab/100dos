@@ -1,4 +1,5 @@
 import { type Changes, changesField } from "../change.js";
+import { type Actions, actionsField } from "./action.js";
 
 const { NumberField, StringField } = foundry.data.fields;
 
@@ -8,6 +9,7 @@ export type AbilityData = {
   summary: string;
   description: string;
   changes: Changes;
+  actions: Actions;
 };
 
 export class AbilityDataModel extends foundry.abstract.TypeDataModel {
@@ -18,6 +20,7 @@ export class AbilityDataModel extends foundry.abstract.TypeDataModel {
       summary: new StringField({ required: true, initial: "" }),
       description: new StringField({ required: true, initial: "" }),
       changes: changesField(),
+      actions: actionsField(),
     };
   }
 }

@@ -22,6 +22,33 @@
         "name": "Debug Mode",
         "hint": "Enable debug logging for the 100DOS system."
       }
+    },
+    "action": {
+      "activation": {
+        "types": {
+          "passive": "Passive",
+          "free": "Free Action",
+          "half": "Half Action",
+          "full": "Full Action",
+          "reaction": "Reaction",
+          "attack": "Attack",
+          "turn": "Turn",
+          "minute": "Minute",
+          "hour": "Hour",
+          "special": "Special"
+        }
+      },
+      "uses": {
+        "exhausted": "{name}: No uses remaining.",
+        "periods": {
+          "unlimited": "Unlimited",
+          "encounter": "Per Encounter",
+          "day": "Per Day",
+          "minute": "Per Minute",
+          "hour": "Per Hour",
+          "charges": "Charges"
+        }
+      }
     }
   }
 }

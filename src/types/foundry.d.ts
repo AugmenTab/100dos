@@ -5,6 +5,11 @@
 interface Game {
   settings: ClientSettings;
   system: { id: string };
+  i18n: {
+    localize(key: string): string;
+    format(key: string, data?: Record<string, string>): string;
+  };
+  user?: { isGM: boolean };
 }
 
 interface ClientSettings {
@@ -23,6 +28,22 @@ interface SettingConfig {
 
 declare const game: Game;
 
+declare const ui: {
+  notifications?: {
+    warn(message: string): void;
+    error(message: string): void;
+    info(message: string): void;
+  };
+};
+
+declare class Combatant {
+  actor: Actor | null;
+}
+
+declare class Combat {
+  combatants: Iterable<Combatant>;
+}
+
 interface SheetRegistrationOptions {
   types?: string[];
   makeDefault?: boolean;
@@ -32,6 +53,7 @@ interface SheetRegistrationOptions {
 declare class Actor {
   readonly type: string;
   readonly name: string;
+  readonly items: Iterable<Item>;
   prepareData(): void;
   prepareBaseData(): void;
   prepareDerivedData(): void;
@@ -44,6 +66,7 @@ declare class Item {
   prepareData(): void;
   prepareBaseData(): void;
   prepareDerivedData(): void;
+  update(data: Record<string, unknown>): Promise<unknown>;
 }
 
 declare const CONFIG: {
@@ -104,6 +127,9 @@ declare namespace foundry {
           fields: Record<string, DataField>,
           options?: { required?: boolean },
         );
+      }
+      class ObjectField extends DataField {
+        constructor(options?: { required?: boolean; initial?: object });
       }
     }
   }
