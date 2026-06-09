@@ -149,7 +149,7 @@ The project uses two complementary testing strategies.
 
 **Vitest** covers pure TypeScript modules — code with no Foundry dependency. Tests live alongside the modules they cover as `*.test.ts` files and run inside the dev container via `./scripts/test`. They are also run as part of `./scripts/build`, so they are enforced on every build. Any new pure-logic module must have a corresponding test file that covers all exported functions and their edge cases.
 
-**Quench** (sc-00146) will cover Foundry-integrated behavior — document initialization, data model defaults, and sheet interactions. These tests require a running Foundry instance and are registered from within the system code, gated behind the `debugMode` setting.
+Foundry-integrated behavior (document initialization, data model defaults, sheet interactions) is not currently covered by automated tests — it requires a running Foundry instance and a browser context. Full UI automation via Playwright or a similar headless driver is tracked in sc-00146 and deferred for now.
 
 **Rule:** whenever a new data type or utility module is added to `src/module/`, a test file must be added alongside it before the story is considered complete. The test must cover every field default (for data models) or every exported function (for utility modules).
 
