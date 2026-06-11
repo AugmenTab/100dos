@@ -18,6 +18,26 @@ export type UsagePeriod =
   | "hour"
   | "charges";
 
+export type ActionsPoolUses = {
+  per: UsagePeriod;
+  value: number;
+  max: number;
+  formula: {
+    max: string;
+  };
+};
+
+export type ActionUses = {
+  per: UsagePeriod;
+  value: number;
+  max: number;
+  cost: number;
+  formula: {
+    max: string;
+    cost: string;
+  };
+};
+
 export type ActionData = {
   readonly id: string;
   name: string;
@@ -25,14 +45,13 @@ export type ActionData = {
     type: ActivationType;
     cost: number | null;
   };
-  uses: {
-    per: UsagePeriod;
-    value: number;
-    max: number;
-  };
+  uses: ActionUses;
 };
 
-export type Actions = Record<string, ActionData>;
+export type Actions = {
+  uses: ActionsPoolUses;
+  items: Record<string, ActionData>;
+};
 
 // Activation types for which the cost field is meaningless and hidden in the UI.
 export const COST_HIDDEN_TYPES = new Set<ActivationType>(["passive", "free", "reaction"]);
@@ -92,6 +111,17 @@ export function shouldRecharge(
   return triggerRank >= actionRank;
 }
 
-export function actionsField(): foundry.data.fields.ObjectField {
-  return new foundry.data.fields.ObjectField({ required: true, initial: {} });
+export function actionsField(): foundry.data.fields.SchemaField {
+  const { SchemaField, ObjectField, NumberField, StringField } = foundry.data.fields;
+  return new SchemaField({
+    uses: new SchemaField({
+      per: new StringField({ required: true, initial: "unlimited" }),
+      value: new NumberField({ required: true, initial: 0, integer: true, min: 0 }),
+      max: new NumberField({ required: true, initial: 0, integer: true, min: 0 }),
+      formula: new SchemaField({
+        max: new StringField({ required: true, initial: "" }),
+      }),
+    }),
+    items: new ObjectField({ required: true, initial: {} }),
+  });
 }

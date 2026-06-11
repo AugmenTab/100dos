@@ -40,6 +40,7 @@
       },
       "uses": {
         "exhausted": "{name}: No uses remaining.",
+        "invalidCost": "{name}: Action has an invalid negative cost and cannot be used.",
         "periods": {
           "unlimited": "Unlimited",
           "encounter": "Per Encounter",
