@@ -9,7 +9,7 @@ interface Game {
     localize(key: string): string;
     format(key: string, data?: Record<string, string>): string;
   };
-  user?: { isGM: boolean };
+  user?: { id: string; isGM: boolean };
 }
 
 interface ClientSettings {
@@ -50,23 +50,35 @@ interface SheetRegistrationOptions {
   label?: string;
 }
 
+interface Collection<T> extends Iterable<T> {
+  get(id: string): T | undefined;
+}
+
 declare class Actor {
   readonly type: string;
   readonly name: string;
-  readonly items: Iterable<Item>;
+  readonly items: Collection<Item>;
   prepareData(): void;
   prepareBaseData(): void;
   prepareDerivedData(): void;
+  createEmbeddedDocuments(type: string, data: object[]): Promise<Item[]>;
+  deleteEmbeddedDocuments(type: string, ids: string[]): Promise<Item[]>;
 }
 
 declare class Item {
+  readonly id: string;
   readonly type: string;
   readonly name: string;
   readonly system: object;
+  readonly actor: Actor | null;
   prepareData(): void;
   prepareBaseData(): void;
   prepareDerivedData(): void;
   update(data: Record<string, unknown>): Promise<unknown>;
+  getFlag(scope: string, key: string): unknown;
+  setFlag(scope: string, key: string, value: unknown): Promise<this>;
+  protected _onCreate(data: object, options: object, userId: string): void;
+  protected _onDelete(options: object, userId: string): void;
 }
 
 declare const CONFIG: {

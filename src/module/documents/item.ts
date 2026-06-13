@@ -1,4 +1,5 @@
 import { type AbilityData } from "../items/ability.js";
+import { type GrantData } from "../items/grants.js";
 import { type UsagePeriod, shouldRecharge } from "../items/action.js";
 
 export class Dos100Item extends Item {
@@ -20,6 +21,51 @@ export class Dos100Item extends Item {
 
   protected _prepareAbilityData(): void {}
   protected _prepareTraitData(): void {}
+
+  get grantedItems(): Dos100Item[] {
+    const ids = this.getFlag(game.system.id, "grantedItemIds") as string[] | undefined;
+    if (!ids?.length || !this.actor) return [];
+    return ids.flatMap(id => {
+      const item = this.actor!.items.get(id);
+      return item ? [item as Dos100Item] : [];
+    });
+  }
+
+  get grantingItem(): Dos100Item | null {
+    const id = this.getFlag(game.system.id, "grantedBy") as string | undefined;
+    if (!id || !this.actor) return null;
+    return (this.actor.items.get(id) as Dos100Item) ?? null;
+  }
+
+  protected override _onCreate(data: object, options: object, userId: string): void {
+    super._onCreate(data, options, userId);
+    if (game.user?.id !== userId || !this.actor) return;
+    const grants = (this.system as { grants?: GrantData[] }).grants;
+    if (!grants?.length) return;
+    void this._createGrants(grants);
+  }
+
+  protected override _onDelete(options: object, userId: string): void {
+    if (game.user?.id === userId && this.actor) {
+      const ids = this.getFlag(game.system.id, "grantedItemIds") as string[] | undefined;
+      if (ids?.length) void this.actor.deleteEmbeddedDocuments("Item", ids);
+    }
+    super._onDelete(options, userId);
+  }
+
+  private async _createGrants(grants: GrantData[]): Promise<void> {
+    if (!this.actor) return;
+    const created = await this.actor.createEmbeddedDocuments(
+      "Item",
+      grants.map(g => ({
+        name: g.name,
+        type: g.type,
+        system: g.system,
+        flags: { [game.system.id]: { grantedBy: this.id } },
+      })),
+    );
+    await this.setFlag(game.system.id, "grantedItemIds", created.map(i => i.id));
+  }
 
   /**
    * Triggers the named action on this ability, decrementing its uses if
