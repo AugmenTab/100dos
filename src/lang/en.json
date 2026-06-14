@@ -7,6 +7,7 @@
     },
     "Item": {
       "ability": "Ability",
+      "effect": "Effect",
       "trait": "Trait"
     }
   },
@@ -21,6 +22,19 @@
       "debugMode": {
         "name": "Debug Mode",
         "hint": "Enable debug logging for the 100DOS system."
+      }
+    },
+    "effect": {
+      "duration": {
+        "units": {
+          "round": "Round",
+          "minute": "Minute",
+          "hour": "Hour"
+        }
+      },
+      "stackingRule": {
+        "replace": "Replace",
+        "extend": "Extend"
       }
     },
     "action": {

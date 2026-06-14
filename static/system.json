@@ -30,6 +30,7 @@
     },
     "Item": {
       "ability": {},
+      "effect": {},
       "trait": {}
     }
   },

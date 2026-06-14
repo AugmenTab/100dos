@@ -5,8 +5,10 @@ import { PcActorSheet } from "./sheets/actors/pc-sheet.js";
 import { NpcActorSheet } from "./sheets/actors/npc-sheet.js";
 import { VehicleActorSheet } from "./sheets/actors/vehicle-sheet.js";
 import { AbilityItemSheet } from "./sheets/items/ability-sheet.js";
+import { EffectItemSheet } from "./sheets/items/effect-sheet.js";
 import { TraitItemSheet } from "./sheets/items/trait-sheet.js";
 import { AbilityDataModel } from "./items/ability.js";
+import { EffectDataModel } from "./items/effect.js";
 import { TraitDataModel } from "./items/trait.js";
 
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
@@ -46,9 +48,14 @@ Hooks.once("init", (): void => {
 
   CONFIG.Item.documentClass = Dos100Item;
   CONFIG.Item.dataModels["ability"] = AbilityDataModel;
+  CONFIG.Item.dataModels["effect"] = EffectDataModel;
   CONFIG.Item.dataModels["trait"] = TraitDataModel;
   foundry.documents.collections.Items.registerSheet(game.system.id, AbilityItemSheet, {
     types: ["ability"],
+    makeDefault: true,
+  });
+  foundry.documents.collections.Items.registerSheet(game.system.id, EffectItemSheet, {
+    types: ["effect"],
     makeDefault: true,
   });
   foundry.documents.collections.Items.registerSheet(game.system.id, TraitItemSheet, {
