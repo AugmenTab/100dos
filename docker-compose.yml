@@ -23,5 +23,35 @@ services:
       - node_modules:/workspace/node_modules
     profiles: [dev]
 
+  foundry-test:
+    image: felddy/foundryvtt:release
+    hostname: foundry-test
+    init: true
+    restart: "no"
+    volumes:
+      - ./foundrytestdata:/data
+      - ./dist:/data/Data/systems/100dos
+    env_file: .env
+    ports:
+      - "30001:30000"
+    user: "0"
+    environment:
+      CONTAINER_PRESERVE_CONFIG: "true"
+      FOUNDRY_ACCEPT_EULA: "true"
+    profiles: [test]
+
+  e2e:
+    image: mcr.microsoft.com/playwright:v1.62.0-noble
+    hostname: e2e
+    working_dir: /workspace
+    volumes:
+      - .:/workspace
+      - e2e_node_modules:/workspace/node_modules
+    env_file: .env
+    environment:
+      PLAYWRIGHT_BASE_URL: http://foundry-test:30000
+    profiles: [test]
+
 volumes:
   node_modules:
+  e2e_node_modules:
