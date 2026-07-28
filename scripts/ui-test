@@ -1,0 +1,29 @@
+#!/usr/bin/env sh
+set -eu
+
+if [ ! -f .env ]; then
+  echo "Missing .env — copy .env.example to .env and fill in Foundry credentials." >&2
+  exit 1
+fi
+
+BASE_URL="http://foundry-test:30000"
+EXIT_CODE=0
+
+cleanup() {
+  docker compose --profile test stop foundry-test >/dev/null 2>&1 || true
+}
+trap cleanup EXIT INT TERM
+
+echo "==> Building the 100dos system"
+docker compose run --rm dev sh -c "npm install && npm run build"
+
+echo "==> Starting dedicated test Foundry instance"
+docker compose --profile test up -d foundry-test
+
+echo "==> Waiting for foundry-test to become responsive"
+docker compose run --rm e2e node test/e2e/support/wait-for-ready.ts "$BASE_URL"
+
+echo "==> Running Playwright suite"
+docker compose run --rm e2e sh -c "npm install && npx playwright test" || EXIT_CODE=$?
+
+exit "$EXIT_CODE"
