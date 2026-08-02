@@ -14,13 +14,25 @@ Run:
 scripts/ui-test
 ```
 
-This drives the real Foundry UI (see `test/e2e/system-smoke.spec.ts`) and proves:
+This drives the real Foundry UI (see `test/e2e/system-smoke.spec.ts` and
+`test/e2e/pc-sheet-navigation.spec.ts`) and proves:
 
 - A PC Actor's name can be changed through its rendered sheet, persists after
   closing and reopening the sheet, and matches the underlying Actor document.
 - An embedded Ability Item's name can be changed through its rendered sheet,
   persists after closing and reopening the sheet, matches the underlying
   Item document, and the embedded Ability can be removed cleanly.
+- The PC sheet's primary navigation (Dashboard, Record, Combat, Medical,
+  Inventory, Features, Skills, Spells, Effects, Settings) and Record's nested
+  secondary navigation (Basics, XP, Finances, Biography) render in the
+  required order, switch correctly, and expose the expected tab semantics.
+- Record remembers its most recently selected secondary tab across primary
+  navigation and across a forced rerender of the open sheet.
+- Both tab levels are operable by keyboard (Arrow/Home/End focus movement,
+  Enter/Space activation, independent primary/Record tablists).
+- Primary and Record navigation remain usable — without clipped or
+  overlapping controls — at representative wide, medium, and narrow sheet
+  widths.
 
 It also fails on uncaught browser page errors, `100DOS`-originated console
 errors, and failed requests for `/systems/100dos/` assets, and retains a

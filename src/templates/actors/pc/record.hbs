@@ -1,0 +1,37 @@
+<section
+  class="tab{{#if tabs.primary.record.active}} active{{/if}}"
+  data-group="primary"
+  data-tab="record"
+  role="tabpanel"
+  id="{{sheetId}}-primary-panel-record"
+  aria-labelledby="{{sheetId}}-primary-tab-record"
+>
+  <nav
+    class="tabs record-tabs"
+    data-group="record"
+    role="tablist"
+    aria-label="{{localize 'DOS100.pc.nav.recordLabel'}}"
+  >
+    {{#each tabs.record}}
+      <button
+        type="button"
+        class="tab-control {{cssClass}}"
+        data-action="tab"
+        data-group="record"
+        data-tab="{{id}}"
+        role="tab"
+        id="{{../sheetId}}-record-tab-{{id}}"
+        aria-selected="{{active}}"
+        aria-controls="{{../sheetId}}-record-panel-{{id}}"
+        tabindex="{{#if active}}0{{else}}-1{{/if}}"
+      >{{localize label}}</button>
+    {{/each}}
+  </nav>
+
+  <div class="record-tab-content">
+    {{> "systems/100dos/templates/actors/pc/record/basics.hbs"}}
+    {{> "systems/100dos/templates/actors/pc/record/xp.hbs"}}
+    {{> "systems/100dos/templates/actors/pc/record/finances.hbs"}}
+    {{> "systems/100dos/templates/actors/pc/record/biography.hbs"}}
+  </div>
+</section>

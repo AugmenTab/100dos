@@ -37,6 +37,30 @@
         "extend": "Extend"
       }
     },
+    "pc": {
+      "nav": {
+        "primaryLabel": "Character navigation",
+        "recordLabel": "Record navigation",
+        "primary": {
+          "dashboard": "Dashboard",
+          "record": "Record",
+          "combat": "Combat",
+          "medical": "Medical",
+          "inventory": "Inventory",
+          "features": "Features",
+          "skills": "Skills",
+          "spells": "Spells",
+          "effects": "Effects",
+          "settings": "Settings"
+        },
+        "record": {
+          "basics": "Basics",
+          "xp": "XP",
+          "finances": "Finances",
+          "biography": "Biography"
+        }
+      }
+    },
     "action": {
       "activation": {
         "types": {

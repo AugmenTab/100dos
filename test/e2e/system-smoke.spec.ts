@@ -4,18 +4,24 @@ import { ensureGameView } from "./support/foundry-session.js";
 import { getActorSnapshot, getItemSnapshot } from "./support/state.js";
 import { type Page } from "@playwright/test";
 
-async function openActorSheet(page: Page, actorId: string): Promise<void> {
+async function openActorSheet(page: Page, actorId: string): Promise<string> {
   await page.locator('[data-action="tab"][data-tab="actors"]').click();
   await page
     .locator(
       `#actors li[data-entry-id="${actorId}"] a[data-action="activateEntry"]`,
     )
     .click();
-  await page.locator(`#S-Actor-${actorId}`).waitFor();
+  const sheetId = await page.evaluate((actorId) => {
+    const actor = game.actors.get(actorId);
+    if (!actor) throw new Error(`Fixture actor ${actorId} not found.`);
+    return actor.sheet.id;
+  }, actorId);
+  await page.locator(`#${sheetId}`).waitFor();
+  return sheetId;
 }
 
-async function closeActorSheet(page: Page, actorId: string): Promise<void> {
-  const sheet = page.locator(`#S-Actor-${actorId}`);
+async function closeActorSheet(page: Page, sheetId: string): Promise<void> {
+  const sheet = page.locator(`#${sheetId}`);
   await sheet.locator('[data-action="close"]').click();
   await sheet.waitFor({ state: "detached" });
 }
@@ -48,8 +54,8 @@ test.beforeEach(async ({ page, baseURL }) => {
 test("PC name persists through the sheet", async ({ page }) => {
   const { actorId } = await resetFixtures(page);
 
-  await openActorSheet(page, actorId);
-  const nameInput = page.locator(`#S-Actor-${actorId} input[name="name"]`);
+  let sheetId = await openActorSheet(page, actorId);
+  const nameInput = page.locator(`#${sheetId} input[name="name"]`);
   await nameInput.fill("[E2E] PC Renamed");
   await nameInput.blur();
 
@@ -57,17 +63,17 @@ test("PC name persists through the sheet", async ({ page }) => {
     .poll(async () => (await getActorSnapshot(page, actorId)).name)
     .toBe("[E2E] PC Renamed");
 
-  await closeActorSheet(page, actorId);
-  await openActorSheet(page, actorId);
+  await closeActorSheet(page, sheetId);
+  sheetId = await openActorSheet(page, actorId);
 
   await expect(
-    page.locator(`#S-Actor-${actorId} input[name="name"]`),
+    page.locator(`#${sheetId} input[name="name"]`),
   ).toHaveValue("[E2E] PC Renamed");
 
   const snapshot = await getActorSnapshot(page, actorId);
   expect(snapshot.name).toBe("[E2E] PC Renamed");
 
-  await closeActorSheet(page, actorId);
+  await closeActorSheet(page, sheetId);
 });
 
 test("embedded Ability sheet persists and cleans up", async ({ page }) => {

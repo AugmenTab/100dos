@@ -50,6 +50,28 @@ interface SheetRegistrationOptions {
   label?: string;
 }
 
+interface ApplicationTabConfig {
+  id: string;
+  label?: string;
+  icon?: string;
+  cssClass?: string;
+}
+
+interface ApplicationTabsConfiguration {
+  tabs: ApplicationTabConfig[];
+  initial?: string;
+  labelPrefix?: string;
+}
+
+interface ApplicationTab {
+  id: string;
+  group: string;
+  active: boolean;
+  cssClass?: string;
+  label?: string;
+  icon?: string;
+}
+
 interface Collection<T> extends Iterable<T> {
   get(id: string): T | undefined;
 }
@@ -168,12 +190,35 @@ declare namespace foundry {
       class ApplicationV2 {
         static DEFAULT_OPTIONS: Record<string, unknown>;
         static PARTS: Record<string, { template: string }>;
+        static TABS: Record<string, ApplicationTabsConfiguration>;
+        get id(): string;
+        get element(): HTMLElement;
+        tabGroups: Record<string, string | null>;
+        _prepareTabs(group: string): Record<string, ApplicationTab>;
+        _getTabsConfig(group: string): ApplicationTabsConfiguration | null;
+        changeTab(
+          tab: string,
+          group: string,
+          options?: {
+            event?: Event;
+            navElement?: HTMLElement;
+            force?: boolean;
+            updatePosition?: boolean;
+          },
+        ): void;
+        _onClickTab(event: PointerEvent): void;
+        _onFirstRender(context: Record<string, unknown>, options: Record<string, unknown>): Promise<void>;
       }
       // Provides _renderHTML and _replaceHTML via PARTS-based Handlebars rendering.
       // Typed as identity (returns T) so that extends expressions remain simple.
       function HandlebarsApplicationMixin<
         T extends new (...args: unknown[]) => ApplicationV2,
       >(Base: T): T;
+    }
+    namespace handlebars {
+      // Fetches and registers each path as a Handlebars partial (keyed by
+      // its own path), so it can be referenced elsewhere via {{> "path"}}.
+      function loadTemplates(paths: string[]): Promise<unknown[]>;
     }
     namespace sheets {
       class ActorSheetV2 extends api.ApplicationV2 {

@@ -15,6 +15,7 @@ interface E2EActorDocument {
   readonly id: string;
   readonly name: string;
   readonly type: string;
+  readonly sheet: { id: string; render(force?: boolean): Promise<unknown> };
   readonly items: {
     get(id: string): E2EItemDocument | undefined;
     map<T>(fn: (item: E2EItemDocument) => T): T[];
@@ -47,4 +48,16 @@ declare const game: {
 
 declare const ui: {
   notifications: { clear(): void };
+};
+
+interface E2EApplication {
+  setPosition(position: { width?: number; height?: number }): void;
+}
+
+declare const foundry: {
+  applications: {
+    instances: {
+      get(id: string): E2EApplication | undefined;
+    };
+  };
 };
