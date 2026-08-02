@@ -14,6 +14,7 @@ services:
     environment:
       CONTAINER_PRESERVE_CONFIG: "true"
       FOUNDRY_ACCEPT_EULA: "true"
+      FOUNDRY_VERSION: "14.365"
 
   dev:
     image: node:22
@@ -38,6 +39,7 @@ services:
     environment:
       CONTAINER_PRESERVE_CONFIG: "true"
       FOUNDRY_ACCEPT_EULA: "true"
+      FOUNDRY_VERSION: "14.365"
     profiles: [test]
 
   e2e:
