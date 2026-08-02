@@ -23,6 +23,23 @@ declare global {
 }
 
 Hooks.once("init", (): void => {
+  void foundry.applications.handlebars.loadTemplates([
+    "systems/100dos/templates/actors/pc/dashboard.hbs",
+    "systems/100dos/templates/actors/pc/record.hbs",
+    "systems/100dos/templates/actors/pc/record/basics.hbs",
+    "systems/100dos/templates/actors/pc/record/xp.hbs",
+    "systems/100dos/templates/actors/pc/record/finances.hbs",
+    "systems/100dos/templates/actors/pc/record/biography.hbs",
+    "systems/100dos/templates/actors/pc/combat.hbs",
+    "systems/100dos/templates/actors/pc/medical.hbs",
+    "systems/100dos/templates/actors/pc/inventory.hbs",
+    "systems/100dos/templates/actors/pc/features.hbs",
+    "systems/100dos/templates/actors/pc/skills.hbs",
+    "systems/100dos/templates/actors/pc/spells.hbs",
+    "systems/100dos/templates/actors/pc/effects.hbs",
+    "systems/100dos/templates/actors/pc/settings.hbs",
+  ]);
+
   game.settings.register(game.system.id, "debugMode", {
     name: "DOS100.setting.debugMode.name",
     hint: "DOS100.setting.debugMode.hint",
