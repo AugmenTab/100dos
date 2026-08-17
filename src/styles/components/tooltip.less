@@ -13,21 +13,23 @@
    #tooltip popover element — which lives outside this sheet's DOM entirely,
    so these rules cannot be scoped under .pc-sheet-body. */
 
-#tooltip .dos100-tooltip {
-  display: flex;
-  flex-direction: column;
-  font-family: monospace;
-}
+#tooltip {
+  .dos100-tooltip {
+    display: flex;
+    flex-direction: column;
+    font-family: monospace;
+  }
 
-#tooltip .dos100-tooltip-header,
-#tooltip .dos100-tooltip-row {
-  display: flex;
-  justify-content: space-between;
-  gap: 1rem;
-}
+  .dos100-tooltip-header,
+  .dos100-tooltip-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+  }
 
-#tooltip .dos100-tooltip-header {
-  font-weight: bold;
-  border-bottom: 1px solid currentColor;
-  margin-bottom: 0.25rem;
+  .dos100-tooltip-header {
+    font-weight: bold;
+    border-bottom: 1px solid currentColor;
+    margin-bottom: 0.25rem;
+  }
 }

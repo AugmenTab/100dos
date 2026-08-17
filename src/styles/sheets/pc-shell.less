@@ -6,52 +6,52 @@
   flex-direction: column;
   height: 100%;
   min-height: 0;
-}
 
-.pc-sheet-body .tabs {
-  display: flex;
-  flex-wrap: nowrap;
-  overflow-x: auto;
-  overflow-y: hidden;
-  flex: 0 0 auto;
-}
+  .tabs {
+    display: flex;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    overflow-y: hidden;
+    flex: 0 0 auto;
+  }
 
-.pc-sheet-body .tab-control {
-  flex: 0 0 auto;
-  white-space: nowrap;
-  border: none;
-  background: none;
-  font: inherit;
-  color: inherit;
-  cursor: pointer;
-}
+  .tab-control {
+    flex: 0 0 auto;
+    white-space: nowrap;
+    border: none;
+    background: none;
+    font: inherit;
+    color: inherit;
+    cursor: pointer;
 
-.pc-sheet-body .tab-control:focus-visible {
-  outline: 2px solid currentColor;
-  outline-offset: -2px;
-}
+    &:focus-visible {
+      outline: 2px solid currentColor;
+      outline-offset: -2px;
+    }
+  }
 
-.pc-sheet-body .primary-tabs .tab-control.active {
-  border-bottom: 3px solid currentColor;
-  font-weight: bold;
-}
+  .primary-tabs .tab-control.active {
+    border-bottom: 3px solid currentColor;
+    font-weight: bold;
+  }
 
-.pc-sheet-body .record-tabs .tab-control.active {
-  text-decoration: underline;
-  font-weight: bold;
-}
+  .record-tabs .tab-control.active {
+    text-decoration: underline;
+    font-weight: bold;
+  }
 
-.pc-sheet-body .primary-tab-content,
-.pc-sheet-body .record-tab-content {
-  flex: 1 1 auto;
-  min-height: 0;
-  overflow-y: auto;
-}
+  .primary-tab-content,
+  .record-tab-content {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-y: auto;
+  }
 
-.pc-sheet-body .tab.active {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacer-8, 0.5rem);
-  min-height: 0;
-  padding-top: var(--spacer-8, 0.5rem);
+  .tab.active {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacer-8, 0.5rem);
+    min-height: 0;
+    padding-top: var(--spacer-8, 0.5rem);
+  }
 }
