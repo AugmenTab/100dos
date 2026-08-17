@@ -37,6 +37,90 @@
         "extend": "Extend"
       }
     },
+    "archetype": {
+      "label": "Archetype"
+    },
+    "resource": {
+      "label": "Resources",
+      "current": { "label": "Current" },
+      "maximum": { "label": "Maximum" },
+      "temp": { "label": "Temporary" },
+      "penalty": { "label": "Penalty" }
+    },
+    "initiative": {
+      "label": "Initiative"
+    },
+    "mythicCharacteristic": {
+      "label": "Mythic",
+      "fullName": "Mythic {name}"
+    },
+    "luck": {
+      "label": "Luck"
+    },
+    "wounds": {
+      "label": "Wounds"
+    },
+    "fatigue": {
+      "label": "Fatigue"
+    },
+    "xp": {
+      "tier": { "label": "Tier" },
+      "earned": { "label": "Experience" }
+    },
+    "biography": {
+      "height": { "label": "Height" },
+      "weight": { "label": "Weight" },
+      "age": { "label": "Age" },
+      "gender": { "label": "Gender" }
+    },
+    "damageResistance": {
+      "label": "Damage Resistance",
+      "locations": {
+        "head": "Head",
+        "leftArm": "Left Arm",
+        "rightArm": "Right Arm",
+        "torso": "Torso",
+        "leftLeg": "Left Leg",
+        "rightLeg": "Right Leg"
+      }
+    },
+    "movement": {
+      "label": "Movement",
+      "modeSelect": "Movement mode",
+      "speed": { "label": "Speed" },
+      "jumpLeap": { "label": "Jump / Leap" },
+      "climb": { "label": "Climb" },
+      "swim": { "label": "Swim" },
+      "half": { "label": "Half" },
+      "full": { "label": "Full" },
+      "charge": { "label": "Charge" },
+      "run": { "label": "Run" },
+      "sprint": { "label": "Sprint" },
+      "jump": { "label": "Jump" },
+      "leap": { "label": "Leap" },
+      "modes": {
+        "land": "Land",
+        "climb": "Climb",
+        "swim": "Swim",
+        "fly": "Fly",
+        "burrow": "Burrow"
+      }
+    },
+    "characteristic": {
+      "label": "Characteristics",
+      "temporaryModifierFor": "Temporary modifier for {name}",
+      "advancement": { "label": "Advancement" },
+      "str": { "abbr": "STR", "full": "Strength" },
+      "tou": { "abbr": "TOU", "full": "Toughness" },
+      "agi": { "abbr": "AGI", "full": "Agility" },
+      "wfr": { "abbr": "WFR", "full": "Warfare Range" },
+      "wfm": { "abbr": "WFM", "full": "Warfare Melee" },
+      "int": { "abbr": "INT", "full": "Intellect" },
+      "per": { "abbr": "PER", "full": "Perception" },
+      "crg": { "abbr": "CRG", "full": "Courage" },
+      "cha": { "abbr": "CHA", "full": "Charisma" },
+      "ldr": { "abbr": "LDR", "full": "Leadership" }
+    },
     "pc": {
       "nav": {
         "primaryLabel": "Character navigation",
@@ -58,6 +142,31 @@
           "xp": "XP",
           "finances": "Finances",
           "biography": "Biography"
+        }
+      },
+      "dashboard": {
+        "identity": {
+          "portraitAlt": "Character portrait",
+          "archetype": {
+            "none": "None",
+            "add": "Add Archetype"
+          }
+        },
+        "rest": {
+          "label": "Rest"
+        },
+        "rollInitiative": "Roll Initiative",
+        "quickUse": {
+          "label": "Pinned Attacks & Abilities",
+          "empty": "No pinned items"
+        },
+        "pinnedSkills": {
+          "label": "Pinned Skills & Educations",
+          "empty": "No pinned skills or educations"
+        },
+        "effects": {
+          "label": "Active Effects",
+          "empty": "No active effects"
         }
       }
     },

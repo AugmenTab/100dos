@@ -1,4 +1,6 @@
 import { debug } from "./logger.js";
+import { registerHandlebarsHelpers } from "./handlebars-helpers.js";
+import { PcDataModel } from "./actors/pc.js";
 import { Dos100Actor } from "./documents/actor.js";
 import { Dos100Item } from "./documents/item.js";
 import { PcActorSheet } from "./sheets/actors/pc-sheet.js";
@@ -23,6 +25,8 @@ declare global {
 }
 
 Hooks.once("init", (): void => {
+  registerHandlebarsHelpers();
+
   void foundry.applications.handlebars.loadTemplates([
     "systems/100dos/templates/actors/pc/dashboard.hbs",
     "systems/100dos/templates/actors/pc/record.hbs",
@@ -50,6 +54,7 @@ Hooks.once("init", (): void => {
   });
 
   CONFIG.Actor.documentClass = Dos100Actor;
+  CONFIG.Actor.dataModels["pc"] = PcDataModel;
   foundry.documents.collections.Actors.registerSheet(game.system.id, PcActorSheet, {
     types: ["pc"],
     makeDefault: true,

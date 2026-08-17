@@ -6,21 +6,27 @@ interface E2EItemDocument {
   readonly id: string;
   readonly name: string;
   readonly type: string;
+  readonly img: string;
+  readonly system: Record<string, unknown>;
   readonly actor: E2EActorDocument | null;
   readonly sheet: { id: string; render(force?: boolean): Promise<unknown> };
   getFlag(scope: string, key: string): unknown;
+  update(data: Record<string, unknown>): Promise<unknown>;
 }
 
 interface E2EActorDocument {
   readonly id: string;
   readonly name: string;
   readonly type: string;
+  readonly img: string;
+  readonly system: Record<string, unknown>;
   readonly sheet: { id: string; render(force?: boolean): Promise<unknown> };
   readonly items: {
     get(id: string): E2EItemDocument | undefined;
     map<T>(fn: (item: E2EItemDocument) => T): T[];
   };
   getFlag(scope: string, key: string): unknown;
+  update(data: Record<string, unknown>): Promise<unknown>;
   delete(): Promise<unknown>;
   createEmbeddedDocuments(
     type: "Item",

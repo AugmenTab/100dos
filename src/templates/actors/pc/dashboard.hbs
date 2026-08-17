@@ -6,8 +6,377 @@
   id="{{sheetId}}-primary-panel-dashboard"
   aria-labelledby="{{sheetId}}-primary-tab-dashboard"
 >
-  <input name="name" type="text" value="{{actor.name}}" placeholder="{{localize 'DOS100.actor.name'}}" />
-  <span>{{localize "TYPES.Actor.pc"}}</span>
-  {{!-- TODO: Replace with the Dashboard wireframe (image, Archetype, initiative, Luck, Wounds, Fatigue, Damage Resistance, Characteristics, hotbar, pinned Skills, active Effects). --}}
-  <p>This page doesn't have any content yet.</p>
+  <div class="pc-dashboard">
+
+    <header class="pc-dashboard-identity">
+      <img
+        class="pc-dashboard-portrait"
+        src="{{actor.img}}"
+        alt="{{localize "DOS100.pc.dashboard.identity.portraitAlt"}}"
+        data-edit="img"
+        data-action="editImage"
+      />
+      <div>
+        <div class="pc-dashboard-name-xp">
+          <h1>
+            <input name="name" type="text" value="{{actor.name}}" placeholder="{{localize "DOS100.actor.name"}}" />
+          </h1>
+          <div class="simple-stat-table pc-dashboard-info-box-joined">
+            <div>
+              <div>
+                <span class="eyebrow-label">{{localize "DOS100.xp.tier.label"}}</span>
+                <span>{{localizeNumber actor.system.xp.tier}}</span>
+              </div>
+              <div>
+                <span class="eyebrow-label">{{localize "DOS100.xp.earned.label"}}</span>
+                <span>{{localizeNumber actor.system.xp.earned}}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="pc-dashboard-biography">
+          <label>
+            <span class="eyebrow-label">{{localize "DOS100.biography.height.label"}}</span>
+            <input type="text" name="system.biography.height" value="{{actor.system.biography.height}}" />
+          </label>
+          <label>
+            <span class="eyebrow-label">{{localize "DOS100.biography.weight.label"}}</span>
+            <input type="text" name="system.biography.weight" value="{{actor.system.biography.weight}}" />
+          </label>
+          <label>
+            <span class="eyebrow-label">{{localize "DOS100.biography.age.label"}}</span>
+            <input type="text" name="system.biography.age" value="{{actor.system.biography.age}}" />
+          </label>
+          <label>
+            <span class="eyebrow-label">{{localize "DOS100.biography.gender.label"}}</span>
+            <input type="text" name="system.biography.gender" value="{{actor.system.biography.gender}}" />
+          </label>
+        </div>
+        <div class="pc-dashboard-archetype-row">
+          {{#if selectedArchetype}}
+            <div class="pc-dashboard-archetype-select-group">
+              {{!-- TODO: icon does not render — investigate before relying on
+                   this once a real Archetype Item exists to test against. --}}
+              <img src="{{selectedArchetype.img}}" alt="" />
+              {{!-- TODO: archetypeOptions is always empty until the Archetype Item type exists. --}}
+              <select
+                name="system.archetype"
+                aria-label="{{localize "DOS100.archetype.label"}}"
+              >
+                {{selectOptions archetypeOptions selected=actor.system.archetype blank=(localize "DOS100.pc.dashboard.identity.archetype.none")}}
+              </select>
+            </div>
+            {{!-- TODO: reserved space for a future Item tag system (e.g. Archetype-derived tags). Intentionally empty until that system exists. --}}
+            <div class="pc-dashboard-tags"></div>
+          {{else}}
+            <span class="eyebrow-label">{{localize "DOS100.archetype.label"}}</span>
+            {{!-- TODO: not wired up yet. Should create a blank Archetype Item on this
+                 Actor and open its sheet for editing, once the Archetype Item type
+                 exists. --}}
+            <a
+              role="button"
+              tabindex="0"
+              aria-label="{{localize "DOS100.pc.dashboard.identity.archetype.add"}}"
+            ><i class="fa-solid fa-plus" inert></i></a>
+          {{/if}}
+          {{!-- TODO: not wired up yet — no replenishment system exists to trigger. --}}
+          <button type="button" class="simple-button">{{localize "DOS100.pc.dashboard.rest.label"}}</button>
+        </div>
+      </div>
+    </header>
+
+    {{!-- TODO: Initiative/Luck/Wounds/Fatigue removed pending their own
+         layout pass (a CURRENT/MAXIMUM/TEMP/PEN joined-box presentation).
+         Initiative has no place in the current reference layout at all. --}}
+
+    <section class="pc-dashboard-characteristics" aria-label="{{localize "DOS100.characteristic.label"}}">
+      <div class="pc-dashboard-characteristics-grid">
+        {{#each actor.system.characteristics}}
+          <div
+            class="pc-dashboard-characteristic"
+            role="group"
+            aria-label="{{localize (concat "DOS100.characteristic." @key ".full")}}"
+            data-characteristic-id="{{@key}}"
+          >
+            <h3 class="pc-dashboard-characteristic-abbr" aria-hidden="true">{{localize (concat "DOS100.characteristic." @key ".abbr")}}</h3>
+            {{!-- TODO: not wired up yet — no roll system exists to trigger a
+                 Characteristic test. --}}
+            <button
+              type="button"
+              class="simple-button"
+              data-tooltip-html="{{contributionTooltipHtml (localize (concat "DOS100.characteristic." @key ".full")) (localizeNumber this.value) this.contributions}}"
+            >{{localizeNumber this.value}}</button>
+            <label class="pc-dashboard-characteristic-modifier">
+              <span aria-hidden="true">TEMP</span>
+              <input
+                type="number"
+                name="system.characteristics.{{@key}}.temp"
+                value="{{this.temp}}"
+                aria-label="{{localize "DOS100.characteristic.temporaryModifierFor" name=(localize (concat "DOS100.characteristic." @key ".full"))}}"
+              />
+            </label>
+            <div
+              class="pc-dashboard-characteristic-pips"
+              aria-label="{{localize "DOS100.characteristic.advancement.label"}} {{this.advancement}}/5"
+            >
+              {{#each (filledPips this.advancement 5)}}
+                <span class="pc-dashboard-pip{{#if this}} filled{{/if}}"></span>
+              {{/each}}
+            </div>
+          </div>
+        {{/each}}
+      </div>
+    </section>
+
+    <section class="pc-dashboard-resources" aria-label="{{localize "DOS100.resource.label"}}">
+      {{#if hasMythicCharacteristics}}
+        <div class="simple-stat-table" role="group" aria-label="{{localize "DOS100.mythicCharacteristic.label"}}">
+          <h3 aria-hidden="true">{{localize "DOS100.mythicCharacteristic.label"}}</h3>
+          <div>
+            {{#each actor.system.mythicCharacteristics}}
+              <div>
+                <span class="eyebrow-label">{{localize (concat "DOS100.characteristic." @key ".abbr")}}</span>
+                <span data-tooltip-html="{{contributionTooltipHtml (localize "DOS100.mythicCharacteristic.fullName" name=(localize (concat "DOS100.characteristic." @key ".full"))) (numberFormat this.value decimals=0 sign=true) this.contributions}}">{{numberFormat this.value decimals=0 sign=true}}</span>
+              </div>
+            {{/each}}
+          </div>
+        </div>
+      {{/if}}
+
+      <div class="simple-stat-table" role="group" aria-label="{{localize "DOS100.initiative.label"}}">
+        {{!-- TODO: not wired up yet — no roll system exists to trigger an
+             Initiative roll. --}}
+        <h3
+          role="button"
+          tabindex="0"
+          data-action="rollInitiative"
+          aria-label="{{localize "DOS100.pc.dashboard.rollInitiative"}}"
+        ><i class="fa-solid fa-dice" inert></i> {{localize "DOS100.initiative.label"}}</h3>
+        <div>
+          <div class="large-value">
+            <span data-tooltip-html="{{contributionTooltipHtml (localize "DOS100.initiative.label") (numberFormat actor.system.initiative.value decimals=0 sign=true) actor.system.initiative.contributions}}">{{numberFormat actor.system.initiative.value decimals=0 sign=true}}</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="simple-stat-table" role="group" aria-label="{{localize "DOS100.wounds.label"}}">
+        <h3 aria-hidden="true">{{localize "DOS100.wounds.label"}}</h3>
+        <div>
+          <div>
+            <span class="eyebrow-label">{{localize "DOS100.resource.current.label"}}</span>
+            <input
+              type="number"
+              name="system.wounds.value"
+              value="{{actor.system.wounds.value}}"
+              aria-label="{{localize "DOS100.resource.current.label"}} {{localize "DOS100.wounds.label"}}"
+            />
+          </div>
+          <div>
+            <span class="eyebrow-label">{{localize "DOS100.resource.maximum.label"}}</span>
+            <span data-tooltip-html="{{contributionTooltipHtml (localize "DOS100.resource.maximum.label") (localizeNumber actor.system.wounds.max) actor.system.wounds.contributions}}">{{localizeNumber actor.system.wounds.max}}</span>
+          </div>
+          <div>
+            <span class="eyebrow-label">{{localize "DOS100.resource.temp.label"}}</span>
+            <input
+              type="number"
+              name="system.wounds.temp"
+              value="{{actor.system.wounds.temp}}"
+              aria-label="{{localize "DOS100.resource.temp.label"}} {{localize "DOS100.wounds.label"}}"
+            />
+          </div>
+        </div>
+      </div>
+
+      <div class="simple-stat-table" role="group" aria-label="{{localize "DOS100.fatigue.label"}}">
+        <h3 aria-hidden="true">{{localize "DOS100.fatigue.label"}}</h3>
+        <div>
+          <div>
+            <span class="eyebrow-label">{{localize "DOS100.resource.current.label"}}</span>
+            <input
+              type="number"
+              name="system.fatigue.value"
+              value="{{actor.system.fatigue.value}}"
+              aria-label="{{localize "DOS100.resource.current.label"}} {{localize "DOS100.fatigue.label"}}"
+            />
+          </div>
+          <div>
+            <span class="eyebrow-label">{{localize "DOS100.resource.maximum.label"}}</span>
+            <span data-tooltip-html="{{contributionTooltipHtml (localize "DOS100.resource.maximum.label") (localizeNumber actor.system.fatigue.max) actor.system.fatigue.contributions}}">{{localizeNumber actor.system.fatigue.max}}</span>
+          </div>
+          <div>
+            <span class="eyebrow-label">{{localize "DOS100.resource.penalty.label"}}</span>
+            <span>{{localizeNumber actor.system.fatigue.penalty}}</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="simple-stat-table" role="group" aria-label="{{localize "DOS100.luck.label"}}">
+        <h3 aria-hidden="true">{{localize "DOS100.luck.label"}}</h3>
+        <div>
+          <div>
+            <span class="eyebrow-label">{{localize "DOS100.resource.current.label"}}</span>
+            <input
+              type="number"
+              name="system.luck.value"
+              value="{{actor.system.luck.value}}"
+              aria-label="{{localize "DOS100.resource.current.label"}} {{localize "DOS100.luck.label"}}"
+            />
+          </div>
+          <div>
+            <span class="eyebrow-label">{{localize "DOS100.resource.maximum.label"}}</span>
+            <span data-tooltip-html="{{contributionTooltipHtml (localize "DOS100.resource.maximum.label") (localizeNumber actor.system.luck.max) actor.system.luck.contributions}}">{{localizeNumber actor.system.luck.max}}</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="pc-dashboard-dr-movement-row">
+      <section class="simple-stat-table" aria-label="{{localize "DOS100.damageResistance.label"}}">
+        <h3 aria-hidden="true">{{localize "DOS100.damageResistance.label"}}</h3>
+        <div>
+          {{#each actor.system.dr}}
+            <div data-dr-location-id="{{@key}}">
+              <span class="eyebrow-label">{{localize (concat "DOS100.damageResistance.locations." @key)}}</span>
+              <span data-tooltip-html="{{contributionTooltipHtml (localize (concat "DOS100.damageResistance.locations." @key)) this.value this.contributions}}">{{this.value}}</span>
+            </div>
+          {{/each}}
+        </div>
+      </section>
+
+      <section class="simple-stat-table" aria-label="{{localize "DOS100.movement.label"}}">
+        <h3 class="stat-table-header-control">
+          <span aria-hidden="true">{{localize "DOS100.movement.label"}}</span>
+          {{#if hasAlternateMovementModes}}
+            <select
+              class="eyebrow-label"
+              name="system.movement.mode"
+              aria-label="{{localize "DOS100.movement.modeSelect"}}"
+            >
+              {{selectOptions movementModeOptions selected=actor.system.movement.mode}}
+            </select>
+          {{else}}
+            <span class="eyebrow-label">{{localize (concat "DOS100.movement.modes." actor.system.movement.mode)}}</span>
+          {{/if}}
+        </h3>
+        <div>
+          {{#if (eq actor.system.movement.mode "land")}}
+            <div>
+              <span class="eyebrow-label">{{localize "DOS100.movement.speed.label"}}</span>
+              <span>
+                <span data-tooltip-html="{{contributionTooltipHtml (localize "DOS100.movement.half.label") (localizeNumber actor.system.movement.base.half.value) actor.system.movement.base.half.contributions}}">{{localizeNumber actor.system.movement.base.half.value}}</span>
+                <span>/</span>
+                <span data-tooltip-html="{{contributionTooltipHtml (localize "DOS100.movement.full.label") (localizeNumber actor.system.movement.base.full.value) actor.system.movement.base.full.contributions}}">{{localizeNumber actor.system.movement.base.full.value}}</span>
+                <span>/</span>
+                <span data-tooltip-html="{{contributionTooltipHtml (localize "DOS100.movement.charge.label") (localizeNumber actor.system.movement.base.charge.value) actor.system.movement.base.charge.contributions}}">{{localizeNumber actor.system.movement.base.charge.value}}</span>
+                <span>/</span>
+                <span data-tooltip-html="{{contributionTooltipHtml (localize "DOS100.movement.run.label") (localizeNumber actor.system.movement.base.run.value) actor.system.movement.base.run.contributions}}">{{localizeNumber actor.system.movement.base.run.value}}</span>
+                {{#if actor.system.movement.base.sprint}}
+                  <span>/</span>
+                  <span data-tooltip-html="{{contributionTooltipHtml (localize "DOS100.movement.sprint.label") (localizeNumber actor.system.movement.base.sprint.value) actor.system.movement.base.sprint.contributions}}">{{localizeNumber actor.system.movement.base.sprint.value}}</span>
+                {{/if}}
+              </span>
+            </div>
+            <div>
+              <span class="eyebrow-label">{{localize "DOS100.movement.jumpLeap.label"}}</span>
+              <span>
+                <span data-tooltip-html="{{contributionTooltipHtml (localize "DOS100.movement.jump.label") (localizeNumber actor.system.movement.base.jump.value) actor.system.movement.base.jump.contributions}}">{{localizeNumber actor.system.movement.base.jump.value}}</span>
+                <span>/</span>
+                <span data-tooltip-html="{{contributionTooltipHtml (localize "DOS100.movement.leap.label") (localizeNumber actor.system.movement.base.leap.value) actor.system.movement.base.leap.contributions}}">{{localizeNumber actor.system.movement.base.leap.value}}</span>
+              </span>
+            </div>
+            <div class="narrow">
+              <span class="eyebrow-label">{{localize "DOS100.movement.climb.label"}}</span>
+              <span data-tooltip-html="{{contributionTooltipHtml (localize "DOS100.movement.climb.label") (localizeNumber actor.system.movement.base.climb.value) actor.system.movement.base.climb.contributions}}">{{localizeNumber actor.system.movement.base.climb.value}}</span>
+            </div>
+            <div class="narrow">
+              <span class="eyebrow-label">{{localize "DOS100.movement.swim.label"}}</span>
+              <span data-tooltip-html="{{contributionTooltipHtml (localize "DOS100.movement.swim.label") (localizeNumber actor.system.movement.base.swim.full.value) actor.system.movement.base.swim.full.contributions}}">{{localizeNumber actor.system.movement.base.swim.full.value}}</span>
+            </div>
+          {{else}}
+            {{#with (lookup actor.system.movement actor.system.movement.mode) as |current|}}
+              <div>
+                <span class="eyebrow-label">{{localize "DOS100.movement.speed.label"}}</span>
+                <span>
+                  <span data-tooltip-html="{{contributionTooltipHtml (localize "DOS100.movement.half.label") (localizeNumber current.half.value) current.half.contributions}}">{{localizeNumber current.half.value}}</span>
+                  <span>/</span>
+                  <span data-tooltip-html="{{contributionTooltipHtml (localize "DOS100.movement.full.label") (localizeNumber current.full.value) current.full.contributions}}">{{localizeNumber current.full.value}}</span>
+                  {{#unless (eq @root.actor.system.movement.mode "burrow")}}
+                    <span>/</span>
+                    <span data-tooltip-html="{{contributionTooltipHtml (localize "DOS100.movement.charge.label") (localizeNumber current.charge.value) current.charge.contributions}}">{{localizeNumber current.charge.value}}</span>
+                    <span>/</span>
+                    <span data-tooltip-html="{{contributionTooltipHtml (localize "DOS100.movement.run.label") (localizeNumber current.run.value) current.run.contributions}}">{{localizeNumber current.run.value}}</span>
+                    {{#if current.sprint}}
+                      <span>/</span>
+                      <span data-tooltip-html="{{contributionTooltipHtml (localize "DOS100.movement.sprint.label") (localizeNumber current.sprint.value) current.sprint.contributions}}">{{localizeNumber current.sprint.value}}</span>
+                    {{/if}}
+                  {{/unless}}
+                </span>
+              </div>
+            {{/with}}
+          {{/if}}
+        </div>
+      </section>
+    </div>
+
+    <div class="pc-dashboard-pinned-row">
+      <div class="pc-dashboard-pinned-column">
+        <section class="pc-dashboard-quick-use" aria-label="{{localize "DOS100.pc.dashboard.quickUse.label"}}">
+          <h3 class="pc-dashboard-section-heading" aria-hidden="true">{{localize "DOS100.pc.dashboard.quickUse.label"}}</h3>
+          {{#if quickUseItems.length}}
+            <div class="pc-dashboard-quick-use-grid">
+              {{#each quickUseItems}}
+                <button
+                  type="button"
+                  class="pc-dashboard-quick-use-item"
+                  data-action="useQuickItem"
+                  data-item-id="{{this.id}}"
+                  data-tooltip="{{this.name}}"
+                  aria-label="{{this.name}}"
+                >
+                  <img src="{{this.img}}" alt="" />
+                </button>
+              {{/each}}
+            </div>
+          {{else}}
+            <p class="pc-dashboard-empty-state">{{localize "DOS100.pc.dashboard.quickUse.empty"}}</p>
+          {{/if}}
+        </section>
+
+        <section class="pc-dashboard-pinned-skills" aria-label="{{localize "DOS100.pc.dashboard.pinnedSkills.label"}}">
+          <h3 class="pc-dashboard-section-heading" aria-hidden="true">{{localize "DOS100.pc.dashboard.pinnedSkills.label"}}</h3>
+          {{#if pinnedSkills.length}}
+            <ul class="pc-dashboard-pinned-skills-list">
+              {{#each pinnedSkills}}
+                <li><button type="button" class="simple-button">{{this.name}}</button></li>
+              {{/each}}
+            </ul>
+          {{else}}
+            <p class="pc-dashboard-empty-state">{{localize "DOS100.pc.dashboard.pinnedSkills.empty"}}</p>
+          {{/if}}
+        </section>
+      </div>
+
+      <section class="pc-dashboard-effects" aria-label="{{localize "DOS100.pc.dashboard.effects.label"}}">
+        <h3 class="pc-dashboard-section-heading" aria-hidden="true">{{localize "DOS100.pc.dashboard.effects.label"}}</h3>
+        {{#if activeEffects.length}}
+          <ul class="pc-dashboard-effects-list">
+            {{#each activeEffects}}
+              <li>
+                <img src="{{this.img}}" alt="" />
+                <span>{{this.name}}</span>
+                {{#if this.system.duration.value}}
+                  <span class="pc-dashboard-effect-duration">
+                    {{this.system.duration.value}} {{localize (concat "DOS100.effect.duration.units." this.system.duration.unit)}}
+                  </span>
+                {{/if}}
+              </li>
+            {{/each}}
+          </ul>
+        {{else}}
+          <p class="pc-dashboard-empty-state">{{localize "DOS100.pc.dashboard.effects.empty"}}</p>
+        {{/if}}
+      </section>
+    </div>
+
+  </div>
 </section>

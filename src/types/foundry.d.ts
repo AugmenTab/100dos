@@ -6,6 +6,7 @@ interface Game {
   settings: ClientSettings;
   system: { id: string };
   i18n: {
+    lang: string;
     localize(key: string): string;
     format(key: string, data?: Record<string, string>): string;
   };
@@ -74,11 +75,15 @@ interface ApplicationTab {
 
 interface Collection<T> extends Iterable<T> {
   get(id: string): T | undefined;
+  filter(fn: (item: T) => boolean): T[];
+  map<U>(fn: (item: T) => U): U[];
 }
 
 declare class Actor {
   readonly type: string;
   readonly name: string;
+  readonly img: string;
+  readonly system: object;
   readonly items: Collection<Item>;
   prepareData(): void;
   prepareBaseData(): void;
@@ -89,8 +94,10 @@ declare class Actor {
 
 declare class Item {
   readonly id: string;
+  readonly uuid: string;
   readonly type: string;
   readonly name: string;
+  readonly img: string;
   readonly system: object;
   readonly actor: Actor | null;
   prepareData(): void;
@@ -104,13 +111,20 @@ declare class Item {
 }
 
 declare const CONFIG: {
-  Actor: { documentClass: typeof Actor };
+  Actor: {
+    documentClass: typeof Actor;
+    dataModels: Record<string, typeof foundry.abstract.TypeDataModel>;
+  };
   Item: {
     documentClass: typeof Item;
     dataModels: Record<string, typeof foundry.abstract.TypeDataModel>;
   };
 };
 
+
+declare const Handlebars: {
+  registerHelper(name: string, fn: (...args: unknown[]) => unknown): void;
+};
 
 declare const Hooks: {
   once(hook: string, fn: (...args: unknown[]) => void): number;
@@ -123,6 +137,7 @@ declare const Hooks: {
 declare namespace foundry {
   namespace utils {
     function randomID(length?: number): string;
+    function escapeHTML(value: unknown): string;
   }
   namespace abstract {
     class TypeDataModel {
@@ -148,6 +163,7 @@ declare namespace foundry {
           initial?: string | (() => string);
           blank?: boolean;
           nullable?: boolean;
+          choices?: string[];
         });
       }
       class BooleanField extends DataField {
@@ -159,11 +175,20 @@ declare namespace foundry {
       class SchemaField extends DataField {
         constructor(
           fields: Record<string, DataField>,
-          options?: { required?: boolean },
+          options?: { required?: boolean; nullable?: boolean; initial?: object | null },
         );
       }
       class ObjectField extends DataField {
         constructor(options?: { required?: boolean; initial?: object });
+      }
+      class DocumentUUIDField extends StringField {
+        constructor(options?: {
+          required?: boolean;
+          nullable?: boolean;
+          initial?: string | null;
+          type?: string;
+          embedded?: boolean;
+        });
       }
     }
   }

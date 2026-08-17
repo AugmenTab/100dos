@@ -14,8 +14,9 @@ Run:
 scripts/ui-test
 ```
 
-This drives the real Foundry UI (see `test/e2e/system-smoke.spec.ts` and
-`test/e2e/pc-sheet-navigation.spec.ts`) and proves:
+This drives the real Foundry UI (see `test/e2e/system-smoke.spec.ts`,
+`test/e2e/pc-sheet-navigation.spec.ts`, and `test/e2e/pc-sheet-dashboard.spec.ts`)
+and proves:
 
 - A PC Actor's name can be changed through its rendered sheet, persists after
   closing and reopening the sheet, and matches the underlying Actor document.
@@ -33,6 +34,25 @@ This drives the real Foundry UI (see `test/e2e/system-smoke.spec.ts` and
 - Primary and Record navigation remain usable — without clipped or
   overlapping controls — at representative wide, medium, and narrow sheet
   widths.
+- The PC Dashboard renders the Actor portrait, name, Archetype selector,
+  Initiative, Luck, Wounds, Fatigue, all six Damage Resistance locations, all
+  ten Characteristics (in order, each with an accessible full name and a
+  working temporary-modifier input), and stable empty states for the
+  quick-use, pinned-Skills, and active-Effects regions — all bound to real
+  schema-backed Actor/Item data, not fixture-only presentation values.
+- Editing a Characteristic's temporary modifier persists `system.characteristics.<id>.temp`
+  without altering `.value` or `.mod.value`.
+- The contribution tooltip renders an already-populated `Contributions`
+  collection in stored order with correctly signed values (including
+  negative contributions), is reachable by both hover and keyboard focus,
+  and is absent entirely when the collection is empty.
+- Pinning an Ability Item surfaces it as an image-based quick-use control
+  whose activation delegates to the Item's existing Action-use path.
+- Only Effect Items with `system.active === true` appear in the
+  active-Effects region.
+- The Dashboard remains usable — Characteristics and Damage Resistance
+  locations reachable, order preserved, no uncontrolled horizontal overflow —
+  at representative wide, medium, and narrow sheet widths.
 
 It also fails on uncaught browser page errors, `100DOS`-originated console
 errors, and failed requests for `/systems/100dos/` assets, and retains a

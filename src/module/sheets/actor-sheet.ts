@@ -2,9 +2,9 @@ const { HandlebarsApplicationMixin } = foundry.applications.api;
 const { ActorSheetV2 } = foundry.applications.sheets;
 
 export abstract class Dos100ActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
-  static override DEFAULT_OPTIONS = {
+  static override DEFAULT_OPTIONS: Record<string, unknown> = {
     classes: ["dos100", "sheet", "actor"],
-    position: { width: 720, height: 680 },
+    position: { width: 1000, height: 760 },
     window: { resizable: true },
     form: { submitOnChange: true, closeOnSubmit: false },
   };

@@ -1,4 +1,7 @@
 import { Dos100ActorSheet } from "../actor-sheet.js";
+import { Dos100Item } from "../../documents/item.js";
+import { type ActorMovement, type MovementMode } from "../../movement.js";
+import { type MythicCharacteristics } from "../../mythic-characteristic.js";
 
 const PRIMARY_TABS: ApplicationTabConfig[] = [
   { id: "dashboard", label: "DOS100.pc.nav.primary.dashboard" },
@@ -25,10 +28,16 @@ export class PcActorSheet extends Dos100ActorSheet {
     body: { template: "systems/100dos/templates/actors/pc.hbs" },
   };
 
+  static override DEFAULT_OPTIONS = {
+    actions: {
+      useQuickItem: PcActorSheet.prototype.onUseQuickItem,
+    },
+  };
+
   // `spellSources` has no tabs yet. It is an extension point for a future
   // dynamic secondary group (one tab per spell grant source), populated
   // later by overriding `_getTabsConfig` for that group. No tabs or content
-  // exist for it in this milestone.
+  // exist for it yet.
   static override TABS = {
     primary: { initial: "dashboard", tabs: PRIMARY_TABS },
     record: { initial: "basics", tabs: RECORD_TABS },
@@ -36,6 +45,7 @@ export class PcActorSheet extends Dos100ActorSheet {
   };
 
   override async _prepareContext(options: Record<string, unknown>): Promise<Record<string, unknown>> {
+    const movementModeOptions = this.movementModeOptions();
     return {
       ...(await super._prepareContext(options)),
       sheetId: this.id,
@@ -43,7 +53,66 @@ export class PcActorSheet extends Dos100ActorSheet {
         primary: this._prepareTabs("primary"),
         record: this._prepareTabs("record"),
       },
+      // Available choices for the Archetype selector. Render context, not
+      // persisted data: derived fresh from owned Items on every render.
+      // TODO: the Archetype Item type doesn't exist yet, so this is always
+      // empty for now — the selector's data flow (options in, system.archetype
+      // out) is still correct and needs no rework once that Item type arrives.
+      archetypeOptions: this.actor.items
+        .filter((item) => item.type === "archetype")
+        .map((item) => ({ value: item.uuid, label: item.name })),
+      // TODO: always null until the Archetype Item type exists — nothing can
+      // ever resolve archetypeOptions/system.archetype to a real Item yet.
+      selectedArchetype:
+        this.actor.items.filter(
+          (item) => item.uuid === (this.actor.system as { archetype?: string | null }).archetype,
+        )[0] ?? null,
+      // TODO: only the Ability Item type carries `pinned` so far. Other
+      // Action-bearing Item types (e.g. Weapons) should be added to this
+      // filter once they adopt the same field.
+      quickUseItems: this.actor.items.filter(
+        (item) => item.type === "ability" && (item.system as { pinned?: boolean }).pinned === true,
+      ),
+      // TODO: neither the Skill nor Education Item type exists yet, so this
+      // is always empty for now — filtering on system.pinned is otherwise
+      // already correct for whenever those Item types arrive.
+      pinnedSkills: this.actor.items.filter(
+        (item) =>
+          (item.type === "skill" || item.type === "education") &&
+          (item.system as { pinned?: boolean }).pinned === true,
+      ),
+      activeEffects: this.actor.items.filter(
+        (item) => item.type === "effect" && (item.system as { active?: boolean }).active === true,
+      ),
+      // Render context, not persisted data: which movement modes this Actor
+      // currently has available. "land" (system.movement.base) is always
+      // available; the alternate modes are only offered when their schema
+      // field is populated rather than null.
+      movementModeOptions,
+      hasAlternateMovementModes: movementModeOptions.length > 1,
+      hasMythicCharacteristics: this.hasMythicCharacteristics(),
     };
+  }
+
+  // Render context, not persisted data: whether the Mythic Characteristics
+  // table should be shown at all. system.mythicCharacteristics is nullable
+  // (no Mythic Awakening yet); even once populated, a PC could still have all
+  // three at 0, which should read the same as not having the table.
+  private hasMythicCharacteristics(): boolean {
+    const mythic = (this.actor.system as { mythicCharacteristics: MythicCharacteristics | null })
+      .mythicCharacteristics;
+    if (mythic === null) return false;
+    return mythic.str.value > 0 || mythic.tou.value > 0 || mythic.agi.value > 0;
+  }
+
+  private movementModeOptions(): { value: MovementMode; label: string }[] {
+    const movement = (this.actor.system as { movement: ActorMovement }).movement;
+    const modes: MovementMode[] = ["land"];
+    if (movement.climb !== null) modes.push("climb");
+    if (movement.swim !== null) modes.push("swim");
+    if (movement.fly !== null) modes.push("fly");
+    if (movement.burrow !== null) modes.push("burrow");
+    return modes.map((mode) => ({ value: mode, label: game.i18n.localize(`DOS100.movement.modes.${mode}`) }));
   }
 
   // The core tab-click handler toggles the "active" CSS class on tab
@@ -105,5 +174,17 @@ export class PcActorSheet extends Dos100ActorSheet {
     }
     event.preventDefault();
     next?.focus();
+  }
+
+  // TODO: only single-Action Items are wired up so far; the first (only)
+  // action id is used directly. Multi-Action selection is a future workflow.
+  private async onUseQuickItem(event: PointerEvent, target: HTMLElement): Promise<void> {
+    const itemId = target.dataset.itemId;
+    const item = itemId ? this.actor.items.get(itemId) : undefined;
+    if (!item) return;
+    const actions = (item.system as { actions?: { items: Record<string, unknown> } }).actions;
+    const actionId = actions ? Object.keys(actions.items)[0] : undefined;
+    if (!actionId) return;
+    await (item as Dos100Item).useAction(actionId);
   }
 }

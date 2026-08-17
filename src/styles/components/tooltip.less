@@ -1,0 +1,33 @@
+/* Contribution tooltip */
+
+/* Tag-qualified, not class-qualified: a tooltip on a <span> (a plain value
+   with nothing else to do) shows a "help" cursor, but a tooltip on a
+   <button> (e.g. the Characteristics grid, pending a future roll trigger)
+   keeps .simple-button's "pointer" cursor — it's clickable first. */
+.pc-sheet-body span[data-tooltip-html] {
+  cursor: help;
+}
+
+/* Contribution breakdown content, injected by Foundry's native TooltipManager
+   (see contributionTooltipHtml in handlebars-helpers.ts) into its own
+   #tooltip popover element — which lives outside this sheet's DOM entirely,
+   so these rules cannot be scoped under .pc-sheet-body. */
+
+#tooltip .dos100-tooltip {
+  display: flex;
+  flex-direction: column;
+  font-family: monospace;
+}
+
+#tooltip .dos100-tooltip-header,
+#tooltip .dos100-tooltip-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+#tooltip .dos100-tooltip-header {
+  font-weight: bold;
+  border-bottom: 1px solid currentColor;
+  margin-bottom: 0.25rem;
+}

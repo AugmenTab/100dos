@@ -16,6 +16,23 @@ services:
       FOUNDRY_ACCEPT_EULA: "true"
       FOUNDRY_VERSION: "14.365"
 
+  foundry-v13:
+    image: felddy/foundryvtt:release
+    hostname: foundry-v13
+    init: true
+    restart: "no"
+    volumes:
+      - ./foundrydata-v13:/data
+    env_file: .env
+    ports:
+      - "30002:30000"
+    user: "0"
+    environment:
+      CONTAINER_PRESERVE_CONFIG: "true"
+      FOUNDRY_ACCEPT_EULA: "true"
+      FOUNDRY_VERSION: "13.351"
+    profiles: [reference]
+
   dev:
     image: node:22
     working_dir: /workspace
