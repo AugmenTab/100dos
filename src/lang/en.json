@@ -159,6 +159,37 @@
       "cha": { "abbr": "CHA", "full": "Charisma" },
       "ldr": { "abbr": "LDR", "full": "Leadership" }
     },
+    "skills": {
+      "table": {
+        "name": "Name",
+        "difficulty": "Difficulty",
+        "type": "Type",
+        "training": "Training",
+        "characteristic": "Characteristic",
+        "add": "Add Skill",
+        "edit": "Edit Skill: {name}",
+        "viewDescription": "View Skill Description: {name}",
+        "pin": "Pin {name}",
+        "unpin": "Unpin {name}",
+        "roll": "Roll {name}",
+        "empty": "No Skills recorded yet."
+      },
+      "difficulty": {
+        "basic": "Basic",
+        "advanced": "Advanced"
+      },
+      "type": {
+        "social": "Social",
+        "movement": "Movement",
+        "fieldcraft": "Fieldcraft"
+      },
+      "training": {
+        "none": "None",
+        "trained": "Trained",
+        "plus10": "+10",
+        "plus20": "+20"
+      }
+    },
     "pc": {
       "nav": {
         "primaryLabel": "Character navigation",

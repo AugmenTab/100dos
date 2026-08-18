@@ -11,6 +11,8 @@ import {
 } from "../../damage-resistance.js";
 import { type ExperienceLedger, type ExperienceLedgerItem } from "../../xp.js";
 import { type Finances, type FinanceLedgerItem } from "../../finances.js";
+import { type ActorSkill, type ActorSkills, type SkillTraining, SKILL_TRAININGS } from "../../skill.js";
+import { type CharacteristicId } from "../../characteristic.js";
 
 declare global {
   interface Game {
@@ -31,6 +33,11 @@ type XpLedgerRow = ExperienceLedgerItem & {
 type FinanceLedgerRow = FinanceLedgerItem & {
   recordedByName: string;
   realTimeDisplay: string;
+};
+
+type SkillRow = ActorSkill & {
+  tag: string;
+  characteristicOptions: { value: CharacteristicId; label: string }[];
 };
 
 const PRIMARY_TABS: ApplicationTabConfig[] = [
@@ -62,6 +69,7 @@ export class PcActorSheet extends Dos100ActorSheet {
   static override DEFAULT_OPTIONS = {
     actions: {
       useQuickItem: PcActorSheet.prototype.onUseQuickItem,
+      togglePinnedSkill: PcActorSheet.prototype.onTogglePinnedSkill,
     },
   };
 
@@ -104,14 +112,14 @@ export class PcActorSheet extends Dos100ActorSheet {
       quickUseItems: this.actor.items.filter(
         (item) => item.type === "ability" && (item.system as { pinned?: boolean }).pinned === true,
       ),
-      // TODO: neither the Skill nor Education Item type exists yet, so this
-      // is always empty for now — filtering on system.pinned is otherwise
-      // already correct for whenever those Item types arrive.
-      pinnedSkills: this.actor.items.filter(
-        (item) =>
-          (item.type === "skill" || item.type === "education") &&
-          (item.system as { pinned?: boolean }).pinned === true,
-      ),
+      // Render context, not persisted data: pinned Actor Skills, derived
+      // from system.skills (see skill.ts) rather than embedded Items — see
+      // .local/plan.md. Educations aren't part of this collection; that
+      // schema doesn't exist yet.
+      pinnedSkills: Object.entries((this.actor.system as { skills: ActorSkills }).skills)
+        .filter(([, skill]) => skill.pinned)
+        .map(([tag, skill]) => ({ tag, name: skill.name }))
+        .sort((a, b) => a.name.localeCompare(b.name)),
       activeEffects: this.actor.items.filter(
         (item) => item.type === "effect" && (item.system as { active?: boolean }).active === true,
       ),
@@ -125,6 +133,8 @@ export class PcActorSheet extends Dos100ActorSheet {
       drCategories: this.drCategories(),
       xpLedger: this.xpLedger(),
       financesLedger: this.financesLedger(),
+      skillRows: this.skillRows(),
+      skillTrainingOptions: this.skillTrainingOptions(),
     };
   }
 
@@ -189,6 +199,35 @@ export class PcActorSheet extends Dos100ActorSheet {
       .mythicCharacteristics;
     if (mythic === null) return false;
     return mythic.str.value > 0 || mythic.tou.value > 0 || mythic.agi.value > 0;
+  }
+
+  // Render context, not persisted data: each row's Characteristic <select>
+  // options are built from that Skill's own `characteristics` list only
+  // (never all ten), and rows are sorted alphabetically by name — Array#sort
+  // is stable, so same-named rows keep their original system.skills
+  // iteration order. See .local/plan.md; no persisted ordering exists yet.
+  private skillRows(): SkillRow[] {
+    const skills = (this.actor.system as { skills: ActorSkills }).skills;
+    return Object.entries(skills)
+      .map(([tag, skill]) => ({
+        ...skill,
+        tag,
+        characteristicOptions: skill.characteristics.map((id) => ({
+          value: id,
+          label: game.i18n.localize(`DOS100.characteristic.${id}.abbr`),
+        })),
+      }))
+      .sort((a, b) => a.name.localeCompare(b.name));
+  }
+
+  // Render context, not persisted data: the fixed Training enum's options
+  // are the same for every row, unlike each Skill's own characteristicOptions
+  // — computed once here rather than per row.
+  private skillTrainingOptions(): { value: SkillTraining; label: string }[] {
+    return SKILL_TRAININGS.map((training) => ({
+      value: training,
+      label: game.i18n.localize(`DOS100.skills.training.${training}`),
+    }));
   }
 
   private movementModeOptions(): { value: MovementMode; label: string }[] {
@@ -272,5 +311,13 @@ export class PcActorSheet extends Dos100ActorSheet {
     const actionId = actions ? Object.keys(actions.items)[0] : undefined;
     if (!actionId) return;
     await (item as Dos100Item).useAction(actionId);
+  }
+
+  private async onTogglePinnedSkill(event: PointerEvent, target: HTMLElement): Promise<void> {
+    const tag = target.dataset.tag;
+    if (!tag) return;
+    const skill = (this.actor.system as { skills: ActorSkills }).skills[tag];
+    if (!skill) return;
+    await this.actor.update({ [`system.skills.${tag}.pinned`]: !skill.pinned });
   }
 }

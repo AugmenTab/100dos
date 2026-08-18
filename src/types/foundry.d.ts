@@ -90,6 +90,7 @@ declare class Actor {
   prepareDerivedData(): void;
   createEmbeddedDocuments(type: string, data: object[]): Promise<Item[]>;
   deleteEmbeddedDocuments(type: string, ids: string[]): Promise<Item[]>;
+  update(data: Record<string, unknown>): Promise<unknown>;
 }
 
 declare class Item {

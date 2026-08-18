@@ -6,7 +6,102 @@
   id="{{sheetId}}-primary-panel-skills"
   aria-labelledby="{{sheetId}}-primary-tab-skills"
 >
-  <h2>{{localize "DOS100.pc.nav.primary.skills"}}</h2>
-  {{!-- TODO: Replace with real Skill/Education management content. --}}
-  <p>This page doesn't have any content yet.</p>
+  <div class="ledger-table-wrap">
+    <table class="ledger-table skills-table">
+      <thead>
+        <tr>
+          <th scope="col" colspan="2" class="skills-table-name-header">{{localize "DOS100.skills.table.name"}}</th>
+          <th scope="col">{{localize "DOS100.skills.table.difficulty"}}</th>
+          <th scope="col">{{localize "DOS100.skills.table.type"}}</th>
+          <th scope="col">{{localize "DOS100.skills.table.training"}}</th>
+          <th scope="col">{{localize "DOS100.skills.table.characteristic"}}</th>
+          <th scope="col">
+            {{!-- TODO: not wired up yet — no Add-Skill modal exists. See .local/plan.md. --}}
+            <a
+              role="button"
+              tabindex="0"
+              aria-label="{{localize "DOS100.skills.table.add"}}"
+            ><i class="fa-solid fa-plus" inert></i></a>
+          </th>
+        </tr>
+      </thead>
+      <tbody>
+        {{#if skillRows.length}}
+          {{#each skillRows}}
+            <tr>
+              <td>
+                <a
+                  role="button"
+                  tabindex="0"
+                  class="skills-table-pin"
+                  data-action="togglePinnedSkill"
+                  data-tag="{{this.tag}}"
+                  aria-pressed="{{this.pinned}}"
+                  aria-label="{{#if this.pinned}}{{localize "DOS100.skills.table.unpin" name=this.name}}{{else}}{{localize "DOS100.skills.table.pin" name=this.name}}{{/if}}"
+                >
+                  {{#if this.pinned}}
+                    <i class="fa-solid fa-thumbtack" inert></i>
+                  {{else}}
+                    <i class="fa-solid fa-thumbtack-slash" inert></i>
+                  {{/if}}
+                </a>
+              </td>
+              <td class="skills-table-name">
+                <div class="skills-table-name-inner">
+                  <span>{{this.name}}</span>
+                  {{!-- TODO: not wired up yet — no Skill edit modal exists. See .local/plan.md. --}}
+                  <a
+                    role="button"
+                    tabindex="0"
+                    data-tag="{{this.tag}}"
+                    aria-label="{{localize "DOS100.skills.table.edit" name=this.name}}"
+                  ><i class="fa-solid fa-pen-to-square" inert></i></a>
+                  {{!-- TODO: not wired up yet — no description popup exists. See .local/plan.md. --}}
+                  <a
+                    role="button"
+                    tabindex="0"
+                    data-tag="{{this.tag}}"
+                    aria-label="{{localize "DOS100.skills.table.viewDescription" name=this.name}}"
+                  ><i class="fa-solid fa-book-open" inert></i></a>
+                </div>
+              </td>
+              <td>{{localize (concat "DOS100.skills.difficulty." this.difficulty)}}</td>
+              <td>{{#each this.type}}{{#unless @first}}, {{/unless}}{{localize (concat "DOS100.skills.type." this)}}{{/each}}</td>
+              <td>
+                <select
+                  class="eyebrow-label"
+                  name="system.skills.{{this.tag}}.training"
+                  aria-label="{{localize "DOS100.skills.table.training"}} — {{this.name}}"
+                >
+                  {{selectOptions ../skillTrainingOptions selected=this.training}}
+                </select>
+              </td>
+              <td>
+                <select
+                  class="eyebrow-label"
+                  name="system.skills.{{this.tag}}.characteristic"
+                  aria-label="{{localize "DOS100.skills.table.characteristic"}} — {{this.name}}"
+                >
+                  {{selectOptions this.characteristicOptions selected=this.characteristic}}
+                </select>
+              </td>
+              <td>
+                {{!-- TODO: not wired up yet — no Skill roll/use behavior exists. See .local/plan.md. --}}
+                <button
+                  type="button"
+                  class="simple-button"
+                  data-tooltip-html="{{contributionTooltipHtml this.name this.value this.contributions}}"
+                  aria-label="{{localize "DOS100.skills.table.roll" name=this.name}}"
+                >{{localizeNumber this.value}}</button>
+              </td>
+            </tr>
+          {{/each}}
+        {{else}}
+          <tr>
+            <td colspan="7" class="ledger-table-empty-state">{{localize "DOS100.skills.table.empty"}}</td>
+          </tr>
+        {{/if}}
+      </tbody>
+    </table>
+  </div>
 </section>

@@ -26,6 +26,22 @@ export type CharacteristicId =
   | "cha"
   | "ldr";
 
+// Ordered runtime companion to CharacteristicId — TS unions carry no
+// iteration order of their own, but other schemas (e.g. Skill's `choices`
+// constraint) need every valid ID as a real array.
+export const CHARACTERISTIC_IDS: CharacteristicId[] = [
+  "str",
+  "tou",
+  "agi",
+  "wfr",
+  "wfm",
+  "int",
+  "per",
+  "crg",
+  "cha",
+  "ldr",
+];
+
 export type Characteristics = Record<CharacteristicId, Characteristic>;
 
 function characteristicField(): foundry.data.fields.SchemaField {

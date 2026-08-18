@@ -1,0 +1,46 @@
+/* Skills tab — a ledger-table instance with genuinely different row needs
+   (a pin toggle, stacked name/edit/journal controls, several schema-bound
+   selects) than XP/Finances, so its row-specific shape lives here rather
+   than being forced into the shared ledger-table component. See
+   .local/plan.md. */
+
+.pc-sheet-body {
+  .skills-table {
+    th,
+    td {
+      width: 1%;
+      white-space: nowrap;
+      vertical-align: middle;
+      text-align: center;
+    }
+
+    /* Name is the one column that absorbs the row's remaining width —
+       every other column shrinks to its content (the width: 1% trick
+       above) so Name gets whatever space is left. */
+    .skills-table-name-header,
+    .skills-table-name {
+      width: auto;
+      text-align: left;
+    }
+  }
+
+  /* The flex layout lives on an inner wrapper, not the <td> itself — an
+     explicit display on a table cell stops it generating a table-cell box
+     at all, so its own vertical-align (set above) would no longer apply. */
+  .skills-table-name-inner {
+    display: flex;
+    align-items: center;
+    gap: 0.375rem;
+  }
+
+  /* The table's width: 1% shrink-to-content trick squeezes a <select>
+     below the width its own selected-option text needs (e.g. "Trained"),
+     truncating it — reserve enough room regardless of that trick. */
+  .skills-table select {
+    min-width: 5.5rem;
+  }
+
+  .skills-table-pin[aria-pressed="false"] {
+    opacity: 0.5;
+  }
+}
