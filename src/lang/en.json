@@ -37,37 +37,27 @@
         "extend": "Extend"
       }
     },
-    "archetype": {
-      "label": "Archetype"
-    },
+    "archetype": "Archetype",
     "resource": {
       "label": "Resources",
-      "current": { "label": "Current" },
-      "maximum": { "label": "Maximum" },
-      "temp": { "label": "Temporary" },
-      "penalty": { "label": "Penalty" }
+      "current": "Current",
+      "maximum": "Maximum",
+      "temp": "Temporary",
+      "penalty": "Penalty"
     },
-    "initiative": {
-      "label": "Initiative"
-    },
+    "initiative": "Initiative",
     "mythicCharacteristic": {
       "label": "Mythic",
       "fullName": "Mythic {name}"
     },
-    "luck": {
-      "label": "Luck"
-    },
-    "wounds": {
-      "label": "Wounds"
-    },
-    "fatigue": {
-      "label": "Fatigue"
-    },
+    "luck": "Luck",
+    "wounds": "Wounds",
+    "fatigue": "Fatigue",
     "xp": {
-      "tier": { "label": "Tier" },
-      "earned": { "label": "Experience" },
-      "spent": { "label": "Spent" },
-      "available": { "label": "Available" },
+      "tier": "Tier",
+      "earned": "Experience",
+      "spent": "Spent",
+      "available": "Available",
       "ledger": {
         "type": "Type",
         "description": "Description",
@@ -85,9 +75,9 @@
       }
     },
     "finances": {
-      "received": { "label": "Received" },
-      "spent": { "label": "Spent" },
-      "available": { "label": "Available" },
+      "received": "Received",
+      "spent": "Spent",
+      "available": "Available",
       "ledger": {
         "type": "Type",
         "description": "Description",
@@ -105,10 +95,10 @@
       }
     },
     "basic": {
-      "height": { "label": "Height" },
-      "weight": { "label": "Weight" },
-      "age": { "label": "Age" },
-      "gender": { "label": "Gender" }
+      "height": "Height",
+      "weight": "Weight",
+      "age": "Age",
+      "gender": "Gender"
     },
     "damageResistance": {
       "label": "Damage Resistance",
@@ -125,17 +115,17 @@
     "movement": {
       "label": "Movement",
       "modeSelect": "Movement mode",
-      "speed": { "label": "Speed" },
-      "jumpLeap": { "label": "Jump / Leap" },
-      "climb": { "label": "Climb" },
-      "swim": { "label": "Swim" },
-      "half": { "label": "Half" },
-      "full": { "label": "Full" },
-      "charge": { "label": "Charge" },
-      "run": { "label": "Run" },
-      "sprint": { "label": "Sprint" },
-      "jump": { "label": "Jump" },
-      "leap": { "label": "Leap" },
+      "speed": "Speed",
+      "jumpLeap": "Jump / Leap",
+      "climb": "Climb",
+      "swim": "Swim",
+      "half": "Half",
+      "full": "Full",
+      "charge": "Charge",
+      "run": "Run",
+      "sprint": "Sprint",
+      "jump": "Jump",
+      "leap": "Leap",
       "modes": {
         "land": "Land",
         "climb": "Climb",
@@ -147,17 +137,47 @@
     "characteristic": {
       "label": "Characteristics",
       "temporaryModifierFor": "Temporary modifier for {name}",
-      "advancement": { "label": "Advancement" },
-      "str": { "abbr": "STR", "full": "Strength" },
-      "tou": { "abbr": "TOU", "full": "Toughness" },
-      "agi": { "abbr": "AGI", "full": "Agility" },
-      "wfr": { "abbr": "WFR", "full": "Warfare Range" },
-      "wfm": { "abbr": "WFM", "full": "Warfare Melee" },
-      "int": { "abbr": "INT", "full": "Intellect" },
-      "per": { "abbr": "PER", "full": "Perception" },
-      "crg": { "abbr": "CRG", "full": "Courage" },
-      "cha": { "abbr": "CHA", "full": "Charisma" },
-      "ldr": { "abbr": "LDR", "full": "Leadership" }
+      "advancement": "Advancement",
+      "str": {
+        "abbr": "STR",
+        "full": "Strength"
+      },
+      "tou": {
+        "abbr": "TOU",
+        "full": "Toughness"
+      },
+      "agi": {
+        "abbr": "AGI",
+        "full": "Agility"
+      },
+      "wfr": {
+        "abbr": "WFR",
+        "full": "Warfare Range"
+      },
+      "wfm": {
+        "abbr": "WFM",
+        "full": "Warfare Melee"
+      },
+      "int": {
+        "abbr": "INT",
+        "full": "Intellect"
+      },
+      "per": {
+        "abbr": "PER",
+        "full": "Perception"
+      },
+      "crg": {
+        "abbr": "CRG",
+        "full": "Courage"
+      },
+      "cha": {
+        "abbr": "CHA",
+        "full": "Charisma"
+      },
+      "ldr": {
+        "abbr": "LDR",
+        "full": "Leadership"
+      }
     },
     "skills": {
       "table": {
@@ -192,8 +212,8 @@
     },
     "educations": {
       "label": "Educations",
-      "value": { "label": "Value" },
-      "max": { "label": "Max Educations" },
+      "value": "Value",
+      "max": "Max Educations",
       "table": {
         "name": "Name",
         "difficulty": "Difficulty",
@@ -245,9 +265,7 @@
             "add": "Add Archetype"
           }
         },
-        "rest": {
-          "label": "Rest"
-        },
+        "rest": "Rest",
         "rollInitiative": "Roll Initiative",
         "quickUse": {
           "label": "Pinned Attacks & Abilities",
