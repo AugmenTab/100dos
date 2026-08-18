@@ -1,4 +1,4 @@
-import { type Page } from "@playwright/test";
+import { type Locator, type Page } from "@playwright/test";
 import { mkdir } from "node:fs/promises";
 import {
   GM_USER_LABEL,
@@ -77,6 +77,26 @@ async function dismissOverlaysIfPresent(page: Page): Promise<void> {
   await dismissTourIfPresent(page);
 }
 
+/**
+ * The guided tour can render asynchronously, arriving after a preceding
+ * `dismissOverlaysIfPresent()` call already found nothing to dismiss but
+ * before the next click fires — leaving `.tour-overlay` to block that click
+ * indefinitely, since Playwright's own actionability retry has no way to
+ * know it should dismiss our app's overlay first. Retry the click through
+ * a fresh dismiss attempt instead of racing a single check against it.
+ */
+async function clickThroughOverlays(page: Page, locator: Locator): Promise<void> {
+  for (let attempt = 0; ; attempt++) {
+    try {
+      await locator.click({ timeout: 5_000 });
+      return;
+    } catch (err) {
+      if (attempt >= 4) throw err;
+      await dismissOverlaysIfPresent(page);
+    }
+  }
+}
+
 async function acceptEula(page: Page): Promise<void> {
   await page.locator("#eula-agree").check();
   await page.locator("#sign").click();
@@ -84,7 +104,7 @@ async function acceptEula(page: Page): Promise<void> {
 }
 
 async function createWorld(page: Page): Promise<void> {
-  await page.locator('button[data-action="worldCreate"]').click();
+  await clickThroughOverlays(page, page.locator('button[data-action="worldCreate"]'));
   const form = page.locator("#world-create");
   await form.locator('input[name="title"]').fill(WORLD_TITLE);
 
@@ -123,7 +143,7 @@ async function launchExistingWorld(page: Page): Promise<void> {
   const card = page.locator(`li[data-package-id="${WORLD_ID}"]`);
   // The launch control is only revealed on hover of the world card.
   await card.hover();
-  await card.locator('a[data-action="worldLaunch"]').click();
+  await clickThroughOverlays(page, card.locator('a[data-action="worldLaunch"]'));
   await page.waitForURL(/\/(players|join|game)/, { timeout: 60_000 });
 
   if (new URL(page.url()).pathname === "/players") {
