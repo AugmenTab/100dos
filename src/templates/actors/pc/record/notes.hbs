@@ -1,0 +1,10 @@
+<section
+  class="tab{{#if tabs.record.notes.active}} active{{/if}}"
+  data-group="record"
+  data-tab="notes"
+  role="tabpanel"
+  id="{{sheetId}}-record-panel-notes"
+  aria-labelledby="{{sheetId}}-record-tab-notes"
+>
+  <prose-mirror name="system.notes" value="{{actor.system.notes}}"></prose-mirror>
+</section>

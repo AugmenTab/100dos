@@ -33,6 +33,7 @@ const RECORD_TABS: ApplicationTabConfig[] = [
   { id: "xp", label: "DOS100.pc.nav.record.xp" },
   { id: "finances", label: "DOS100.pc.nav.record.finances" },
   { id: "biography", label: "DOS100.pc.nav.record.biography" },
+  { id: "notes", label: "DOS100.pc.nav.record.notes" },
 ];
 
 export class PcActorSheet extends Dos100ActorSheet {

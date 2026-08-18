@@ -34,6 +34,7 @@ Hooks.once("init", (): void => {
     "systems/100dos/templates/actors/pc/record/xp.hbs",
     "systems/100dos/templates/actors/pc/record/finances.hbs",
     "systems/100dos/templates/actors/pc/record/biography.hbs",
+    "systems/100dos/templates/actors/pc/record/notes.hbs",
     "systems/100dos/templates/actors/pc/combat.hbs",
     "systems/100dos/templates/actors/pc/medical.hbs",
     "systems/100dos/templates/actors/pc/inventory.hbs",

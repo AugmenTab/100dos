@@ -31,7 +31,7 @@ const PRIMARY_TAB_LABELS = [
   "Settings",
 ];
 
-const RECORD_TAB_IDS = ["basics", "xp", "finances", "biography"];
+const RECORD_TAB_IDS = ["basics", "xp", "finances", "biography", "notes"];
 
 function primaryTab(sheet: ReturnType<Page["locator"]>, tabId: string) {
   return sheet.locator(`[role="tab"][data-group="primary"][data-tab="${tabId}"]`);
@@ -155,7 +155,7 @@ test("primary and Record tab lists support keyboard navigation independently", a
   await recordPrimaryTab.click();
   const basicsTab = recordTab(sheet, "basics");
   const xpTab = recordTab(sheet, "xp");
-  const biographyTab = recordTab(sheet, "biography");
+  const notesTab = recordTab(sheet, "notes");
 
   await basicsTab.focus();
   await page.keyboard.press("ArrowRight");
@@ -167,7 +167,7 @@ test("primary and Record tab lists support keyboard navigation independently", a
   await expect(recordPrimaryTab).toHaveAttribute("aria-selected", "true");
 
   // Arrow navigation wraps from the last tab back to the first.
-  await biographyTab.focus();
+  await notesTab.focus();
   await page.keyboard.press("ArrowRight");
   await expect(basicsTab).toBeFocused();
 });

@@ -142,7 +142,8 @@
           "basics": "Basics",
           "xp": "XP",
           "finances": "Finances",
-          "biography": "Biography"
+          "biography": "Biography",
+          "notes": "Notes"
         }
       },
       "dashboard": {

@@ -19,6 +19,7 @@ export class PcDataModel extends foundry.abstract.TypeDataModel {
       xp: xpField(),
       basic: basicField(),
       biography: new HTMLField({ required: true, initial: "" }),
+      notes: new HTMLField({ required: true, initial: "" }),
       // TODO: all fields below are unrelated placeholders (defaults 0/[])
       // until a calculation system derives them from real game rules.
       characteristics: characteristicsField(),
