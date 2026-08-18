@@ -97,4 +97,16 @@
   .large-value > *:last-child {
     font-size: var(--font-size-20, 1.25rem);
   }
+
+  /* A cell holding explanatory prose instead of a stat value (e.g. DR's
+     no-locations-defined state) — the value styling above is tuned for a
+     short, bold, non-wrapping number, which is wrong for a sentence. */
+  .message-cell > *:last-child {
+    font-size: var(--font-size-12, 0.75rem);
+    font-weight: normal;
+    font-style: italic;
+    opacity: 0.7;
+    white-space: normal;
+    text-align: center;
+  }
 }

@@ -248,6 +248,15 @@
     }
   }
 
+  /* A destroyed DR location's value stays visible (see
+     damage-resistance.ts — destroyed locations are preserved, never
+     deleted) but reads as struck out. DR is the only current source of
+     this state, so it lives here rather than in the shared stat-table
+     component. */
+  .destroyed {
+    text-decoration: line-through;
+  }
+
   .pc-dashboard-empty-state {
     margin: 0;
     font-style: italic;

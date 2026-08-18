@@ -2,6 +2,18 @@ import { Dos100ActorSheet } from "../actor-sheet.js";
 import { Dos100Item } from "../../documents/item.js";
 import { type ActorMovement, type MovementMode } from "../../movement.js";
 import { type MythicCharacteristics } from "../../mythic-characteristic.js";
+import {
+  DR_LOCATION_TYPES,
+  type DamageResistanceLocation,
+  type DamageResistanceLocationType,
+  type DamageResistanceLocations,
+  sortLocationsForDisplay,
+} from "../../damage-resistance.js";
+
+type DrCategory = {
+  type: DamageResistanceLocationType;
+  locations: (DamageResistanceLocation & { key: string })[];
+};
 
 const PRIMARY_TABS: ApplicationTabConfig[] = [
   { id: "dashboard", label: "DOS100.pc.nav.primary.dashboard" },
@@ -91,7 +103,25 @@ export class PcActorSheet extends Dos100ActorSheet {
       movementModeOptions,
       hasAlternateMovementModes: movementModeOptions.length > 1,
       hasMythicCharacteristics: this.hasMythicCharacteristics(),
+      drCategories: this.drCategories(),
     };
+  }
+
+  // Render context, not persisted data: system.dr is a keyed collection of
+  // arbitrary locations (see damage-resistance.ts), not one fixed field per
+  // humanoid location. Grouped by category in the Dashboard's fixed
+  // presentation order (head/torso/arm/leg/wing/tail), each category's
+  // locations sorted for display; a category with zero locations is
+  // omitted entirely rather than rendered as an empty cell.
+  private drCategories(): DrCategory[] {
+    const dr = (this.actor.system as { dr: DamageResistanceLocations }).dr;
+    const entries = Object.entries(dr).map(([key, location]) => ({ key, ...location }));
+    const categories: DrCategory[] = [];
+    for (const type of DR_LOCATION_TYPES) {
+      const locations = sortLocationsForDisplay(entries.filter((location) => location.type === type));
+      if (locations.length > 0) categories.push({ type, locations });
+    }
+    return categories;
   }
 
   // Render context, not persisted data: whether the Mythic Characteristics

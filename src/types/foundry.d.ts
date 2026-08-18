@@ -181,6 +181,9 @@ declare namespace foundry {
       class ObjectField extends DataField {
         constructor(options?: { required?: boolean; initial?: object });
       }
+      class TypedObjectField extends ObjectField {
+        constructor(element: DataField, options?: { required?: boolean; initial?: object });
+      }
       class DocumentUUIDField extends StringField {
         constructor(options?: {
           required?: boolean;

@@ -75,13 +75,14 @@
     },
     "damageResistance": {
       "label": "Damage Resistance",
-      "locations": {
+      "empty": "This character has no hit locations defined. Select an Archetype with hit locations or set them yourself on the Medical tab.",
+      "categories": {
         "head": "Head",
-        "leftArm": "Left Arm",
-        "rightArm": "Right Arm",
         "torso": "Torso",
-        "leftLeg": "Left Leg",
-        "rightLeg": "Right Leg"
+        "arm": "Arm",
+        "leg": "Leg",
+        "wing": "Wing",
+        "tail": "Tail"
       }
     },
     "movement": {

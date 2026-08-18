@@ -234,12 +234,27 @@
       <section class="simple-stat-table" aria-label="{{localize "DOS100.damageResistance.label"}}">
         <h3 aria-hidden="true">{{localize "DOS100.damageResistance.label"}}</h3>
         <div>
-          {{#each actor.system.dr}}
-            <div data-dr-location-id="{{@key}}">
-              <span class="eyebrow-label">{{localize (concat "DOS100.damageResistance.locations." @key)}}</span>
-              <span data-tooltip-html="{{contributionTooltipHtml (localize (concat "DOS100.damageResistance.locations." @key)) this.value this.contributions}}">{{this.value}}</span>
+          {{#if drCategories.length}}
+            {{#each drCategories}}
+              <div>
+                <span class="eyebrow-label">{{localize (concat "DOS100.damageResistance.categories." this.type)}}</span>
+                <span>
+                  {{#each this.locations}}
+                    {{#unless @first}}<span>/</span>{{/unless}}
+                    <span
+                      {{#if this.destroyed}}class="destroyed"{{/if}}
+                      data-dr-location-id="{{this.key}}"
+                      data-tooltip-html="{{contributionTooltipHtml this.label this.value this.contributions}}"
+                    >{{this.value}}</span>
+                  {{/each}}
+                </span>
+              </div>
+            {{/each}}
+          {{else}}
+            <div class="message-cell">
+              <p>{{localize "DOS100.damageResistance.empty"}}</p>
             </div>
-          {{/each}}
+          {{/if}}
         </div>
       </section>
 

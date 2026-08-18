@@ -5,7 +5,26 @@ import { openPcSheet, rerenderPcSheet, resizePcSheet } from "./support/pc-sheet.
 import { type Page } from "@playwright/test";
 
 const CHARACTERISTIC_IDS = ["str", "tou", "agi", "wfr", "wfm", "int", "per", "crg", "cha", "ldr"];
-const DR_LOCATION_IDS = ["head", "leftArm", "rightArm", "torso", "leftLeg", "rightLeg"];
+
+// system.dr is a keyed collection of arbitrary locations (see
+// .local/plan.md), empty by default — nothing assumes a humanoid shape at
+// the schema level. This is a representative humanoid set for tests that
+// need real DR data to render against; rightArm is destroyed to exercise
+// that state. Object literal (not per-field dot-paths): a location's
+// required fields (type/label/placement/order/destroyed) have their own
+// schema defaults, so a dot-path dr.leftArm.value update silently backfills
+// leftArm's type to the schema default ("head") instead of leaving it
+// unset — passing an assertion that only checks the value text exists
+// somewhere on the page, while actually miscategorizing the location.
+const HUMANOID_DR = {
+  head: { type: "head", label: "Head", placement: "none", order: 0, destroyed: false, value: 8, contributions: [] },
+  torso: { type: "torso", label: "Torso", placement: "none", order: 0, destroyed: false, value: 12, contributions: [] },
+  leftArm: { type: "arm", label: "Left Arm", placement: "left", order: 0, destroyed: false, value: 9, contributions: [] },
+  rightArm: { type: "arm", label: "Right Arm", placement: "right", order: 0, destroyed: true, value: 11, contributions: [] },
+  leftLeg: { type: "leg", label: "Left Leg", placement: "left", order: 0, destroyed: false, value: 9, contributions: [] },
+  rightLeg: { type: "leg", label: "Right Leg", placement: "right", order: 0, destroyed: false, value: 9, contributions: [] },
+};
+const DR_LOCATION_IDS = Object.keys(HUMANOID_DR);
 
 async function updateActor(page: Page, actorId: string, data: Record<string, unknown>): Promise<void> {
   await page.evaluate(
@@ -38,6 +57,7 @@ test("Dashboard renders identity, resources, Characteristics, DR, and dynamic co
   page,
 }) => {
   const { actorId } = await resetFixtures(page);
+  await updateActor(page, actorId, { "system.dr": HUMANOID_DR });
   const sheetId = await openPcSheet(page, actorId);
   const sheet = page.locator(`#${sheetId}`);
 
@@ -181,12 +201,7 @@ test("Initiative, Luck, Wounds, Fatigue, and all six Damage Resistance locations
     "system.luck": { value: 2, max: 3 },
     "system.wounds": { value: 8, max: 10 },
     "system.fatigue": { value: 1, max: 5 },
-    "system.dr.head.value": 3,
-    "system.dr.leftArm.value": 4,
-    "system.dr.rightArm.value": 4,
-    "system.dr.torso.value": 6,
-    "system.dr.leftLeg.value": 5,
-    "system.dr.rightLeg.value": 5,
+    "system.dr": HUMANOID_DR,
   });
   const sheetId = await openPcSheet(page, actorId);
   const sheet = page.locator(`#${sheetId}`);
@@ -205,17 +220,27 @@ test("Initiative, Luck, Wounds, Fatigue, and all six Damage Resistance locations
   await expect(fatigueGroup.locator('input[name="system.fatigue.value"]')).toHaveValue("1");
   await expect(fatigueGroup).toContainText("5");
 
-  const expectedDr: Record<string, string> = {
-    head: "3",
-    leftArm: "4",
-    rightArm: "4",
-    torso: "6",
-    leftLeg: "5",
-    rightLeg: "5",
-  };
-  for (const [id, value] of Object.entries(expectedDr)) {
-    await expect(sheet.locator(`[data-dr-location-id="${id}"]`)).toContainText(value);
+  for (const [id, location] of Object.entries(HUMANOID_DR)) {
+    await expect(sheet.locator(`[data-dr-location-id="${id}"]`)).toHaveText(String(location.value));
   }
+
+  // Left/right pairs land in the same category cell, sorted left before
+  // right — not one column per location.
+  const armCategory = sheet.locator('[data-dr-location-id="leftArm"]').locator("..");
+  const armLocationIds = await armCategory
+    .locator("[data-dr-location-id]")
+    .evaluateAll((els) => els.map((el) => el.getAttribute("data-dr-location-id")));
+  expect(armLocationIds).toEqual(["leftArm", "rightArm"]);
+
+  // Destroyed locations stay visible (never deleted) but read struck out.
+  await expect(sheet.locator('[data-dr-location-id="rightArm"]')).toHaveClass(/destroyed/);
+  await expect(sheet.locator('[data-dr-location-id="leftArm"]')).not.toHaveClass(/destroyed/);
+
+  // WING and TAIL have no locations in this seed data — their category
+  // cells shouldn't render at all.
+  const drSection = sheet.locator(".pc-dashboard-dr-movement-row");
+  await expect(drSection).not.toContainText("Wing");
+  await expect(drSection).not.toContainText("Tail");
 });
 
 test("pinning an Ability surfaces it as a quick-use control that delegates to the existing Action-use path", async ({
@@ -290,6 +315,10 @@ test("only active Effects appear in the active-Effects Dashboard region", async 
 
 test("Dashboard remains usable, without overlap or overflow, at representative sheet widths", async ({ page }) => {
   const { actorId } = await resetFixtures(page);
+  // DR is empty by default now — seed it so the DR/Movement row (whose
+  // content, not just presence, matters for overflow testing) has
+  // something to actually wrap/overflow-check against.
+  await updateActor(page, actorId, { "system.dr": HUMANOID_DR });
   const sheetId = await openPcSheet(page, actorId);
   const sheet = page.locator(`#${sheetId}`);
   const dashboard = sheet.locator(".pc-dashboard");
