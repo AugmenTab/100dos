@@ -67,7 +67,7 @@
       "tier": { "label": "Tier" },
       "earned": { "label": "Experience" }
     },
-    "biography": {
+    "basic": {
       "height": { "label": "Height" },
       "weight": { "label": "Weight" },
       "age": { "label": "Age" },

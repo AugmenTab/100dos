@@ -166,6 +166,9 @@ declare namespace foundry {
           choices?: string[];
         });
       }
+      class HTMLField extends StringField {
+        constructor(options?: { required?: boolean; initial?: string; blank?: boolean; nullable?: boolean });
+      }
       class BooleanField extends DataField {
         constructor(options?: { required?: boolean; initial?: boolean });
       }

@@ -42,9 +42,21 @@
 
   .primary-tab-content,
   .record-tab-content {
+    display: flex;
+    flex-direction: column;
     flex: 1 1 auto;
     min-height: 0;
     overflow-y: auto;
+
+    /* Every tab panel is this container's sole visible child (siblings
+       stay in the DOM but display:none while inactive) — stretched to
+       fill the panel's full height so content that wants to fill the
+       page (e.g. Biography's editor) has a real height to flex into,
+       instead of shrinking to its own content like a plain block child
+       would. */
+    > .tab {
+      flex: 1 1 auto;
+    }
   }
 
   .tab.active {

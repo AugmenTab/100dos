@@ -1,0 +1,18 @@
+/* ProseMirror rich text editor (Foundry's <prose-mirror> custom element).
+   Unscoped, like the other shared components: any sheet — actor or item,
+   PC or otherwise — gets a full-height editing surface for free just by
+   placing a <prose-mirror> in a flex column, instead of every page that
+   uses one re-deriving this layout. */
+
+prose-mirror {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  min-height: 0;
+
+  .editor-content {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-y: auto;
+  }
+}

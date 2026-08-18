@@ -7,17 +7,18 @@ import { fatigueField } from "../fatigue.js";
 import { damageResistanceField } from "../damage-resistance.js";
 import { actorMovementField } from "../movement.js";
 import { xpField } from "../xp.js";
-import { biographyField } from "../biography.js";
+import { basicField } from "../basic.js";
 
 export class PcDataModel extends foundry.abstract.TypeDataModel {
   static override defineSchema() {
-    const { DocumentUUIDField } = foundry.data.fields;
+    const { DocumentUUIDField, HTMLField } = foundry.data.fields;
     return {
       // TODO: references an embedded Item, but the Archetype Item type
       // doesn't exist yet — will always be null until it does.
       archetype: new DocumentUUIDField({ type: "Item", embedded: true, nullable: true, initial: null }),
       xp: xpField(),
-      biography: biographyField(),
+      basic: basicField(),
+      biography: new HTMLField({ required: true, initial: "" }),
       // TODO: all fields below are unrelated placeholders (defaults 0/[])
       // until a calculation system derives them from real game rules.
       characteristics: characteristicsField(),

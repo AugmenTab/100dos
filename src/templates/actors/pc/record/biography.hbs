@@ -6,7 +6,5 @@
   id="{{sheetId}}-record-panel-biography"
   aria-labelledby="{{sheetId}}-record-tab-biography"
 >
-  <h2>{{localize "DOS100.pc.nav.record.biography"}}</h2>
-  {{!-- TODO: Replace with real Biography editing content. --}}
-  <p>This page doesn't have any content yet.</p>
+  <prose-mirror name="system.biography" value="{{actor.system.biography}}"></prose-mirror>
 </section>
