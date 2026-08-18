@@ -9,10 +9,22 @@ import {
   type DamageResistanceLocations,
   sortLocationsForDisplay,
 } from "../../damage-resistance.js";
+import { type ExperienceLedger, type ExperienceLedgerItem } from "../../xp.js";
+
+declare global {
+  interface Game {
+    users: { get(id: string): { name: string } | undefined };
+  }
+}
 
 type DrCategory = {
   type: DamageResistanceLocationType;
   locations: (DamageResistanceLocation & { key: string })[];
+};
+
+type XpLedgerRow = ExperienceLedgerItem & {
+  recordedByName: string;
+  realTimeDisplay: string;
 };
 
 const PRIMARY_TABS: ApplicationTabConfig[] = [
@@ -105,7 +117,26 @@ export class PcActorSheet extends Dos100ActorSheet {
       hasAlternateMovementModes: movementModeOptions.length > 1,
       hasMythicCharacteristics: this.hasMythicCharacteristics(),
       drCategories: this.drCategories(),
+      xpLedger: this.xpLedger(),
     };
+  }
+
+  // Render context, not persisted data: each row's stored recordedBy User ID
+  // resolves to that User's current display name (never persisting the name
+  // itself, per .local/plan.md — a renamed User must not require rewriting
+  // every row it recorded), and realTime formats to a display string for the
+  // Game Date hover tooltip. worldTime needs no equivalent resolution here —
+  // it's rendered directly via the existing localizeNumber helper, the
+  // simplest available representation until a calendar system exists.
+  private xpLedger(): XpLedgerRow[] {
+    const xp = (this.actor.system as { xp: ExperienceLedger }).xp;
+    return xp.ledger.map((item) => ({
+      ...item,
+      recordedByName:
+        (item.recordedBy !== null ? game.users.get(item.recordedBy)?.name : undefined) ??
+        game.i18n.localize("DOS100.xp.ledger.unknownRecorder"),
+      realTimeDisplay: new Date(item.realTime).toLocaleString(game.i18n.lang),
+    }));
   }
 
   // Render context, not persisted data: system.dr is a keyed collection of

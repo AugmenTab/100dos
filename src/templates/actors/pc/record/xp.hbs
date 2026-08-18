@@ -1,12 +1,80 @@
 <section
-  class="tab{{#if tabs.record.xp.active}} active{{/if}}"
+  class="tab pc-record-xp{{#if tabs.record.xp.active}} active{{/if}}"
   data-group="record"
   data-tab="xp"
   role="tabpanel"
   id="{{sheetId}}-record-panel-xp"
   aria-labelledby="{{sheetId}}-record-tab-xp"
 >
-  <h2>{{localize "DOS100.pc.nav.record.xp"}}</h2>
-  {{!-- TODO: Replace with real XP ledger content. --}}
-  <p>This page doesn't have any content yet.</p>
+  <div class="simple-stat-table">
+    <div>
+      <div>
+        <span class="eyebrow-label">{{localize "DOS100.xp.earned.label"}}</span>
+        <span>{{localizeNumber actor.system.xp.earned}}</span>
+      </div>
+      <div>
+        <span class="eyebrow-label">{{localize "DOS100.xp.spent.label"}}</span>
+        <span>{{localizeNumber actor.system.xp.spent}}</span>
+      </div>
+      <div>
+        <span class="eyebrow-label">{{localize "DOS100.xp.available.label"}}</span>
+        <span>{{localizeNumber actor.system.xp.available}}</span>
+      </div>
+      <div>
+        <span class="eyebrow-label">{{localize "DOS100.xp.tier.label"}}</span>
+        <span>{{localizeNumber actor.system.xp.tier}}</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="pc-record-xp-ledger-wrap">
+    <table class="pc-record-xp-ledger">
+      <thead>
+        <tr>
+          <th scope="col">{{localize "DOS100.xp.ledger.type"}}</th>
+          <th scope="col">{{localize "DOS100.xp.ledger.description"}}</th>
+          <th scope="col">{{localize "DOS100.xp.ledger.value"}}</th>
+          <th scope="col">{{localize "DOS100.xp.ledger.gameDate"}}</th>
+          <th scope="col">{{localize "DOS100.xp.ledger.recordedBy"}}</th>
+          <th scope="col">
+            {{!-- TODO: not wired up yet — no Add-transaction modal exists.
+                 See .local/plan.md. --}}
+            <a
+              role="button"
+              tabindex="0"
+              aria-label="{{localize "DOS100.xp.ledger.add"}}"
+            ><i class="fa-solid fa-plus" inert></i></a>
+          </th>
+        </tr>
+      </thead>
+      <tbody>
+        {{#if xpLedger.length}}
+          {{#each xpLedger}}
+            <tr>
+              <td>{{localize (concat "DOS100.xp.ledger.types." this.type)}}</td>
+              <td>{{this.description}}</td>
+              <td>{{localizeNumber this.value}}</td>
+              <td data-tooltip="{{this.realTimeDisplay}}">
+                {{#if (eq this.worldTime null)}}—{{else}}{{localizeNumber this.worldTime}}{{/if}}
+              </td>
+              <td>{{this.recordedByName}}</td>
+              <td>
+                {{!-- TODO: not wired up yet — no delete action exists.
+                     See .local/plan.md. --}}
+                <a
+                  role="button"
+                  tabindex="0"
+                  aria-label="{{localize "DOS100.xp.ledger.delete" name=this.description}}"
+                ><i class="fa-solid fa-trash" inert></i></a>
+              </td>
+            </tr>
+          {{/each}}
+        {{else}}
+          <tr>
+            <td colspan="6" class="pc-record-xp-ledger-empty-state">{{localize "DOS100.xp.ledger.empty"}}</td>
+          </tr>
+        {{/if}}
+      </tbody>
+    </table>
+  </div>
 </section>

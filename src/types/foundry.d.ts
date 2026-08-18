@@ -150,7 +150,7 @@ declare namespace foundry {
       class NumberField extends DataField {
         constructor(options?: {
           required?: boolean;
-          initial?: number;
+          initial?: number | (() => number) | null;
           integer?: boolean;
           min?: number;
           max?: number;
@@ -160,7 +160,7 @@ declare namespace foundry {
       class StringField extends DataField {
         constructor(options?: {
           required?: boolean;
-          initial?: string | (() => string);
+          initial?: string | (() => string) | null;
           blank?: boolean;
           nullable?: boolean;
           choices?: string[];

@@ -6,7 +6,7 @@ import { woundsField } from "../wounds.js";
 import { fatigueField } from "../fatigue.js";
 import { damageResistanceField } from "../damage-resistance.js";
 import { actorMovementField } from "../movement.js";
-import { xpField } from "../xp.js";
+import { experienceLedgerField } from "../xp.js";
 import { basicField } from "../basic.js";
 
 export class PcDataModel extends foundry.abstract.TypeDataModel {
@@ -16,7 +16,7 @@ export class PcDataModel extends foundry.abstract.TypeDataModel {
       // TODO: references an embedded Item, but the Archetype Item type
       // doesn't exist yet — will always be null until it does.
       archetype: new DocumentUUIDField({ type: "Item", embedded: true, nullable: true, initial: null }),
-      xp: xpField(),
+      xp: experienceLedgerField(),
       basic: basicField(),
       biography: new HTMLField({ required: true, initial: "" }),
       notes: new HTMLField({ required: true, initial: "" }),

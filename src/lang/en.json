@@ -65,7 +65,24 @@
     },
     "xp": {
       "tier": { "label": "Tier" },
-      "earned": { "label": "Experience" }
+      "earned": { "label": "Experience" },
+      "spent": { "label": "Spent" },
+      "available": { "label": "Available" },
+      "ledger": {
+        "type": "Type",
+        "description": "Description",
+        "value": "Value",
+        "gameDate": "Game Date",
+        "recordedBy": "Recorded By",
+        "add": "Add XP Transaction",
+        "delete": "Delete transaction: {name}",
+        "empty": "No XP transactions recorded yet.",
+        "unknownRecorder": "Unknown",
+        "types": {
+          "reward": "Reward",
+          "purchase": "Purchase"
+        }
+      }
     },
     "basic": {
       "height": { "label": "Height" },
