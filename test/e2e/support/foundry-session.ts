@@ -187,14 +187,39 @@ export async function waitForGameReady(page: Page): Promise<void> {
   await dismissOverlaysIfPresent(page);
 }
 
+const GAME_VIEW_ATTEMPTS = 3;
+
 /**
  * Drives the page from whatever valid starting state it's in through to an
  * authenticated, ready GM game view. Used by both global setup (first
  * bootstrap: may need to create/launch the world) and by tests navigating
  * fresh pages (should already be joined via storageState, but re-joins if
  * the session wasn't restored).
+ *
+ * A world-creation or -launch navigation can stall well past its own
+ * timeout under this environment's container load without any client-visible
+ * error — the identical steps run standalone consistently complete in
+ * ~1-2s, so this isn't a logic bug in the flow itself. Re-driving the whole
+ * flow from a fresh navigation has reliably recovered every time this has
+ * been hit by re-running a whole test command by hand; automate exactly
+ * that instead of surfacing the failure.
  */
 export async function ensureGameView(page: Page): Promise<void> {
+  let lastError: unknown;
+  for (let attempt = 1; attempt <= GAME_VIEW_ATTEMPTS; attempt++) {
+    try {
+      await attemptGameView(page);
+      return;
+    } catch (err) {
+      lastError = err;
+      if (attempt === GAME_VIEW_ATTEMPTS) break;
+      await page.goto(new URL("/", page.url()).toString(), { waitUntil: "networkidle" }).catch(() => {});
+    }
+  }
+  throw lastError;
+}
+
+async function attemptGameView(page: Page): Promise<void> {
   await dismissOverlaysIfPresent(page);
   let state = await detectState(page);
 

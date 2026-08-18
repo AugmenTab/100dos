@@ -17,6 +17,9 @@ trap cleanup EXIT INT TERM
 echo "==> Building the 100dos system"
 docker compose run --rm dev sh -c "npm install && npm run build"
 
+echo "==> Clearing any stale Foundry lock left by an unclean previous shutdown"
+rm -rf foundrytestdata/Config/options.json.lock
+
 echo "==> Starting dedicated test Foundry instance"
 docker compose --profile test up -d foundry-test
 
