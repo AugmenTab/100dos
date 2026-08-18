@@ -84,6 +84,26 @@
         }
       }
     },
+    "finances": {
+      "received": { "label": "Received" },
+      "spent": { "label": "Spent" },
+      "available": { "label": "Available" },
+      "ledger": {
+        "type": "Type",
+        "description": "Description",
+        "value": "Value",
+        "gameDate": "Game Date",
+        "recordedBy": "Recorded By",
+        "add": "Add Finance Transaction",
+        "delete": "Delete transaction: {name}",
+        "empty": "No finance transactions recorded yet.",
+        "unknownRecorder": "Unknown",
+        "types": {
+          "income": "Income",
+          "purchase": "Purchase"
+        }
+      }
+    },
     "basic": {
       "height": { "label": "Height" },
       "weight": { "label": "Weight" },

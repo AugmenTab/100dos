@@ -7,6 +7,7 @@ import { fatigueField } from "../fatigue.js";
 import { damageResistanceField } from "../damage-resistance.js";
 import { actorMovementField } from "../movement.js";
 import { experienceLedgerField } from "../xp.js";
+import { financesField } from "../finances.js";
 import { basicField } from "../basic.js";
 
 export class PcDataModel extends foundry.abstract.TypeDataModel {
@@ -17,6 +18,7 @@ export class PcDataModel extends foundry.abstract.TypeDataModel {
       // doesn't exist yet — will always be null until it does.
       archetype: new DocumentUUIDField({ type: "Item", embedded: true, nullable: true, initial: null }),
       xp: experienceLedgerField(),
+      finances: financesField(),
       basic: basicField(),
       biography: new HTMLField({ required: true, initial: "" }),
       notes: new HTMLField({ required: true, initial: "" }),

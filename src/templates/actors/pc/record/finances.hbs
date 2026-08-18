@@ -6,7 +6,71 @@
   id="{{sheetId}}-record-panel-finances"
   aria-labelledby="{{sheetId}}-record-tab-finances"
 >
-  <h2>{{localize "DOS100.pc.nav.record.finances"}}</h2>
-  {{!-- TODO: Replace with real Finances ledger content. --}}
-  <p>This page doesn't have any content yet.</p>
+  <div class="simple-stat-table">
+    <div>
+      <div>
+        <span class="eyebrow-label">{{localize "DOS100.finances.received.label"}}</span>
+        <span>{{localizeNumber actor.system.finances.received}}</span>
+      </div>
+      <div>
+        <span class="eyebrow-label">{{localize "DOS100.finances.spent.label"}}</span>
+        <span>{{localizeNumber actor.system.finances.spent}}</span>
+      </div>
+      <div>
+        <span class="eyebrow-label">{{localize "DOS100.finances.available.label"}}</span>
+        <span>{{localizeNumber actor.system.finances.available}}</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="ledger-table-wrap">
+    <table class="ledger-table">
+      <thead>
+        <tr>
+          <th scope="col">{{localize "DOS100.finances.ledger.type"}}</th>
+          <th scope="col">{{localize "DOS100.finances.ledger.description"}}</th>
+          <th scope="col" class="ledger-table-value">{{localize "DOS100.finances.ledger.value"}}</th>
+          <th scope="col">{{localize "DOS100.finances.ledger.gameDate"}}</th>
+          <th scope="col">{{localize "DOS100.finances.ledger.recordedBy"}}</th>
+          <th scope="col">
+            {{!-- TODO: not wired up yet — no Add-transaction modal exists.
+                 See .local/plan.md. --}}
+            <a
+              role="button"
+              tabindex="0"
+              aria-label="{{localize "DOS100.finances.ledger.add"}}"
+            ><i class="fa-solid fa-plus" inert></i></a>
+          </th>
+        </tr>
+      </thead>
+      <tbody>
+        {{#if financesLedger.length}}
+          {{#each financesLedger}}
+            <tr>
+              <td>{{localize (concat "DOS100.finances.ledger.types." this.type)}}</td>
+              <td>{{this.description}}</td>
+              <td class="ledger-table-value">{{localizeNumber this.value}}</td>
+              <td data-tooltip="{{this.realTimeDisplay}}">
+                {{#if (eq this.worldTime null)}}—{{else}}{{localizeNumber this.worldTime}}{{/if}}
+              </td>
+              <td>{{this.recordedByName}}</td>
+              <td>
+                {{!-- TODO: not wired up yet — no delete action exists.
+                     See .local/plan.md. --}}
+                <a
+                  role="button"
+                  tabindex="0"
+                  aria-label="{{localize "DOS100.finances.ledger.delete" name=this.description}}"
+                ><i class="fa-solid fa-trash" inert></i></a>
+              </td>
+            </tr>
+          {{/each}}
+        {{else}}
+          <tr>
+            <td colspan="6" class="ledger-table-empty-state">{{localize "DOS100.finances.ledger.empty"}}</td>
+          </tr>
+        {{/if}}
+      </tbody>
+    </table>
+  </div>
 </section>

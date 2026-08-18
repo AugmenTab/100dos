@@ -10,6 +10,7 @@ import {
   sortLocationsForDisplay,
 } from "../../damage-resistance.js";
 import { type ExperienceLedger, type ExperienceLedgerItem } from "../../xp.js";
+import { type Finances, type FinanceLedgerItem } from "../../finances.js";
 
 declare global {
   interface Game {
@@ -23,6 +24,11 @@ type DrCategory = {
 };
 
 type XpLedgerRow = ExperienceLedgerItem & {
+  recordedByName: string;
+  realTimeDisplay: string;
+};
+
+type FinanceLedgerRow = FinanceLedgerItem & {
   recordedByName: string;
   realTimeDisplay: string;
 };
@@ -118,6 +124,7 @@ export class PcActorSheet extends Dos100ActorSheet {
       hasMythicCharacteristics: this.hasMythicCharacteristics(),
       drCategories: this.drCategories(),
       xpLedger: this.xpLedger(),
+      financesLedger: this.financesLedger(),
     };
   }
 
@@ -135,6 +142,23 @@ export class PcActorSheet extends Dos100ActorSheet {
       recordedByName:
         (item.recordedBy !== null ? game.users.get(item.recordedBy)?.name : undefined) ??
         game.i18n.localize("DOS100.xp.ledger.unknownRecorder"),
+      realTimeDisplay: new Date(item.realTime).toLocaleString(game.i18n.lang),
+    }));
+  }
+
+  // Render context, not persisted data — see xpLedger() above for the same
+  // recordedBy/realTime resolution rationale. Finances stays its own
+  // standalone concept rather than an alias of the XP ledger (per
+  // .local/plan.md), so this is a separate method with the same shape
+  // rather than a shared abstraction over two schema types that happen to
+  // currently look alike.
+  private financesLedger(): FinanceLedgerRow[] {
+    const finances = (this.actor.system as { finances: Finances }).finances;
+    return finances.ledger.map((item) => ({
+      ...item,
+      recordedByName:
+        (item.recordedBy !== null ? game.users.get(item.recordedBy)?.name : undefined) ??
+        game.i18n.localize("DOS100.finances.ledger.unknownRecorder"),
       realTimeDisplay: new Date(item.realTime).toLocaleString(game.i18n.lang),
     }));
   }

@@ -1,0 +1,72 @@
+/* Ledger table: shared shape for an ordered transaction ledger (XP,
+   Finances, ...) — a real <table> bound to an array of transaction rows,
+   with an unnamed final action column holding an Add control (header) and
+   a Delete control (each row). Unscoped, like the other shared components:
+   any sheet can drop one in without re-deriving this layout. */
+
+.ledger-table-wrap {
+  /* Horizontal scroll containment for the ledger itself, not the whole
+     sheet — stays usable at narrow widths rather than forcing the sheet
+     to overflow (a card/reflow treatment is deferred until real content
+     demonstrates the need). */
+  overflow-x: auto;
+}
+
+.ledger-table {
+  width: 100%;
+  border-collapse: collapse;
+
+  th,
+  td {
+    padding: 0.25rem 0.5rem;
+    text-align: left;
+    white-space: nowrap;
+  }
+
+  thead th {
+    font-size: var(--font-size-11, 0.7rem);
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    opacity: 0.7;
+    border-bottom: 1px solid var(--color-border-light-2, currentColor);
+  }
+
+  /* Explicit opt-in per cell, not by column position — a ledger's Value
+     column right-justifies so figures line up on their ones place, the
+     way a ledger sheet reads, but not every ledger table necessarily
+     places Value in the same column. */
+  .ledger-table-value {
+    text-align: right;
+  }
+
+  /* The Add/Delete column has no textual header — its cells are sized to
+     their icon control rather than sharing space with the data columns.
+     Positional, not a class: "last column is the action column" is part
+     of this component's shape, not incidental to any one ledger. */
+  th:last-child,
+  td:last-child {
+    width: 1%;
+    white-space: nowrap;
+  }
+
+  /* A clickable icon standing in for a button, not a <button> itself —
+     matches the Archetype "Add" control on Dashboard. */
+  a[role="button"] {
+    display: inline-flex;
+    border: none;
+    background: none;
+    padding: 0;
+    color: inherit;
+    cursor: pointer;
+  }
+
+  /* Nested (not a sibling rule) so this outranks the base `td` rule's own
+     text-align — a bare `.ledger-table-empty-state` selector is no more
+     specific than `.ledger-table td` and loses the cascade tie to it. */
+  .ledger-table-empty-state {
+    text-align: center;
+    font-style: italic;
+    opacity: 0.7;
+    white-space: normal;
+  }
+}
