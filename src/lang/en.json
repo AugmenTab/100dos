@@ -190,6 +190,29 @@
         "plus20": "+20"
       }
     },
+    "educations": {
+      "label": "Educations",
+      "value": { "label": "Value" },
+      "max": { "label": "Max Educations" },
+      "table": {
+        "name": "Name",
+        "difficulty": "Difficulty",
+        "training": "Training",
+        "target": "Characteristic / Skill",
+        "add": "Add Education",
+        "edit": "Edit Education: {name}",
+        "viewDescription": "View Education Description: {name}",
+        "delete": "Delete Education: {name}",
+        "pin": "Pin {name}",
+        "unpin": "Unpin {name}",
+        "roll": "Roll {name}",
+        "empty": "No Educations recorded yet."
+      },
+      "training": {
+        "plus5": "+5",
+        "plus10": "+10"
+      }
+    },
     "pc": {
       "nav": {
         "primaryLabel": "Character navigation",

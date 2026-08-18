@@ -336,7 +336,7 @@
     <div class="pc-dashboard-pinned-row">
       <div class="pc-dashboard-pinned-column">
         <section class="pc-dashboard-quick-use" aria-label="{{localize "DOS100.pc.dashboard.quickUse.label"}}">
-          <h3 class="pc-dashboard-section-heading" aria-hidden="true">{{localize "DOS100.pc.dashboard.quickUse.label"}}</h3>
+          <h3 class="pc-section-heading" aria-hidden="true">{{localize "DOS100.pc.dashboard.quickUse.label"}}</h3>
           {{#if quickUseItems.length}}
             <div class="pc-dashboard-quick-use-grid">
               {{#each quickUseItems}}
@@ -358,21 +358,29 @@
         </section>
 
         <section class="pc-dashboard-pinned-skills" aria-label="{{localize "DOS100.pc.dashboard.pinnedSkills.label"}}">
-          <h3 class="pc-dashboard-section-heading" aria-hidden="true">{{localize "DOS100.pc.dashboard.pinnedSkills.label"}}</h3>
+          <h3 class="pc-section-heading" aria-hidden="true">{{localize "DOS100.pc.dashboard.pinnedSkills.label"}}</h3>
           {{#if pinnedSkills.length}}
             <ul class="pc-dashboard-pinned-skills-list">
               {{#each pinnedSkills}}
                 <li><button type="button" class="simple-button">{{this.name}}</button></li>
               {{/each}}
             </ul>
-          {{else}}
+          {{/if}}
+          {{#if pinnedEducations.length}}
+            <ul class="pc-dashboard-pinned-skills-list">
+              {{#each pinnedEducations}}
+                <li><button type="button" class="simple-button">{{this.name}}</button></li>
+              {{/each}}
+            </ul>
+          {{/if}}
+          {{#if hasNoPinnedSkillsOrEducations}}
             <p class="pc-dashboard-empty-state">{{localize "DOS100.pc.dashboard.pinnedSkills.empty"}}</p>
           {{/if}}
         </section>
       </div>
 
       <section class="pc-dashboard-effects" aria-label="{{localize "DOS100.pc.dashboard.effects.label"}}">
-        <h3 class="pc-dashboard-section-heading" aria-hidden="true">{{localize "DOS100.pc.dashboard.effects.label"}}</h3>
+        <h3 class="pc-section-heading" aria-hidden="true">{{localize "DOS100.pc.dashboard.effects.label"}}</h3>
         {{#if activeEffects.length}}
           <ul class="pc-dashboard-effects-list">
             {{#each activeEffects}}

@@ -2,13 +2,15 @@ import { CHARACTERISTIC_IDS, type CharacteristicId } from "./characteristic.js";
 import { type Contributions, contributionsField } from "./contribution.js";
 
 export type SkillDifficulty = "basic" | "advanced";
-const SKILL_DIFFICULTIES: SkillDifficulty[] = ["basic", "advanced"];
+export const SKILL_DIFFICULTIES: SkillDifficulty[] = ["basic", "advanced"];
 
 export type SkillType = "social" | "movement" | "fieldcraft";
 const SKILL_TYPES: SkillType[] = ["social", "movement", "fieldcraft"];
 
 export type SkillTraining = "none" | "trained" | "plus10" | "plus20";
 export const SKILL_TRAININGS: SkillTraining[] = ["none", "trained", "plus10", "plus20"];
+
+export type SkillTag = string;
 
 // The record key under system.skills is the Skill's stable identity — not
 // duplicated here. See .local/plan.md: a later name change must not imply
@@ -31,7 +33,7 @@ export type ActorSkill = {
   contributions: Contributions;
 };
 
-export type ActorSkills = Record<string, ActorSkill>;
+export type ActorSkills = Record<SkillTag, ActorSkill>;
 
 function actorSkillField(): foundry.data.fields.SchemaField {
   const { SchemaField, StringField, NumberField, BooleanField, HTMLField, ArrayField } = foundry.data.fields;

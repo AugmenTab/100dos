@@ -1,0 +1,23 @@
+/* Sub-section heading within a page — Dashboard's Quick Use/Pinned Skills/
+   Effects, and now the Skills page's Educations section. Unscoped, like
+   the other shared components. */
+
+.pc-section-heading {
+  margin: 0 0 var(--spacer-8, 0.5rem);
+  padding-bottom: 0.25rem;
+  font-size: var(--font-size-13, 0.8125rem);
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  border-bottom: 1px solid currentColor;
+}
+
+/* A heading that also reports a live value (e.g. Educations' "2 / 5")
+   pins that value to the right of the label instead of centering it —
+   named for what it does, not which section uses it. */
+.pc-section-heading-value {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 0.5rem;
+}

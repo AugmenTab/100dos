@@ -10,6 +10,7 @@ import { experienceLedgerField } from "../xp.js";
 import { financesField } from "../finances.js";
 import { basicField } from "../basic.js";
 import { skillsField } from "../skill.js";
+import { educationField, educationsField } from "../education.js";
 
 export class PcDataModel extends foundry.abstract.TypeDataModel {
   static override defineSchema() {
@@ -34,6 +35,8 @@ export class PcDataModel extends foundry.abstract.TypeDataModel {
       dr: damageResistanceField(),
       movement: actorMovementField(),
       skills: skillsField(),
+      education: educationField(),
+      educations: educationsField(),
     };
   }
 }

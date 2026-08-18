@@ -12,7 +12,14 @@ import {
 import { type ExperienceLedger, type ExperienceLedgerItem } from "../../xp.js";
 import { type Finances, type FinanceLedgerItem } from "../../finances.js";
 import { type ActorSkill, type ActorSkills, type SkillTraining, SKILL_TRAININGS } from "../../skill.js";
-import { type CharacteristicId } from "../../characteristic.js";
+import { type CharacteristicId, isCharacteristicId } from "../../characteristic.js";
+import {
+  type ActorEducation,
+  type ActorEducations,
+  type EducationTarget,
+  type EducationTraining,
+  EDUCATION_TRAININGS,
+} from "../../education.js";
 
 declare global {
   interface Game {
@@ -38,6 +45,11 @@ type FinanceLedgerRow = FinanceLedgerItem & {
 type SkillRow = ActorSkill & {
   tag: string;
   characteristicOptions: { value: CharacteristicId; label: string }[];
+};
+
+type EducationRow = ActorEducation & {
+  tag: string;
+  targetOptions: { value: EducationTarget; label: string }[];
 };
 
 const PRIMARY_TABS: ApplicationTabConfig[] = [
@@ -85,6 +97,8 @@ export class PcActorSheet extends Dos100ActorSheet {
 
   override async _prepareContext(options: Record<string, unknown>): Promise<Record<string, unknown>> {
     const movementModeOptions = this.movementModeOptions();
+    const pinnedSkills = this.pinnedSkills();
+    const pinnedEducations = this.pinnedEducations();
     return {
       ...(await super._prepareContext(options)),
       sheetId: this.id,
@@ -112,14 +126,9 @@ export class PcActorSheet extends Dos100ActorSheet {
       quickUseItems: this.actor.items.filter(
         (item) => item.type === "ability" && (item.system as { pinned?: boolean }).pinned === true,
       ),
-      // Render context, not persisted data: pinned Actor Skills, derived
-      // from system.skills (see skill.ts) rather than embedded Items — see
-      // .local/plan.md. Educations aren't part of this collection; that
-      // schema doesn't exist yet.
-      pinnedSkills: Object.entries((this.actor.system as { skills: ActorSkills }).skills)
-        .filter(([, skill]) => skill.pinned)
-        .map(([tag, skill]) => ({ tag, name: skill.name }))
-        .sort((a, b) => a.name.localeCompare(b.name)),
+      pinnedSkills,
+      pinnedEducations,
+      hasNoPinnedSkillsOrEducations: pinnedSkills.length === 0 && pinnedEducations.length === 0,
       activeEffects: this.actor.items.filter(
         (item) => item.type === "effect" && (item.system as { active?: boolean }).active === true,
       ),
@@ -135,6 +144,8 @@ export class PcActorSheet extends Dos100ActorSheet {
       financesLedger: this.financesLedger(),
       skillRows: this.skillRows(),
       skillTrainingOptions: this.skillTrainingOptions(),
+      educationRows: this.educationRows(),
+      educationTrainingOptions: this.educationTrainingOptions(),
     };
   }
 
@@ -201,6 +212,29 @@ export class PcActorSheet extends Dos100ActorSheet {
     return mythic.str.value > 0 || mythic.tou.value > 0 || mythic.agi.value > 0;
   }
 
+  // Render context, not persisted data: pinned Actor Skills, alphabetized —
+  // rendered as their own stacked cluster in the Dashboard's "Pinned Skills
+  // & Educations" section, not merged/interleaved with pinnedEducations()
+  // below (see .local/plan.md and dashboard.hbs). Derived from
+  // system.skills (see skill.ts) rather than embedded Items.
+  private pinnedSkills(): { tag: string; name: string }[] {
+    return Object.entries((this.actor.system as { skills: ActorSkills }).skills)
+      .filter(([, skill]) => skill.pinned)
+      .map(([tag, skill]) => ({ tag, name: skill.name }))
+      .sort((a, b) => a.name.localeCompare(b.name));
+  }
+
+  // Render context, not persisted data — see pinnedSkills() above for the
+  // same rationale (own alphabetized cluster, not merged with Skills).
+  // Derived from system.educations (see education.ts) rather than embedded
+  // Items.
+  private pinnedEducations(): { tag: string; name: string }[] {
+    return Object.entries((this.actor.system as { educations: ActorEducations }).educations)
+      .filter(([, education]) => education.pinned)
+      .map(([tag, education]) => ({ tag, name: education.name }))
+      .sort((a, b) => a.name.localeCompare(b.name));
+  }
+
   // Render context, not persisted data: each row's Characteristic <select>
   // options are built from that Skill's own `characteristics` list only
   // (never all ten), and rows are sorted alphabetically by name — Array#sort
@@ -227,6 +261,44 @@ export class PcActorSheet extends Dos100ActorSheet {
     return SKILL_TRAININGS.map((training) => ({
       value: training,
       label: game.i18n.localize(`DOS100.skills.training.${training}`),
+    }));
+  }
+
+  // Render context, not persisted data: each row's Characteristic/Skill
+  // <select> options are built from that Education's own `options` list
+  // only, and rows are sorted alphabetically by name — same rationale as
+  // skillRows() above. See .local/plan.md; no persisted ordering exists yet.
+  private educationRows(): EducationRow[] {
+    const educations = (this.actor.system as { educations: ActorEducations }).educations;
+    const skills = (this.actor.system as { skills: ActorSkills }).skills;
+    return Object.entries(educations)
+      .map(([tag, education]) => ({
+        ...education,
+        tag,
+        targetOptions: education.options.map((target) => ({
+          value: target,
+          label: this.educationTargetLabel(target, skills),
+        })),
+      }))
+      .sort((a, b) => a.name.localeCompare(b.name));
+  }
+
+  // A target is either one of the ten reserved Characteristic IDs or a
+  // Skill tag (see education.ts) — resolved to a display label here, never
+  // persisted. A Skill tag with no matching system.skills entry falls back
+  // to the raw tag itself rather than mutating the Education or hiding the
+  // option (see .local/plan.md).
+  private educationTargetLabel(target: EducationTarget, skills: ActorSkills): string {
+    if (isCharacteristicId(target)) return game.i18n.localize(`DOS100.characteristic.${target}.abbr`);
+    return skills[target]?.name ?? target;
+  }
+
+  // Render context, not persisted data: the fixed Training enum's options
+  // are the same for every row — computed once here rather than per row.
+  private educationTrainingOptions(): { value: EducationTraining; label: string }[] {
+    return EDUCATION_TRAININGS.map((training) => ({
+      value: training,
+      label: game.i18n.localize(`DOS100.educations.training.${training}`),
     }));
   }
 

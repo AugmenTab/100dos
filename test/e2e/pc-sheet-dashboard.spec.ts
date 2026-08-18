@@ -294,6 +294,67 @@ test("pinning an Ability surfaces it as a quick-use control that delegates to th
     .toBe(0);
 });
 
+test("pinned Skills and pinned Educations render as two separate alphabetized clusters, not merged, in the Dashboard's Pinned Skills & Educations region", async ({
+  page,
+}) => {
+  const { actorId } = await resetFixtures(page);
+  const sheet = page.locator(`#${await openPcSheet(page, actorId)}`);
+  await expect(sheet.locator(".pc-dashboard-pinned-skills .pc-dashboard-empty-state")).toBeVisible();
+
+  await page.evaluate(async (actorId) => {
+    const actor = game.actors.get(actorId);
+    await actor?.update({
+      "system.skills": {
+        pilotGround: {
+          name: "Pilot (Ground)",
+          difficulty: "advanced",
+          type: ["fieldcraft"],
+          training: "plus10",
+          characteristic: "agi",
+          characteristics: ["agi"],
+          value: 62,
+          pinned: true,
+          description: "",
+          contributions: [],
+        },
+        athletics: {
+          name: "Athletics",
+          difficulty: "basic",
+          type: ["movement"],
+          training: "none",
+          characteristic: "agi",
+          characteristics: ["agi"],
+          value: 30,
+          pinned: true,
+          description: "",
+          contributions: [],
+        },
+      },
+      "system.educations": {
+        engineering: {
+          name: "Engineering",
+          difficulty: "advanced",
+          training: "plus10",
+          selected: "int",
+          options: ["int"],
+          value: 55,
+          pinned: true,
+          description: "",
+          contributions: [],
+        },
+      },
+    });
+  }, actorId);
+  await rerenderPcSheet(page, actorId);
+
+  await expect(sheet.locator(".pc-dashboard-pinned-skills .pc-dashboard-empty-state")).toHaveCount(0);
+
+  const lists = sheet.locator(".pc-dashboard-pinned-skills-list");
+  await expect(lists).toHaveCount(2);
+  await expect(lists.nth(0).locator("li")).toHaveText(["Athletics", "Pilot (Ground)"]);
+  await expect(lists.nth(1).locator("li")).toHaveText(["Engineering"]);
+});
+
 test("only active Effects appear in the active-Effects Dashboard region", async ({ page }) => {
   const { actorId } = await resetFixtures(page);
   await page.evaluate(async (actorId) => {

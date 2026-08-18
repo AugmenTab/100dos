@@ -51,6 +51,14 @@ async function openSkillsTab(page: Page, sheetId: string): Promise<Locator> {
   return sheet.locator('.tab[data-group="primary"][data-tab="skills"]');
 }
 
+// The Skills page panel also contains the Educations table (see
+// .local/plan.md) — scope to the Skills table specifically (the first
+// <table> in the panel) so its header/row/empty-state counts aren't
+// conflated with the Educations section below it.
+function skillsTable(panel: Locator): Locator {
+  return panel.locator("table").first();
+}
+
 test.beforeEach(async ({ page, baseURL }) => {
   await page.goto(baseURL ?? "/");
   await ensureGameView(page);
@@ -73,7 +81,7 @@ test.describe("Skills page", () => {
     const sheetId = await openPcSheet(page, actorId);
     const panel = await openSkillsTab(page, sheetId);
 
-    const row = panel.locator("tbody tr").filter({ hasText: "Pilot (Ground)" });
+    const row = skillsTable(panel).locator("tbody tr").filter({ hasText: "Pilot (Ground)" });
     await expect(row).toHaveCount(1);
     await expect(row).toContainText("Advanced");
     await expect(row).toContainText("Movement, Fieldcraft");
@@ -88,7 +96,7 @@ test.describe("Skills page", () => {
     const sheetId = await openPcSheet(page, actorId);
     const panel = await openSkillsTab(page, sheetId);
 
-    const headers = panel.locator("thead th");
+    const headers = skillsTable(panel).locator("thead th");
     await expect(headers).toHaveCount(6);
     await expect(headers.nth(0)).toHaveAttribute("colspan", "2");
     await expect(headers.nth(0)).toHaveText("Name");
@@ -105,7 +113,7 @@ test.describe("Skills page", () => {
     await updateActor(page, actorId, { "system.skills.pilotGround": PILOT_GROUND });
     const sheetId = await openPcSheet(page, actorId);
     const panel = await openSkillsTab(page, sheetId);
-    const row = panel.locator("tbody tr").filter({ hasText: "Pilot (Ground)" });
+    const row = skillsTable(panel).locator("tbody tr").filter({ hasText: "Pilot (Ground)" });
 
     const characteristicSelect = row.locator('select[name="system.skills.pilotGround.characteristic"]');
     const optionLabels = await characteristicSelect.locator("option").allTextContents();
@@ -129,7 +137,7 @@ test.describe("Skills page", () => {
     await updateActor(page, actorId, { "system.skills.pilotGround": PILOT_GROUND });
     const sheetId = await openPcSheet(page, actorId);
     const panel = await openSkillsTab(page, sheetId);
-    const row = panel.locator("tbody tr").filter({ hasText: "Pilot (Ground)" });
+    const row = skillsTable(panel).locator("tbody tr").filter({ hasText: "Pilot (Ground)" });
 
     const trainingSelect = row.locator('select[name="system.skills.pilotGround.training"]');
     const optionLabels = await trainingSelect.locator("option").allTextContents();
@@ -155,12 +163,12 @@ test.describe("Skills page", () => {
     const sheetId = await openPcSheet(page, actorId);
     const panel = await openSkillsTab(page, sheetId);
 
-    const pinnedControl = panel.locator('.skills-table-pin[data-tag="pilotGround"]');
+    const pinnedControl = skillsTable(panel).locator('.dense-table-pin[data-tag="pilotGround"]');
     await expect(pinnedControl).toHaveAttribute("aria-pressed", "true");
     await expect(pinnedControl).toHaveAttribute("aria-label", "Unpin Pilot (Ground)");
     await expect(pinnedControl.locator("i.fa-thumbtack")).toHaveCount(1);
 
-    const unpinnedControl = panel.locator('.skills-table-pin[data-tag="persuasion"]');
+    const unpinnedControl = skillsTable(panel).locator('.dense-table-pin[data-tag="persuasion"]');
     await expect(unpinnedControl).toHaveAttribute("aria-pressed", "false");
     await expect(unpinnedControl).toHaveAttribute("aria-label", "Pin Persuasion");
     await expect(unpinnedControl.locator("i.fa-thumbtack-slash")).toHaveCount(1);
@@ -178,7 +186,7 @@ test.describe("Skills page", () => {
     await updateActor(page, actorId, { "system.skills.pilotGround": PILOT_GROUND });
     const sheetId = await openPcSheet(page, actorId);
     const panel = await openSkillsTab(page, sheetId);
-    const row = panel.locator("tbody tr").filter({ hasText: "Pilot (Ground)" });
+    const row = skillsTable(panel).locator("tbody tr").filter({ hasText: "Pilot (Ground)" });
 
     const editControl = row.locator("a").filter({ has: page.locator("i.fa-pen-to-square") });
     await expect(editControl).toHaveAttribute("data-tag", "pilotGround");
@@ -213,7 +221,7 @@ test.describe("Skills page", () => {
 
     const sheetId = await openPcSheet(page, actorId);
     const panel = await openSkillsTab(page, sheetId);
-    await expect(panel.locator('.skills-table-pin[data-tag="pilotGround"]')).toHaveCount(1);
+    await expect(skillsTable(panel).locator('.dense-table-pin[data-tag="pilotGround"]')).toHaveCount(1);
   });
 
   test("an empty ActorSkills record still shows the table structure, the Add control, and an intentional empty state", async ({
@@ -223,10 +231,10 @@ test.describe("Skills page", () => {
     const sheetId = await openPcSheet(page, actorId);
     const panel = await openSkillsTab(page, sheetId);
 
-    await expect(panel.locator("thead th")).toHaveCount(6);
-    await expect(panel.locator('thead a[role="button"]')).toBeVisible();
-    await expect(panel.locator("tbody tr")).toHaveCount(1);
-    const emptyState = panel.locator(".ledger-table-empty-state");
+    await expect(skillsTable(panel).locator("thead th")).toHaveCount(6);
+    await expect(skillsTable(panel).locator('thead a[role="button"]')).toBeVisible();
+    await expect(skillsTable(panel).locator("tbody tr")).toHaveCount(1);
+    const emptyState = skillsTable(panel).locator(".ledger-table-empty-state");
     await expect(emptyState).toHaveText("No Skills recorded yet.");
     await expect(emptyState).toHaveAttribute("colspan", "7");
   });
@@ -246,7 +254,7 @@ test.describe("Skills page", () => {
       await resizePcSheet(page, sheetId, width);
       const panel = await openSkillsTab(page, sheetId);
       const sheetBox = await sheet.boundingBox();
-      const wrapBox = await panel.locator(".ledger-table-wrap").boundingBox();
+      const wrapBox = await panel.locator(".ledger-table-wrap").first().boundingBox();
       expect(sheetBox).not.toBeNull();
       expect(wrapBox).not.toBeNull();
       expect(wrapBox!.width).toBeLessThanOrEqual(sheetBox!.width + 1);
