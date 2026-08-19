@@ -29,7 +29,9 @@
     {{> "systems/100dos/templates/actors/pc/inventory.hbs"}}
     {{> "systems/100dos/templates/actors/pc/features.hbs"}}
     {{> "systems/100dos/templates/actors/pc/skills.hbs"}}
-    {{> "systems/100dos/templates/actors/pc/spells.hbs"}}
+    {{#if hasSpells}}
+      {{> "systems/100dos/templates/actors/pc/spells.hbs"}}
+    {{/if}}
     {{> "systems/100dos/templates/actors/pc/effects.hbs"}}
     {{> "systems/100dos/templates/actors/pc/settings.hbs"}}
   </div>

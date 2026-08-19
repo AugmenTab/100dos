@@ -14,7 +14,7 @@ import { educationField, educationsField } from "../education.js";
 
 export class PcDataModel extends foundry.abstract.TypeDataModel {
   static override defineSchema() {
-    const { DocumentUUIDField, HTMLField } = foundry.data.fields;
+    const { DocumentUUIDField, HTMLField, ObjectField } = foundry.data.fields;
     return {
       // TODO: references an embedded Item, but the Archetype Item type
       // doesn't exist yet — will always be null until it does.
@@ -37,6 +37,10 @@ export class PcDataModel extends foundry.abstract.TypeDataModel {
       skills: skillsField(),
       education: educationField(),
       educations: educationsField(),
+      // TODO: no spellcasting subsystem is defined yet — this stays null
+      // for the entire MVP (not in scope), and only exists so the Spells
+      // tab has a real field to check for its own conditional visibility.
+      spells: new ObjectField({ required: true, nullable: true, initial: null }),
     };
   }
 }

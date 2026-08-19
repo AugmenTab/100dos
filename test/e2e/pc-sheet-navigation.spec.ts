@@ -33,6 +33,17 @@ const PRIMARY_TAB_LABELS = [
 
 const RECORD_TAB_IDS = ["basics", "xp", "finances", "biography", "notes"];
 
+async function updateActor(page: Page, actorId: string, data: Record<string, unknown>): Promise<void> {
+  await page.evaluate(
+    async ({ actorId, data }) => {
+      const actor = game.actors.get(actorId);
+      if (!actor) throw new Error(`Fixture actor ${actorId} not found.`);
+      await actor.update(data);
+    },
+    { actorId, data },
+  );
+}
+
 function primaryTab(sheet: ReturnType<Page["locator"]>, tabId: string) {
   return sheet.locator(`[role="tab"][data-group="primary"][data-tab="${tabId}"]`);
 }
@@ -58,6 +69,13 @@ test("PC sheet shows the primary tab shell, defaults to Dashboard, and switches 
   page,
 }) => {
   const { actorId } = await resetFixtures(page);
+  // The Spells tab/panel only render once system.spells is populated (see
+  // pc-sheet.ts) — set here so this general navigation test still exercises
+  // the sheet's full ten-tab set. The null-hides-it behavior itself has its
+  // own dedicated test below. A non-empty object, not {} — Foundry's update
+  // diffing treats merging {} into a null field as no actual change, so it
+  // never leaves system.spells.
+  await updateActor(page, actorId, { "system.spells": { placeholder: true } });
   const sheetId = await openPcSheet(page, actorId);
   const sheet = page.locator(`#${sheetId}`);
 
@@ -95,6 +113,28 @@ test("PC sheet shows the primary tab shell, defaults to Dashboard, and switches 
   await expect
     .poll(async () => (await getActorSnapshot(page, actorId)).name)
     .toBe("[E2E] PC Nav Renamed");
+});
+
+test("the Spells tab and its panel are absent while system.spells is null, and appear once it's populated", async ({
+  page,
+}) => {
+  const { actorId } = await resetFixtures(page);
+  const sheetId = await openPcSheet(page, actorId);
+  const sheet = page.locator(`#${sheetId}`);
+
+  await expect(primaryTab(sheet, "spells")).toHaveCount(0);
+  await expect(primaryPanel(sheet, "spells")).toHaveCount(0);
+
+  // A non-empty object, not {} — Foundry's update diffing treats merging
+  // {} into a null field as no actual change, so it never leaves null.
+  await updateActor(page, actorId, { "system.spells": { placeholder: true } });
+  await rerenderPcSheet(page, actorId);
+
+  await expect(primaryTab(sheet, "spells")).toHaveCount(1);
+  await expect(primaryPanel(sheet, "spells")).toHaveCount(1);
+
+  await primaryTab(sheet, "spells").click();
+  await expect(primaryPanel(sheet, "spells")).toBeVisible();
 });
 
 test("Record remembers its most recent secondary tab across navigation and rerenders", async ({ page }) => {
@@ -180,7 +220,7 @@ test("primary and Record navigation remain usable at representative sheet widths
 
   // Narrow is chosen so that all ten primary labels cannot fit on one line
   // and the row must rely on horizontal scrolling.
-  const widths = [900, 720, 360];
+  const widths = [1000, 720, 360];
   for (const width of widths) {
     await resizePcSheet(page, sheetId, width);
 

@@ -183,7 +183,7 @@ declare namespace foundry {
         );
       }
       class ObjectField extends DataField {
-        constructor(options?: { required?: boolean; initial?: object });
+        constructor(options?: { required?: boolean; nullable?: boolean; initial?: object | null });
       }
       class TypedObjectField extends ObjectField {
         constructor(element: DataField, options?: { required?: boolean; initial?: object });

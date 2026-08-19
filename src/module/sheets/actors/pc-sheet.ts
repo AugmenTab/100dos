@@ -106,6 +106,7 @@ export class PcActorSheet extends Dos100ActorSheet {
         primary: this._prepareTabs("primary"),
         record: this._prepareTabs("record"),
       },
+      hasSpells: this.hasSpells(),
       // Available choices for the Archetype selector. Render context, not
       // persisted data: derived fresh from owned Items on every render.
       // TODO: the Archetype Item type doesn't exist yet, so this is always
@@ -300,6 +301,22 @@ export class PcActorSheet extends Dos100ActorSheet {
       value: training,
       label: game.i18n.localize(`DOS100.educations.training.${training}`),
     }));
+  }
+
+  // Render context, not persisted data: whether a spellcasting subsystem
+  // has been populated onto this Actor. TODO: system.spells stays null for
+  // the entire MVP (see pc.ts) — there is no spellcasting subsystem to gate
+  // yet, only the field this check reads. Also drives _getTabsConfig()
+  // below, so the Spells tab and its panel are consistently absent
+  // together.
+  private hasSpells(): boolean {
+    return (this.actor.system as { spells: unknown }).spells !== null;
+  }
+
+  override _getTabsConfig(group: string): ApplicationTabsConfiguration | null {
+    const config = super._getTabsConfig(group);
+    if (group !== "primary" || config === null || this.hasSpells()) return config;
+    return { ...config, tabs: config.tabs.filter((tab) => tab.id !== "spells") };
   }
 
   private movementModeOptions(): { value: MovementMode; label: string }[] {

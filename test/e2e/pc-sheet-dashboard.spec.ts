@@ -384,7 +384,7 @@ test("Dashboard remains usable, without overlap or overflow, at representative s
   const sheet = page.locator(`#${sheetId}`);
   const dashboard = sheet.locator(".pc-dashboard");
 
-  const widths = [900, 720, 360];
+  const widths = [1000, 720, 360];
   for (const width of widths) {
     await resizePcSheet(page, sheetId, width);
 

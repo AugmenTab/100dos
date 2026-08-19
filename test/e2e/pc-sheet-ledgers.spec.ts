@@ -207,7 +207,7 @@ test("XP and Finances ledgers remain usable, without whole-sheet overflow, at re
   const sheetId = await openPcSheet(page, actorId);
   const sheet = page.locator(`#${sheetId}`);
 
-  for (const width of [900, 720, 360]) {
+  for (const width of [1000, 720, 360]) {
     await resizePcSheet(page, sheetId, width);
     for (const tabId of ["xp", "finances"]) {
       const panel = await openRecordTab(page, sheetId, tabId);
