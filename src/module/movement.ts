@@ -41,7 +41,7 @@ function movementSpeedFields(): Record<string, foundry.data.fields.DataField> {
   const { StringField, NumberField } = foundry.data.fields;
   return {
     formula: new StringField({ required: true, initial: "" }),
-    value: new NumberField({ required: true, initial: 0, integer: true }),
+    value: new NumberField({ required: true, initial: 0 }),
     contributions: contributionsField(),
   };
 }

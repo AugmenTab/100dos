@@ -1,3 +1,21 @@
+// Lazily built and cached per language, matching Foundry's own idiom for
+// this exact problem (Localization#getListFormatter's `#formatters[key]
+// ??= new Intl.ListFormat(...)`) — constructing an Intl.NumberFormat is
+// comparatively expensive, and game.i18n.lang can't change without a full
+// page reload (the "core.language" client setting is requiresReload:
+// true), so there's never a stale entry to invalidate.
+const numberFormatsByLanguage = new Map<string, Intl.NumberFormat>();
+
+function localizedNumberFormat(): Intl.NumberFormat {
+  const lang = game.i18n.lang;
+  let format = numberFormatsByLanguage.get(lang);
+  if (format === undefined) {
+    format = new Intl.NumberFormat(lang, { minimumFractionDigits: 0, maximumFractionDigits: 2 });
+    numberFormatsByLanguage.set(lang, format);
+  }
+  return format;
+}
+
 export function registerHandlebarsHelpers(): void {
   // Generic string-join helper for building a localization key from a fixed
   // prefix plus a dynamic document/schema key, e.g.
@@ -13,8 +31,11 @@ export function registerHandlebarsHelpers(): void {
   // keyed off Foundry's own configured interface language rather than the
   // system's registered "numberFormat" helper (fixed decimals/sign, no
   // grouping — a different job, and reusing its name would overwrite the
-  // global registration Foundry's own templates rely on).
-  Handlebars.registerHelper("localizeNumber", (value: unknown) => Number(value).toLocaleString(game.i18n.lang));
+  // global registration Foundry's own templates rely on). Capped at 2
+  // fraction digits so values like Movement speeds, which may carry
+  // decimals, don't spill full floating-point precision into the UI;
+  // whole numbers are unaffected since none is required.
+  Handlebars.registerHelper("localizeNumber", (value: unknown) => localizedNumberFormat().format(Number(value)));
 
   // Builds a fixed-length array of booleans for a dot/pip progress display,
   // e.g. {{#each (filledPips this.advancement 5)}} — the first `filled`

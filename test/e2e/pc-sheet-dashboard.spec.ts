@@ -243,6 +243,36 @@ test("Initiative, Luck, Wounds, Fatigue, and all six Damage Resistance locations
   await expect(drSection).not.toContainText("Tail");
 });
 
+test("Movement speeds accept decimal values, stored at full precision but displayed rounded to 2 places without padding whole numbers", async ({
+  page,
+}) => {
+  const { actorId } = await resetFixtures(page);
+  await updateActor(page, actorId, {
+    "system.movement.base.half.value": 4.256,
+    "system.movement.base.full.value": 8,
+    "system.movement.base.charge.value": 8.5,
+    "system.movement.base.run.value": 12.1,
+    "system.movement.base.climb.value": 3.75,
+  });
+  const sheetId = await openPcSheet(page, actorId);
+  const sheet = page.locator(`#${sheetId}`);
+
+  // Stored at full precision — the schema no longer rounds/truncates to an
+  // integer, only the display layer caps decimals.
+  expect(await getSystemValue(page, actorId, "movement.base.half.value")).toBe(4.256);
+
+  const movementSection = sheet.getByRole("region", { name: "Movement" });
+
+  // sprint is null by default and not rendered at all, so the Speed row
+  // ends after Run — half/full/charge/run rounded to 2 places, and whole
+  // numbers (full: 8) stay unpadded rather than showing "8.00".
+  const speedRow = movementSection.locator('[data-tooltip-html*="Half"]').locator("..");
+  await expect(speedRow).toHaveText("4.26 / 8 / 8.5 / 12.1");
+
+  const climbRow = movementSection.locator('[data-tooltip-html*="Climb"]');
+  await expect(climbRow).toHaveText("3.75");
+});
+
 test("pinning an Ability surfaces it as a quick-use control that delegates to the existing Action-use path", async ({
   page,
 }) => {
