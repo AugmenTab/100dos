@@ -13,8 +13,8 @@ export const SKILL_TRAININGS: SkillTraining[] = ["none", "trained", "plus10", "p
 export type SkillTag = string;
 
 // The record key under system.skills is the Skill's stable identity — not
-// duplicated here. See .local/plan.md: a later name change must not imply
-// re-keying the record.
+// duplicated here. A later name change must not imply re-keying the
+// record.
 export type ActorSkill = {
   name: string;
   difficulty: SkillDifficulty;
@@ -22,9 +22,9 @@ export type ActorSkill = {
   training: SkillTraining;
   // The Actor's currently selected Characteristic for this Skill, and the
   // ordered set of Characteristics valid to select — two different fields
-  // for two different jobs (see .local/plan.md). Nothing here enforces
-  // `characteristic` is a member of `characteristics`; that's left to
-  // whatever populates a Skill (chargen/Item grant), not this wireframe.
+  // for two different jobs. TODO: nothing here enforces `characteristic`
+  // is a member of `characteristics`; that's left to whatever populates a
+  // Skill (chargen/Item grant), not this wireframe.
   characteristic: CharacteristicId;
   characteristics: CharacteristicId[];
   value: number;
@@ -46,9 +46,9 @@ function actorSkillField(): foundry.data.fields.SchemaField {
     // populated yet.
     type: new ArrayField(new StringField({ required: true, choices: SKILL_TYPES }), { required: true, initial: [] }),
     training: new StringField({ required: true, initial: SKILL_TRAININGS[0], choices: SKILL_TRAININGS }),
-    // No universal default Characteristic is meaningful (see .local/plan.md)
-    // — this leftmost-literal initial exists only to satisfy the field
-    // system, matching every other enum field in this schema, and is never
+    // No universal default Characteristic is meaningful — this
+    // leftmost-literal initial exists only to satisfy the field system,
+    // matching every other enum field in this schema, and is never
     // exercised while system.skills starts empty.
     characteristic: new StringField({ required: true, initial: CHARACTERISTIC_IDS[0], choices: CHARACTERISTIC_IDS }),
     characteristics: new ArrayField(new StringField({ required: true, choices: CHARACTERISTIC_IDS }), {
@@ -64,8 +64,7 @@ function actorSkillField(): foundry.data.fields.SchemaField {
 
 // A keyed collection of arbitrary Skill tags, not a fixed set of named
 // fields — every Actor's Skill list is arbitrary, so there's nothing to
-// default to. Empty by design: core Skill seeding is a future task (see
-// .local/plan.md).
+// default to. TODO: empty by design; core Skill seeding is a future task.
 export function skillsField(): foundry.data.fields.TypedObjectField {
   const { TypedObjectField } = foundry.data.fields;
   return new TypedObjectField(actorSkillField(), { required: true, initial: {} });

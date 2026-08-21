@@ -6,7 +6,132 @@
   id="{{sheetId}}-primary-panel-effects"
   aria-labelledby="{{sheetId}}-primary-tab-effects"
 >
-  <h2>{{localize "DOS100.pc.nav.primary.effects"}}</h2>
-  {{!-- TODO: Replace with real Effect management content. --}}
-  <p>This page doesn't have any content yet.</p>
+  <section aria-label="{{localize "DOS100.effects.statuses.label"}}">
+    <div class="pc-status-palette">
+      {{#each statuses}}
+        <div class="pc-status-button">
+          <a
+            role="button"
+            tabindex="0"
+            data-action="toggleStatus"
+            data-status-id="{{this.id}}"
+            aria-pressed="{{this.active}}"
+            aria-label="{{this.label}}"
+          >
+            <img src="{{this.img}}" alt="" />
+            <span>{{this.label}}</span>
+          </a>
+          {{!-- TODO: not wired up yet — no rules-popup/journal dialog exists. --}}
+          <a
+            role="button"
+            tabindex="0"
+            aria-label="{{localize "DOS100.effects.statuses.journal" name=this.label}}"
+          ><i class="fa-solid fa-book" inert></i></a>
+        </div>
+      {{/each}}
+    </div>
+  </section>
+
+  <section aria-label="{{localize "DOS100.effects.linked.label"}}">
+    <div class="ledger-table-wrap">
+      <table class="ledger-table dense-table">
+        <thead>
+          <tr>
+            <th scope="col" colspan="2" class="dense-table-name-header">{{localize "DOS100.effects.linked.label"}}</th>
+            <th scope="col">{{localize "DOS100.effects.table.duration"}}</th>
+            <th scope="col">{{localize "DOS100.effects.table.actions"}}</th>
+            <th scope="col">{{localize "DOS100.effects.table.uses"}}</th>
+            <th scope="col">{{localize "DOS100.effects.table.active"}}</th>
+            {{!-- Linked Effects originate from their granting Item — no manual Add control. --}}
+            <th scope="col"></th>
+          </tr>
+        </thead>
+        <tbody>
+          {{#if linkedEffects.length}}
+            {{#each linkedEffects}}
+              {{> "systems/100dos/templates/actors/pc/effects/row.hbs"}}
+            {{/each}}
+          {{else}}
+            <tr>
+              <td colspan="7" class="ledger-table-empty-state">{{localize "DOS100.effects.linked.empty"}}</td>
+            </tr>
+          {{/if}}
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section aria-label="{{localize "DOS100.effects.permanent.label"}}">
+    <div class="ledger-table-wrap">
+      <table class="ledger-table dense-table">
+        <thead>
+          <tr>
+            <th scope="col" colspan="2" class="dense-table-name-header">{{localize "DOS100.effects.permanent.label"}}</th>
+            <th scope="col">{{localize "DOS100.effects.table.duration"}}</th>
+            <th scope="col">{{localize "DOS100.effects.table.actions"}}</th>
+            <th scope="col">{{localize "DOS100.effects.table.uses"}}</th>
+            <th scope="col">{{localize "DOS100.effects.table.active"}}</th>
+            <th scope="col">
+              <a
+                role="button"
+                tabindex="0"
+                class="icon-button"
+                data-action="createEffect"
+                data-group="permanent"
+                aria-label="{{localize "DOS100.effects.permanent.add"}}"
+              ><i class="fa-solid fa-plus" inert></i></a>
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          {{#if permanentEffects.length}}
+            {{#each permanentEffects}}
+              {{> "systems/100dos/templates/actors/pc/effects/row.hbs"}}
+            {{/each}}
+          {{else}}
+            <tr>
+              <td colspan="7" class="ledger-table-empty-state">{{localize "DOS100.effects.permanent.empty"}}</td>
+            </tr>
+          {{/if}}
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section aria-label="{{localize "DOS100.effects.temporary.label"}}">
+    <div class="ledger-table-wrap">
+      <table class="ledger-table dense-table">
+        <thead>
+          <tr>
+            <th scope="col" colspan="2" class="dense-table-name-header">{{localize "DOS100.effects.temporary.label"}}</th>
+            <th scope="col">{{localize "DOS100.effects.table.duration"}}</th>
+            <th scope="col">{{localize "DOS100.effects.table.actions"}}</th>
+            <th scope="col">{{localize "DOS100.effects.table.uses"}}</th>
+            <th scope="col">{{localize "DOS100.effects.table.active"}}</th>
+            <th scope="col">
+              <a
+                role="button"
+                tabindex="0"
+                class="icon-button"
+                data-action="createEffect"
+                data-group="temporary"
+                aria-label="{{localize "DOS100.effects.temporary.add"}}"
+              ><i class="fa-solid fa-plus" inert></i></a>
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          {{#if temporaryEffects.length}}
+            {{#each temporaryEffects}}
+              {{> "systems/100dos/templates/actors/pc/effects/row.hbs"}}
+            {{/each}}
+          {{else}}
+            <tr>
+              <td colspan="7" class="ledger-table-empty-state">{{localize "DOS100.effects.temporary.empty"}}</td>
+            </tr>
+          {{/if}}
+        </tbody>
+      </table>
+    </div>
+  </section>
 </section>

@@ -8,7 +8,7 @@ export const EDUCATION_TRAININGS: EducationTraining[] = ["plus5", "plus10"];
 // A bare string, distinguished at read time by isCharacteristicId (see
 // characteristic.ts) rather than a tagged/wrapped value — the ten
 // Characteristic IDs are reserved and unavailable as Skill tags so this
-// stays unambiguous. See .local/plan.md.
+// stays unambiguous.
 export type EducationTarget = SkillTag | CharacteristicId;
 
 export type EducationTag = string;
@@ -22,9 +22,9 @@ export type ActorEducation = {
   // The Actor's currently selected Characteristic/Skill target for this
   // Education, and the ordered set of targets valid to select — two
   // different fields for two different jobs, same split as ActorSkill's
-  // characteristic/characteristics. Nothing here enforces `selected` is a
-  // member of `options`; that's left to whatever populates an Education,
-  // not this wireframe.
+  // characteristic/characteristics. TODO: nothing here enforces `selected`
+  // is a member of `options`; that's left to whatever populates an
+  // Education, not this wireframe.
   selected: EducationTarget;
   options: EducationTarget[];
   value: number;
@@ -36,8 +36,8 @@ export type ActorEducation = {
 export type ActorEducations = Record<EducationTag, ActorEducation>;
 
 // The Actor's overall Education resource — a single aggregate, not keyed
-// like ActorEducations. The relationship between value/max and purchased
-// Educations isn't calculated in this task (see .local/plan.md).
+// like ActorEducations. TODO: the relationship between value/max and
+// purchased Educations isn't calculated yet.
 export type EducationRecord = {
   value: number;
   max: number;
@@ -75,7 +75,7 @@ function actorEducationField(): foundry.data.fields.SchemaField {
 
 // A keyed collection of arbitrary Education tags — empty by design. Unlike
 // Skills, an Education exists in this record only once purchased; there is
-// no "untrained" entry (see .local/plan.md).
+// no "untrained" entry.
 export function educationsField(): foundry.data.fields.TypedObjectField {
   const { TypedObjectField } = foundry.data.fields;
   return new TypedObjectField(actorEducationField(), { required: true, initial: {} });

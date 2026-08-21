@@ -47,7 +47,7 @@ export type Characteristics = Record<CharacteristicId, Characteristic>;
 // The ten Characteristic IDs are reserved: any other system that stores a
 // Characteristic-or-something-else target as a bare string (e.g. Education's
 // EducationTarget) distinguishes the two cases by membership in this list,
-// rather than a tagged/wrapped value. See .local/plan.md.
+// rather than a tagged/wrapped value.
 export function isCharacteristicId(value: string): value is CharacteristicId {
   return (CHARACTERISTIC_IDS as string[]).includes(value);
 }

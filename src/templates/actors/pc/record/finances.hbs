@@ -33,11 +33,11 @@
           <th scope="col">{{localize "DOS100.finances.ledger.gameDate"}}</th>
           <th scope="col">{{localize "DOS100.finances.ledger.recordedBy"}}</th>
           <th scope="col">
-            {{!-- TODO: not wired up yet — no Add-transaction modal exists.
-                 See .local/plan.md. --}}
+            {{!-- TODO: not wired up yet — no Add-transaction modal exists. --}}
             <a
               role="button"
               tabindex="0"
+              class="icon-button"
               aria-label="{{localize "DOS100.finances.ledger.add"}}"
             ><i class="fa-solid fa-plus" inert></i></a>
           </th>
@@ -55,11 +55,11 @@
               </td>
               <td>{{this.recordedByName}}</td>
               <td>
-                {{!-- TODO: not wired up yet — no delete action exists.
-                     See .local/plan.md. --}}
+                {{!-- TODO: not wired up yet — no delete action exists. --}}
                 <a
                   role="button"
                   tabindex="0"
+                  class="icon-button"
                   aria-label="{{localize "DOS100.finances.ledger.delete" name=this.description}}"
                 ><i class="fa-solid fa-trash" inert></i></a>
               </td>

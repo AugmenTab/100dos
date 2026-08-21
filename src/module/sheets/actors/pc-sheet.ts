@@ -20,6 +20,9 @@ import {
   type EducationTraining,
   EDUCATION_TRAININGS,
 } from "../../education.js";
+import { type Actions } from "../../items/action.js";
+import { type EffectData } from "../../items/effect.js";
+import { type StatusId, STATUS_IDS } from "../../status.js";
 
 declare global {
   interface Game {
@@ -52,6 +55,30 @@ type EducationRow = ActorEducation & {
   targetOptions: { value: EducationTarget; label: string }[];
 };
 
+// One Status palette button — one per STATUS_IDS entry, in that fixed
+// order. img comes from CONFIG.statusEffects (see status.ts) so the
+// palette and the Token HUD always agree on artwork.
+type StatusButtonRow = {
+  id: StatusId;
+  label: string;
+  img: string;
+  active: boolean;
+};
+
+// One row in a Linked/Permanent/Temporary Effects table, or in the
+// Dashboard's Active Effect Items list. TODO: the Actions column is a
+// single inert rollable icon, not a per-Action button list — nothing to
+// resolve yet, so there's nothing to identify a specific Action by. uses
+// is null unless the Effect has Actions AND a non-unlimited shared Uses
+// pool. Left as {value, max} rather than a pre-formatted string so the
+// template can format both through localizeNumber, matching every other
+// numeric display (Skills, Educations, ledgers).
+type EffectRow = {
+  item: Dos100Item;
+  hasActions: boolean;
+  uses: { value: number; max: number } | null;
+};
+
 const PRIMARY_TABS: ApplicationTabConfig[] = [
   { id: "dashboard", label: "DOS100.pc.nav.primary.dashboard" },
   { id: "record", label: "DOS100.pc.nav.primary.record" },
@@ -82,13 +109,20 @@ export class PcActorSheet extends Dos100ActorSheet {
     actions: {
       useQuickItem: PcActorSheet.prototype.onUseQuickItem,
       togglePinnedSkill: PcActorSheet.prototype.onTogglePinnedSkill,
+      toggleStatus: PcActorSheet.prototype.onToggleStatus,
+      toggleItemPinned: PcActorSheet.prototype.onToggleItemPinned,
+      toggleEffectActive: PcActorSheet.prototype.onToggleEffectActive,
+      editEffect: PcActorSheet.prototype.onEditEffect,
+      duplicateEffect: PcActorSheet.prototype.onDuplicateEffect,
+      deleteEffect: PcActorSheet.prototype.onDeleteEffect,
+      createEffect: PcActorSheet.prototype.onCreateEffect,
     },
   };
 
-  // `spellSources` has no tabs yet. It is an extension point for a future
-  // dynamic secondary group (one tab per spell grant source), populated
-  // later by overriding `_getTabsConfig` for that group. No tabs or content
-  // exist for it yet.
+  // TODO: `spellSources` has no tabs yet. It is an extension point for a
+  // future dynamic secondary group (one tab per spell grant source),
+  // populated later by overriding `_getTabsConfig` for that group. No tabs
+  // or content exist for it yet.
   static override TABS = {
     primary: { initial: "dashboard", tabs: PRIMARY_TABS },
     record: { initial: "basics", tabs: RECORD_TABS },
@@ -121,18 +155,27 @@ export class PcActorSheet extends Dos100ActorSheet {
         this.actor.items.filter(
           (item) => item.uuid === (this.actor.system as { archetype?: string | null }).archetype,
         )[0] ?? null,
-      // TODO: only the Ability Item type carries `pinned` so far. Other
+      // TODO: only Ability and Effect carry `actions.pinned` so far. Other
       // Action-bearing Item types (e.g. Weapons) should be added to this
-      // filter once they adopt the same field.
+      // filter once they adopt the shared Actions structure. An Effect's
+      // click behavior differs from an ordinary Item's (toggles `active`
+      // rather than invoking an Action) — see onUseQuickItem below.
       quickUseItems: this.actor.items.filter(
-        (item) => item.type === "ability" && (item.system as { pinned?: boolean }).pinned === true,
+        (item) =>
+          (item.type === "ability" || item.type === "effect") &&
+          (item.system as { actions?: Actions }).actions?.pinned === true,
       ),
       pinnedSkills,
       pinnedEducations,
       hasNoPinnedSkillsOrEducations: pinnedSkills.length === 0 && pinnedEducations.length === 0,
-      activeEffects: this.actor.items.filter(
-        (item) => item.type === "effect" && (item.system as { active?: boolean }).active === true,
-      ),
+      statuses: this.statusButtonRows(),
+      activeStatuses: this.activeStatusRows(),
+      linkedEffects: this.effectRows("linked"),
+      permanentEffects: this.effectRows("permanent"),
+      temporaryEffects: this.effectRows("temporary"),
+      activeEffects: this.actor.items
+        .filter((item) => item.type === "effect" && (item.system as EffectData).active === true)
+        .map((item) => this.effectRow(item as Dos100Item)),
       // Render context, not persisted data: which movement modes this Actor
       // currently has available. "land" (system.movement.base) is always
       // available; the alternate modes are only offered when their schema
@@ -152,8 +195,8 @@ export class PcActorSheet extends Dos100ActorSheet {
 
   // Render context, not persisted data: each row's stored recordedBy User ID
   // resolves to that User's current display name (never persisting the name
-  // itself, per .local/plan.md — a renamed User must not require rewriting
-  // every row it recorded), and realTime formats to a display string for the
+  // itself — a renamed User must not require rewriting every row it
+  // recorded), and realTime formats to a display string for the
   // Game Date hover tooltip. worldTime needs no equivalent resolution here —
   // it's rendered directly via the existing localizeNumber helper, the
   // simplest available representation until a calendar system exists.
@@ -170,10 +213,9 @@ export class PcActorSheet extends Dos100ActorSheet {
 
   // Render context, not persisted data — see xpLedger() above for the same
   // recordedBy/realTime resolution rationale. Finances stays its own
-  // standalone concept rather than an alias of the XP ledger (per
-  // .local/plan.md), so this is a separate method with the same shape
-  // rather than a shared abstraction over two schema types that happen to
-  // currently look alike.
+  // standalone concept rather than an alias of the XP ledger, so this is a
+  // separate method with the same shape rather than a shared abstraction
+  // over two schema types that happen to currently look alike.
   private financesLedger(): FinanceLedgerRow[] {
     const finances = (this.actor.system as { finances: Finances }).finances;
     return finances.ledger.map((item) => ({
@@ -216,8 +258,8 @@ export class PcActorSheet extends Dos100ActorSheet {
   // Render context, not persisted data: pinned Actor Skills, alphabetized —
   // rendered as their own stacked cluster in the Dashboard's "Pinned Skills
   // & Educations" section, not merged/interleaved with pinnedEducations()
-  // below (see .local/plan.md and dashboard.hbs). Derived from
-  // system.skills (see skill.ts) rather than embedded Items.
+  // below (see dashboard.hbs). Derived from system.skills (see skill.ts)
+  // rather than embedded Items.
   private pinnedSkills(): { tag: string; name: string }[] {
     return Object.entries((this.actor.system as { skills: ActorSkills }).skills)
       .filter(([, skill]) => skill.pinned)
@@ -240,7 +282,7 @@ export class PcActorSheet extends Dos100ActorSheet {
   // options are built from that Skill's own `characteristics` list only
   // (never all ten), and rows are sorted alphabetically by name — Array#sort
   // is stable, so same-named rows keep their original system.skills
-  // iteration order. See .local/plan.md; no persisted ordering exists yet.
+  // iteration order. No persisted ordering exists yet.
   private skillRows(): SkillRow[] {
     const skills = (this.actor.system as { skills: ActorSkills }).skills;
     return Object.entries(skills)
@@ -268,7 +310,7 @@ export class PcActorSheet extends Dos100ActorSheet {
   // Render context, not persisted data: each row's Characteristic/Skill
   // <select> options are built from that Education's own `options` list
   // only, and rows are sorted alphabetically by name — same rationale as
-  // skillRows() above. See .local/plan.md; no persisted ordering exists yet.
+  // skillRows() above. No persisted ordering exists yet.
   private educationRows(): EducationRow[] {
     const educations = (this.actor.system as { educations: ActorEducations }).educations;
     const skills = (this.actor.system as { skills: ActorSkills }).skills;
@@ -288,7 +330,7 @@ export class PcActorSheet extends Dos100ActorSheet {
   // Skill tag (see education.ts) — resolved to a display label here, never
   // persisted. A Skill tag with no matching system.skills entry falls back
   // to the raw tag itself rather than mutating the Education or hiding the
-  // option (see .local/plan.md).
+  // option.
   private educationTargetLabel(target: EducationTarget, skills: ActorSkills): string {
     if (isCharacteristicId(target)) return game.i18n.localize(`DOS100.characteristic.${target}.abbr`);
     return skills[target]?.name ?? target;
@@ -301,6 +343,82 @@ export class PcActorSheet extends Dos100ActorSheet {
       value: training,
       label: game.i18n.localize(`DOS100.educations.training.${training}`),
     }));
+  }
+
+  // The full sheet-facing status palette, in STATUS_IDS order, each
+  // flagged active via Actor#statuses — a live Set Foundry derives from
+  // this Actor's embedded ActiveEffects. CONFIG.statusEffects (built from
+  // the same STATUS_IDS list, see status.ts) is the img source, so the
+  // palette and Token HUD never disagree.
+  private statusButtonRows(): StatusButtonRow[] {
+    return STATUS_IDS.map((id) => ({
+      id,
+      label: game.i18n.localize(`DOS100.status.${id}`),
+      img: CONFIG.statusEffects.find((status) => status.id === id)?.img ?? "",
+      active: this.actor.statuses.has(id),
+    }));
+  }
+
+  // The Dashboard's informational subset of statusButtonRows(): only
+  // statuses currently active, for display above the Active Effect Items
+  // list. Duration is read from the underlying ActiveEffect, not stored
+  // anywhere of our own.
+  private activeStatusRows(): {
+    id: StatusId;
+    label: string;
+    img: string;
+    duration: { value: number; unit: string } | null;
+  }[] {
+    return this.statusButtonRows()
+      .filter((status) => status.active)
+      .map(({ id, label, img }) => ({ id, label, img, duration: this.statusDuration(id) }));
+  }
+
+  // Finds the single-status ActiveEffect backing a given status id, the
+  // same way Actor#toggleStatusEffect itself locates one to remove (no
+  // static _id is assigned to our CONFIG.statusEffects entries, so this
+  // matches on `statuses` containing exactly that one id). units comes
+  // back singularized ("rounds" -> "round") to reuse the same
+  // DOS100.effect.duration.abbr keys as our own Effect Item duration.
+  private statusDuration(id: StatusId): { value: number; unit: string } | null {
+    const effect = Array.from(this.actor.effects).find(
+      (effect) => effect.statuses.size === 1 && effect.statuses.has(id),
+    );
+    if (!effect || !Number.isFinite(effect.duration.value)) return null;
+    return { value: effect.duration.value as number, unit: effect.duration.units.replace(/s$/, "") };
+  }
+
+  // An Effect Item's lifecycle group — derived, never a stored category
+  // field. Linked takes precedence over deleteOnExpire, using the existing
+  // grant/source relationship (Dos100Item#grantingItem) rather than a new
+  // field.
+  private effectGroup(item: Dos100Item): "linked" | "permanent" | "temporary" {
+    if (item.grantingItem !== null) return "linked";
+    return (item.system as EffectData).deleteOnExpire ? "temporary" : "permanent";
+  }
+
+  // Effect Items in the given lifecycle group, alphabetized — same sorting
+  // rationale as skillRows()/educationRows() above.
+  private effectRows(group: "linked" | "permanent" | "temporary"): EffectRow[] {
+    return this.actor.items
+      .filter((item) => item.type === "effect")
+      .map((item) => item as Dos100Item)
+      .filter((item) => this.effectGroup(item) === group)
+      .sort((a, b) => a.name.localeCompare(b.name))
+      .map((item) => this.effectRow(item));
+  }
+
+  // Reduces one Effect Item's Actions structure to what the Effects
+  // table/Dashboard need to display. Reused by both effectRows() above and
+  // the Dashboard's Active Effect Items list.
+  private effectRow(item: Dos100Item): EffectRow {
+    const actions = (item.system as EffectData).actions;
+    const hasActions = Object.keys(actions.items).length > 0;
+    const uses =
+      hasActions && actions.uses.per !== "unlimited"
+        ? { value: actions.uses.value, max: actions.uses.max }
+        : null;
+    return { item, hasActions, uses };
   }
 
   // Render context, not persisted data: whether a spellcasting subsystem
@@ -390,12 +508,22 @@ export class PcActorSheet extends Dos100ActorSheet {
     next?.focus();
   }
 
-  // TODO: only single-Action Items are wired up so far; the first (only)
-  // action id is used directly. Multi-Action selection is a future workflow.
+  // A pinned Effect's quick-use click toggles `active` rather than
+  // invoking an Action. Ordinary Items fall through to the existing
+  // single-Action path. TODO: only
+  // single-Action Items are wired up so far; the first (only) action id is
+  // used directly. Multi-Action selection is a future workflow.
   private async onUseQuickItem(event: PointerEvent, target: HTMLElement): Promise<void> {
     const itemId = target.dataset.itemId;
     const item = itemId ? this.actor.items.get(itemId) : undefined;
     if (!item) return;
+
+    if (item.type === "effect") {
+      const active = (item.system as EffectData).active;
+      await item.update({ "system.active": !active });
+      return;
+    }
+
     const actions = (item.system as { actions?: { items: Record<string, unknown> } }).actions;
     const actionId = actions ? Object.keys(actions.items)[0] : undefined;
     if (!actionId) return;
@@ -408,5 +536,66 @@ export class PcActorSheet extends Dos100ActorSheet {
     const skill = (this.actor.system as { skills: ActorSkills }).skills[tag];
     if (!skill) return;
     await this.actor.update({ [`system.skills.${tag}.pinned`]: !skill.pinned });
+  }
+
+  private async onToggleStatus(event: PointerEvent, target: HTMLElement): Promise<void> {
+    const statusId = target.dataset.statusId;
+    if (!statusId) return;
+    await this.actor.toggleStatusEffect(statusId);
+  }
+
+  // Shared by any Item-type row with an Actions.pinned control — currently
+  // just Effect rows. Binds to `system.actions.pinned`, not a new
+  // Effect-specific `pinned` field.
+  private async onToggleItemPinned(event: PointerEvent, target: HTMLElement): Promise<void> {
+    const itemId = target.dataset.itemId;
+    const item = itemId ? this.actor.items.get(itemId) : undefined;
+    if (!item) return;
+    const pinned = (item.system as { actions?: Actions }).actions?.pinned;
+    if (pinned === undefined) return;
+    await item.update({ "system.actions.pinned": !pinned });
+  }
+
+  private async onToggleEffectActive(event: PointerEvent, target: HTMLElement): Promise<void> {
+    const itemId = target.dataset.itemId;
+    const item = itemId ? this.actor.items.get(itemId) : undefined;
+    if (!item) return;
+    const active = (item.system as EffectData).active;
+    await item.update({ "system.active": !active });
+  }
+
+  private onEditEffect(event: PointerEvent, target: HTMLElement): void {
+    const itemId = target.dataset.itemId;
+    const item = itemId ? this.actor.items.get(itemId) : undefined;
+    item?.sheet?.render(true);
+  }
+
+  private async onDuplicateEffect(event: PointerEvent, target: HTMLElement): Promise<void> {
+    const itemId = target.dataset.itemId;
+    const item = itemId ? this.actor.items.get(itemId) : undefined;
+    if (!item) return;
+    await this.actor.createEmbeddedDocuments("Item", [item.toObject()]);
+  }
+
+  private async onDeleteEffect(event: PointerEvent, target: HTMLElement): Promise<void> {
+    const itemId = target.dataset.itemId;
+    const item = itemId ? this.actor.items.get(itemId) : undefined;
+    await item?.delete();
+  }
+
+  // Permanent/Temporary Effects each get their own manual Add control —
+  // the group determines the created Effect's initial deleteOnExpire,
+  // which is what actually drives its table placement on the next render
+  // (see effectGroup() above).
+  private async onCreateEffect(event: PointerEvent, target: HTMLElement): Promise<void> {
+    const group = target.dataset.group;
+    if (group !== "permanent" && group !== "temporary") return;
+    await this.actor.createEmbeddedDocuments("Item", [
+      {
+        name: game.i18n.localize("DOS100.effects.table.newEffectName"),
+        type: "effect",
+        system: { deleteOnExpire: group === "temporary" },
+      },
+    ]);
   }
 }

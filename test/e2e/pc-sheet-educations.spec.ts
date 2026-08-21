@@ -4,10 +4,9 @@ import { ensureGameView } from "./support/foundry-session.js";
 import { openPcSheet, resizePcSheet } from "./support/pc-sheet.js";
 import { type Locator, type Page } from "@playwright/test";
 
-// Representative populated Education matching .local/plan.md's own worked
-// example — a Skill-tag option list including a tag the fixture Actor
-// doesn't actually have (see the missing-target test below), plus a real
-// Skill so the resolved-label path is also exercised.
+// Representative populated Education — a Skill-tag option list including a
+// tag the fixture Actor doesn't actually have (see the missing-target test
+// below), plus a real Skill so the resolved-label path is also exercised.
 const ENGINEERING = {
   name: "Engineering",
   difficulty: "advanced",
@@ -224,7 +223,7 @@ test.describe("Educations section", () => {
     await expect(deleteControl).toHaveAttribute("aria-label", "Delete Education: Engineering");
     await expect(deleteControl.locator("i.fa-trash")).toHaveCount(1);
 
-    // Delete must come after Edit and Info, per .local/plan.md.
+    // Delete must come after Edit and Info.
     const nameControls = row.locator(".dense-table-name-inner a");
     await expect(nameControls).toHaveCount(3);
     await expect(nameControls.nth(2)).toHaveClass(/dense-table-delete/);

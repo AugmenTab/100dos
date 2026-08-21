@@ -12,6 +12,7 @@ import { TraitItemSheet } from "./sheets/items/trait-sheet.js";
 import { AbilityDataModel } from "./items/ability.js";
 import { EffectDataModel } from "./items/effect.js";
 import { TraitDataModel } from "./items/trait.js";
+import { registerStatusEffects } from "./status.js";
 
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
 interface Dos100System {
@@ -26,6 +27,7 @@ declare global {
 
 Hooks.once("init", (): void => {
   registerHandlebarsHelpers();
+  registerStatusEffects();
 
   void foundry.applications.handlebars.loadTemplates([
     "systems/100dos/templates/actors/pc/dashboard.hbs",
@@ -42,6 +44,7 @@ Hooks.once("init", (): void => {
     "systems/100dos/templates/actors/pc/skills.hbs",
     "systems/100dos/templates/actors/pc/spells.hbs",
     "systems/100dos/templates/actors/pc/effects.hbs",
+    "systems/100dos/templates/actors/pc/effects/row.hbs",
     "systems/100dos/templates/actors/pc/settings.hbs",
   ]);
 

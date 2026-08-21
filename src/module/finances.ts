@@ -20,9 +20,9 @@ export type Finances = {
 function financeLedgerItemField(): foundry.data.fields.SchemaField {
   const { SchemaField, StringField, NumberField } = foundry.data.fields;
   return new SchemaField({
-    // No generation behavior (id) or capture behavior (recordedBy/worldTime/
-    // realTime) yet — transaction creation is out of scope for this
-    // wireframe (see .local/plan.md).
+    // TODO: no generation behavior (id) or capture behavior
+    // (recordedBy/worldTime/realTime) yet — transaction creation is out of
+    // scope for this wireframe.
     id: new StringField({ required: true, initial: "" }),
     type: new StringField({ required: true, initial: "income", choices: ["income", "purchase"] }),
     description: new StringField({ required: true, initial: "" }),
@@ -35,7 +35,7 @@ function financeLedgerItemField(): foundry.data.fields.SchemaField {
 
 // TODO: received/spent/available are unrelated placeholders (default 0)
 // until a calculation system derives them from the ledger — no calculation
-// exists yet (wireframe only, see .local/plan.md).
+// exists yet (wireframe only).
 export function financesField(): foundry.data.fields.SchemaField {
   const { SchemaField, NumberField, ArrayField } = foundry.data.fields;
   return new SchemaField({

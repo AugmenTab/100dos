@@ -16,10 +16,11 @@
           <th scope="col">{{localize "DOS100.skills.table.training"}}</th>
           <th scope="col">{{localize "DOS100.skills.table.characteristic"}}</th>
           <th scope="col">
-            {{!-- TODO: not wired up yet — no Add-Skill modal exists. See .local/plan.md. --}}
+            {{!-- TODO: not wired up yet — no Add-Skill modal exists. --}}
             <a
               role="button"
               tabindex="0"
+              class="icon-button"
               aria-label="{{localize "DOS100.skills.table.add"}}"
             ><i class="fa-solid fa-plus" inert></i></a>
           </th>
@@ -33,7 +34,7 @@
                 <a
                   role="button"
                   tabindex="0"
-                  class="dense-table-pin"
+                  class="icon-button dense-table-pin"
                   data-action="togglePinnedSkill"
                   data-tag="{{this.tag}}"
                   aria-pressed="{{this.pinned}}"
@@ -49,17 +50,19 @@
               <td class="dense-table-name">
                 <div class="dense-table-name-inner">
                   <span>{{this.name}}</span>
-                  {{!-- TODO: not wired up yet — no Skill edit modal exists. See .local/plan.md. --}}
+                  {{!-- TODO: not wired up yet — no Skill edit modal exists. --}}
                   <a
                     role="button"
                     tabindex="0"
+                    class="icon-button"
                     data-tag="{{this.tag}}"
                     aria-label="{{localize "DOS100.skills.table.edit" name=this.name}}"
                   ><i class="fa-solid fa-pen-to-square" inert></i></a>
-                  {{!-- TODO: not wired up yet — no description popup exists. See .local/plan.md. --}}
+                  {{!-- TODO: not wired up yet — no description popup exists. --}}
                   <a
                     role="button"
                     tabindex="0"
+                    class="icon-button"
                     data-tag="{{this.tag}}"
                     aria-label="{{localize "DOS100.skills.table.viewDescription" name=this.name}}"
                   ><i class="fa-solid fa-book-open" inert></i></a>
@@ -86,7 +89,7 @@
                 </select>
               </td>
               <td>
-                {{!-- TODO: not wired up yet — no Skill roll/use behavior exists. See .local/plan.md. --}}
+                {{!-- TODO: not wired up yet — no Skill roll/use behavior exists. --}}
                 <button
                   type="button"
                   class="simple-button"
@@ -127,10 +130,11 @@
             <th scope="col">{{localize "DOS100.educations.table.training"}}</th>
             <th scope="col">{{localize "DOS100.educations.table.target"}}</th>
             <th scope="col">
-              {{!-- TODO: not wired up yet — no Education creation/purchase flow exists. See .local/plan.md. --}}
+              {{!-- TODO: not wired up yet — no Education creation/purchase flow exists. --}}
               <a
                 role="button"
                 tabindex="0"
+                class="icon-button"
                 aria-label="{{localize "DOS100.educations.table.add"}}"
               ><i class="fa-solid fa-plus" inert></i></a>
             </th>
@@ -144,7 +148,7 @@
                   <a
                     role="button"
                     tabindex="0"
-                    class="dense-table-pin"
+                    class="icon-button dense-table-pin"
                     data-tag="{{this.tag}}"
                     aria-pressed="{{this.pinned}}"
                     aria-label="{{#if this.pinned}}{{localize "DOS100.educations.table.unpin" name=this.name}}{{else}}{{localize "DOS100.educations.table.pin" name=this.name}}{{/if}}"
@@ -159,25 +163,27 @@
                 <td class="dense-table-name">
                   <div class="dense-table-name-inner">
                     <span>{{this.name}}</span>
-                    {{!-- TODO: not wired up yet — no Education edit modal exists. See .local/plan.md. --}}
+                    {{!-- TODO: not wired up yet — no Education edit modal exists. --}}
                     <a
                       role="button"
                       tabindex="0"
+                      class="icon-button"
                       data-tag="{{this.tag}}"
                       aria-label="{{localize "DOS100.educations.table.edit" name=this.name}}"
                     ><i class="fa-solid fa-pen-to-square" inert></i></a>
-                    {{!-- TODO: not wired up yet — no description popup exists. See .local/plan.md. --}}
+                    {{!-- TODO: not wired up yet — no description popup exists. --}}
                     <a
                       role="button"
                       tabindex="0"
+                      class="icon-button"
                       data-tag="{{this.tag}}"
                       aria-label="{{localize "DOS100.educations.table.viewDescription" name=this.name}}"
                     ><i class="fa-solid fa-book-open" inert></i></a>
-                    {{!-- TODO: not wired up yet — no Education deletion exists. See .local/plan.md. --}}
+                    {{!-- TODO: not wired up yet — no Education deletion exists. --}}
                     <a
                       role="button"
                       tabindex="0"
-                      class="dense-table-delete"
+                      class="icon-button dense-table-delete"
                       data-tag="{{this.tag}}"
                       aria-label="{{localize "DOS100.educations.table.delete" name=this.name}}"
                     ><i class="fa-solid fa-trash" inert></i></a>
@@ -195,7 +201,7 @@
                   </select>
                 </td>
                 <td>
-                  {{!-- TODO: not wired up yet — no Education roll/use behavior exists. See .local/plan.md. --}}
+                  {{!-- TODO: not wired up yet — no Education roll/use behavior exists. --}}
                   <button
                     type="button"
                     class="simple-button"

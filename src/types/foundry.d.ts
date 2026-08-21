@@ -79,18 +79,38 @@ interface Collection<T> extends Iterable<T> {
   map<U>(fn: (item: T) => U): U[];
 }
 
+declare class ActiveEffect {
+  readonly id: string;
+  readonly statuses: Set<string>;
+  readonly duration: {
+    value: number | null;
+    units: string;
+    expiry: string | null;
+    expired: boolean;
+  };
+}
+
 declare class Actor {
   readonly type: string;
   readonly name: string;
   readonly img: string;
   readonly system: object;
   readonly items: Collection<Item>;
+  // Live Set of currently-active status ids, derived from this Actor's
+  // embedded ActiveEffect documents — not our own Item type of the same
+  // conceptual name. See status.ts.
+  readonly statuses: Set<string>;
+  // The Actor's embedded ActiveEffect documents themselves (statuses and
+  // otherwise) — statuses reads which ids are active; this is how their
+  // own duration/etc. gets read back.
+  readonly effects: Collection<ActiveEffect>;
   prepareData(): void;
   prepareBaseData(): void;
   prepareDerivedData(): void;
   createEmbeddedDocuments(type: string, data: object[]): Promise<Item[]>;
   deleteEmbeddedDocuments(type: string, ids: string[]): Promise<Item[]>;
   update(data: Record<string, unknown>): Promise<unknown>;
+  toggleStatusEffect(statusId: string, options?: { active?: boolean }): Promise<unknown>;
 }
 
 declare class Item {
@@ -101,10 +121,13 @@ declare class Item {
   readonly img: string;
   readonly system: object;
   readonly actor: Actor | null;
+  readonly sheet: { render(force?: boolean): unknown } | null;
   prepareData(): void;
   prepareBaseData(): void;
   prepareDerivedData(): void;
   update(data: Record<string, unknown>): Promise<unknown>;
+  delete(): Promise<this>;
+  toObject(): Record<string, unknown>;
   getFlag(scope: string, key: string): unknown;
   setFlag(scope: string, key: string, value: unknown): Promise<this>;
   protected _onCreate(data: object, options: object, userId: string): void;
@@ -120,6 +143,7 @@ declare const CONFIG: {
     documentClass: typeof Item;
     dataModels: Record<string, typeof foundry.abstract.TypeDataModel>;
   };
+  statusEffects: { id: string; name: string; img: string }[];
 };
 
 

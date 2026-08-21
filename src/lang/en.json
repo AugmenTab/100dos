@@ -30,6 +30,15 @@
           "round": "Round",
           "minute": "Minute",
           "hour": "Hour"
+        },
+        "abbr": {
+          "round": "rds",
+          "minute": "mins",
+          "hour": "hrs"
+        },
+        "expiration": {
+          "startOfTurn": "Start of Turn",
+          "endOfTurn": "End of Turn"
         }
       },
       "stackingRule": {
@@ -231,6 +240,65 @@
       "training": {
         "plus5": "+5",
         "plus10": "+10"
+      }
+    },
+    "status": {
+      "asleep": "Asleep",
+      "blinded": "Blinded",
+      "bleedingOut": "Bleeding Out",
+      "choking": "Choking",
+      "concussed": "Concussed",
+      "deafened": "Deafened",
+      "disorientated": "Disorientated",
+      "ensnared": "Ensnared",
+      "flinch": "Flinch",
+      "gasping": "Gasping",
+      "helpless": "Helpless",
+      "invisible": "Invisible",
+      "lost": "Lost",
+      "pinned": "Pinned",
+      "shellshock": "Shellshock",
+      "slowed": "Slowed",
+      "stunned": "Stunned",
+      "tinnitus": "Tinnitus",
+      "unconscious": "Unconscious",
+      "visionLoss": "Vision Loss",
+      "weakened": "Weakened",
+      "whiplash": "Whiplash",
+      "winded": "Winded"
+    },
+    "effects": {
+      "statuses": {
+        "label": "Statuses",
+        "journal": "View rules for {name}"
+      },
+      "linked": {
+        "label": "Linked",
+        "empty": "No linked Effects."
+      },
+      "permanent": {
+        "label": "Permanent",
+        "empty": "No permanent Effects.",
+        "add": "Add Permanent Effect"
+      },
+      "temporary": {
+        "label": "Temporary",
+        "empty": "No temporary Effects.",
+        "add": "Add Temporary Effect"
+      },
+      "table": {
+        "duration": "Duration",
+        "actions": "Actions",
+        "uses": "Uses",
+        "active": "Active",
+        "toggleActive": "Toggle Active: {name}",
+        "pin": "Pin {name}",
+        "unpin": "Unpin {name}",
+        "edit": "Edit {name}",
+        "duplicate": "Duplicate {name}",
+        "delete": "Delete {name}",
+        "roll": "Roll {name}",
+        "newEffectName": "New Effect"
       }
     },
     "pc": {

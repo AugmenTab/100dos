@@ -2,8 +2,7 @@
    Both tables share the same dense, per-row-control shape (a pin toggle,
    stacked name/edit/journal controls, several schema-bound selects) that
    genuinely differs from XP/Finances, so it lives here as .dense-table
-   rather than being forced into the shared ledger-table component. See
-   .local/plan.md. */
+   rather than being forced into the shared ledger-table component. */
 
 .pc-sheet-body {
   .dense-table {
@@ -39,9 +38,5 @@
      truncating it — reserve enough room regardless of that trick. */
   .dense-table select {
     min-width: 5.5rem;
-  }
-
-  .dense-table-pin[aria-pressed="false"] {
-    opacity: 0.5;
   }
 }

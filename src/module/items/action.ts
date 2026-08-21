@@ -51,6 +51,7 @@ export type ActionData = {
 export type Actions = {
   uses: ActionsPoolUses;
   items: Record<string, ActionData>;
+  pinned: boolean;
 };
 
 // Activation types for which the cost field is meaningless and hidden in the UI.
@@ -112,7 +113,7 @@ export function shouldRecharge(
 }
 
 export function actionsField(): foundry.data.fields.SchemaField {
-  const { SchemaField, ObjectField, NumberField, StringField } = foundry.data.fields;
+  const { SchemaField, ObjectField, NumberField, StringField, BooleanField } = foundry.data.fields;
   return new SchemaField({
     uses: new SchemaField({
       per: new StringField({ required: true, initial: "unlimited" }),
@@ -123,5 +124,6 @@ export function actionsField(): foundry.data.fields.SchemaField {
       }),
     }),
     items: new ObjectField({ required: true, initial: {} }),
+    pinned: new BooleanField({ required: true, initial: false }),
   });
 }

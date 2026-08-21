@@ -4,10 +4,9 @@ import { ensureGameView } from "./support/foundry-session.js";
 import { openPcSheet, resizePcSheet } from "./support/pc-sheet.js";
 import { type Locator, type Page } from "@playwright/test";
 
-// Representative populated Skill matching .local/plan.md's own worked
-// example — advanced/fieldcraft, Trained +10, a two-Characteristic
-// allow-list with the second entry selected (so tests can't pass merely by
-// coincidentally picking the first option).
+// Representative populated Skill — advanced/fieldcraft, Trained +10, a
+// two-Characteristic allow-list with the second entry selected (so tests
+// can't pass merely by coincidentally picking the first option).
 const PILOT_GROUND = {
   name: "Pilot (Ground)",
   difficulty: "advanced",
@@ -51,10 +50,10 @@ async function openSkillsTab(page: Page, sheetId: string): Promise<Locator> {
   return sheet.locator('.tab[data-group="primary"][data-tab="skills"]');
 }
 
-// The Skills page panel also contains the Educations table (see
-// .local/plan.md) — scope to the Skills table specifically (the first
-// <table> in the panel) so its header/row/empty-state counts aren't
-// conflated with the Educations section below it.
+// The Skills page panel also contains the Educations table — scope to the
+// Skills table specifically (the first <table> in the panel) so its
+// header/row/empty-state counts aren't conflated with the Educations
+// section below it.
 function skillsTable(panel: Locator): Locator {
   return panel.locator("table").first();
 }

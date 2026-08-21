@@ -6,9 +6,9 @@ import { type Page } from "@playwright/test";
 
 const CHARACTERISTIC_IDS = ["str", "tou", "agi", "wfr", "wfm", "int", "per", "crg", "cha", "ldr"];
 
-// system.dr is a keyed collection of arbitrary locations (see
-// .local/plan.md), empty by default — nothing assumes a humanoid shape at
-// the schema level. This is a representative humanoid set for tests that
+// system.dr is a keyed collection of arbitrary locations, empty by
+// default — nothing assumes a humanoid shape at the schema level. This is
+// a representative humanoid set for tests that
 // need real DR data to render against; rightArm is destroyed to exercise
 // that state. Object literal (not per-field dot-paths): a location's
 // required fields (type/label/placement/order/destroyed) have their own
@@ -288,7 +288,7 @@ test("pinning an Ability surfaces it as a quick-use control that delegates to th
       const item = actor?.items.get(itemId);
       if (!item) throw new Error(`Fixture ability ${itemId} not found.`);
       await item.update({
-        "system.pinned": true,
+        "system.actions.pinned": true,
         "system.actions.items": {
           action1: {
             id: "action1",

@@ -33,8 +33,7 @@ function experienceLedgerItemField(): foundry.data.fields.SchemaField {
 
 // TODO: tier/earned/spent/available are unrelated placeholders (default 0)
 // until a calculation system derives tier from earned, and earned/spent/
-// available from the ledger — no calculation exists yet (wireframe only,
-// see .local/plan.md).
+// available from the ledger — no calculation exists yet (wireframe only).
 export function experienceLedgerField(): foundry.data.fields.SchemaField {
   const { SchemaField, NumberField, ArrayField } = foundry.data.fields;
   return new SchemaField({

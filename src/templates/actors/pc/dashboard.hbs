@@ -76,6 +76,7 @@
             <a
               role="button"
               tabindex="0"
+              class="icon-button"
               aria-label="{{localize "DOS100.pc.dashboard.identity.archetype.add"}}"
             ><i class="fa-solid fa-plus" inert></i></a>
           {{/if}}
@@ -381,17 +382,46 @@
 
       <section class="pc-dashboard-effects" aria-label="{{localize "DOS100.pc.dashboard.effects.label"}}">
         <h3 class="pc-section-heading" aria-hidden="true">{{localize "DOS100.pc.dashboard.effects.label"}}</h3>
-        {{#if activeEffects.length}}
+        {{#if (or activeStatuses.length activeEffects.length)}}
           <ul class="pc-dashboard-effects-list">
-            {{#each activeEffects}}
+            {{#each activeStatuses}}
               <li>
                 <img src="{{this.img}}" alt="" />
-                <span>{{this.name}}</span>
-                {{#if this.system.duration.value}}
-                  <span class="pc-dashboard-effect-duration">
-                    {{this.system.duration.value}} {{localize (concat "DOS100.effect.duration.units." this.system.duration.unit)}}
-                  </span>
-                {{/if}}
+                <span>{{this.label}}</span>
+                <span></span>
+                <span></span>
+                <span>
+                  {{#if this.duration}}
+                    {{localizeNumber this.duration.value}} {{localize (concat "DOS100.effect.duration.abbr." this.duration.unit)}}
+                  {{/if}}
+                </span>
+              </li>
+            {{/each}}
+            {{#each activeEffects}}
+              <li>
+                <img src="{{this.item.img}}" alt="" />
+                <span>{{this.item.name}}</span>
+                <span>
+                  {{#if this.hasActions}}
+                    {{!-- TODO: not wired up yet — no roll resolution exists. --}}
+                    <a
+                      role="button"
+                      tabindex="0"
+                      class="icon-button"
+                      aria-label="{{localize "DOS100.effects.table.roll" name=this.item.name}}"
+                    ><i class="fa-solid fa-dice-d10" inert></i></a>
+                  {{/if}}
+                </span>
+                <span>
+                  {{#if this.uses}}
+                    {{localizeNumber this.uses.value}} / {{localizeNumber this.uses.max}}
+                  {{/if}}
+                </span>
+                <span>
+                  {{#if this.item.system.duration.value}}
+                    {{localizeNumber this.item.system.duration.value}} {{localize (concat "DOS100.effect.duration.abbr." this.item.system.duration.unit)}}
+                  {{/if}}
+                </span>
               </li>
             {{/each}}
           </ul>

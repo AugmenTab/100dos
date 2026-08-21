@@ -14,6 +14,13 @@ interface E2EItemDocument {
   update(data: Record<string, unknown>): Promise<unknown>;
 }
 
+interface E2EActiveEffectDocument {
+  readonly id: string;
+  readonly statuses: Set<string>;
+  readonly duration: { value: number | null; units: string; expiry: string | null; expired: boolean };
+  update(data: Record<string, unknown>): Promise<unknown>;
+}
+
 interface E2EActorDocument {
   readonly id: string;
   readonly name: string;
@@ -36,6 +43,10 @@ interface E2EActorDocument {
     type: "Item",
     ids: string[],
   ): Promise<E2EItemDocument[]>;
+  toggleStatusEffect(
+    statusId: string,
+    options?: { active?: boolean },
+  ): Promise<E2EActiveEffectDocument | boolean | undefined>;
 }
 
 declare const Actor: {

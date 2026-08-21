@@ -1,0 +1,40 @@
+/* Icon-only button: a single reusable shape for every icon-only control
+   across the system (row pin/edit/duplicate/delete/roll controls, ledger
+   Add/Delete, Dashboard's Add Archetype, ...) — same spirit as PF1e's
+   .rollable class giving otherwise-unrelated controls one consistent
+   size and hover feedback. Unscoped, like the other shared components.
+   Works on an <a role="button">, a <button>, or any clickable element;
+   normalizes both a FontAwesome <i> glyph and an <img> SVG (they don't
+   scale the same way by default) to the same rendered size. */
+
+.icon-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.25rem;
+  height: 1.25rem;
+  border: none;
+  background: none;
+  padding: 0;
+  color: inherit;
+  cursor: pointer;
+
+  i {
+    font-size: 1rem;
+  }
+
+  img {
+    width: 1rem;
+    height: 1rem;
+    object-fit: contain;
+  }
+
+  &:hover {
+    opacity: 0.7;
+  }
+
+  /* A toggle control (e.g. pin) reads as "off" by dimming. */
+  &[aria-pressed="false"] {
+    opacity: 0.5;
+  }
+}

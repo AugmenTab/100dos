@@ -1,7 +1,7 @@
 import { type Changes, changesField } from "../change.js";
 import { type Actions, actionsField } from "./action.js";
 
-const { BooleanField, NumberField, StringField } = foundry.data.fields;
+const { NumberField, StringField } = foundry.data.fields;
 
 export type AbilityData = {
   xpCost: number;
@@ -10,7 +10,6 @@ export type AbilityData = {
   description: string;
   changes: Changes;
   actions: Actions;
-  pinned: boolean;
 };
 
 export class AbilityDataModel extends foundry.abstract.TypeDataModel {
@@ -22,9 +21,6 @@ export class AbilityDataModel extends foundry.abstract.TypeDataModel {
       description: new StringField({ required: true, initial: "" }),
       changes: changesField(),
       actions: actionsField(),
-      // TODO: other Action-bearing Item types (e.g. Weapons) should adopt
-      // the same field once they exist.
-      pinned: new BooleanField({ required: true, initial: false }),
     };
   }
 }

@@ -98,7 +98,7 @@ test("PC sheet shows the primary tab shell, defaults to Dashboard, and switches 
     }
     if (tabId === "dashboard") {
       await expect(sheet.locator('input[name="name"]')).toBeVisible();
-    } else if (tabId !== "record" && tabId !== "skills") {
+    } else if (tabId !== "record" && tabId !== "skills" && tabId !== "effects") {
       await expect(primaryPanel(sheet, tabId).locator("h2")).toBeVisible();
     }
 

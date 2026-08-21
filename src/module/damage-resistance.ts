@@ -26,7 +26,7 @@ export type DamageResistanceLocation = {
 // A keyed collection of arbitrary locations (e.g. "leftArm", "frontLeftLeg",
 // "head1") rather than a fixed six-location humanoid shape or an array —
 // the key is stable identity ("system.dr.frontLeftLeg.value"), not
-// positional. See .local/plan.md for the full rationale.
+// positional.
 export type DamageResistanceLocations = Record<string, DamageResistanceLocation>;
 
 // Sorts a set of same-category locations for display: `order` ascending,

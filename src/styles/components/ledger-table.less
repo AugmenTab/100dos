@@ -23,11 +23,15 @@
     white-space: nowrap;
   }
 
+  /* color, not opacity — opacity would also dim any interactive control
+     nested in a header cell (e.g. the Add icon-button), compounding with
+     that control's own hover/pressed opacity instead of just muting the
+     label text. */
   thead th {
     font-size: var(--font-size-11, 0.7rem);
     text-transform: uppercase;
     letter-spacing: 0.03em;
-    opacity: 0.7;
+    color: color-mix(in srgb, currentColor 70%, transparent);
     border-bottom: 1px solid var(--color-border-light-2, currentColor);
   }
 
@@ -47,17 +51,6 @@
   td:last-child {
     width: 1%;
     white-space: nowrap;
-  }
-
-  /* A clickable icon standing in for a button, not a <button> itself —
-     matches the Archetype "Add" control on Dashboard. */
-  a[role="button"] {
-    display: inline-flex;
-    border: none;
-    background: none;
-    padding: 0;
-    color: inherit;
-    cursor: pointer;
   }
 
   /* Nested (not a sibling rule) so this outranks the base `td` rule's own
