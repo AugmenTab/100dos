@@ -50,6 +50,9 @@ export function registerHandlebarsHelpers(): void {
   // no built-in comparison operator.
   Handlebars.registerHelper("eq", (a: unknown, b: unknown) => a === b);
 
+  // Numeric greater-than comparison, e.g. {{#if (gt this.item.system.quantity 1)}}.
+  Handlebars.registerHelper("gt", (a: unknown, b: unknown) => Number(a) > Number(b));
+
   // Builds the Contribution breakdown as an HTML string for Foundry's native
   // data-tooltip-html attribute, written directly onto whatever element is
   // actually hovered/clicked at each call site (a <button> in the

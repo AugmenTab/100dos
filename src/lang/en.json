@@ -328,6 +328,64 @@
         "add": "Add Miscellaneous Feature"
       }
     },
+    "inventory": {
+      "weapons": {
+        "label": "Weapons",
+        "empty": "No Weapons recorded yet.",
+        "add": "Add Weapon"
+      },
+      "armorShields": {
+        "label": "Armor / Shields",
+        "empty": "No Armor or Shields recorded yet.",
+        "add": "Add Armor / Shield"
+      },
+      "equipment": {
+        "label": "Equipment",
+        "empty": "No Equipment recorded yet.",
+        "add": "Add Equipment"
+      },
+      "consumables": {
+        "label": "Consumables",
+        "empty": "No Consumables recorded yet.",
+        "add": "Add Consumable"
+      },
+      "gear": {
+        "label": "Gear",
+        "empty": "No Gear recorded yet.",
+        "add": "Add Gear"
+      },
+      "ammunition": {
+        "label": "Ammunition",
+        "empty": "No Ammunition recorded yet.",
+        "add": "Add Ammunition"
+      },
+      "miscellaneous": {
+        "label": "Miscellaneous",
+        "empty": "No Miscellaneous Items recorded yet.",
+        "add": "Add Miscellaneous Item"
+      },
+      "containers": {
+        "label": "Containers",
+        "empty": "No Containers recorded yet.",
+        "add": "Add Container"
+      },
+      "table": {
+        "slot": "Slot",
+        "carried": "Carried",
+        "equipped": "Equipped",
+        "weight": "Weight",
+        "feltWeight": "Felt Weight",
+        "weightUnit": "kgs",
+        "toggleCarried": "Toggle Carried: {name}",
+        "toggleEquipped": "Toggle Equipped: {name}",
+        "increaseQuantity": "Increase Quantity: {name}",
+        "decreaseQuantity": "Decrease Quantity: {name}",
+        "gift": "Gift: {name}"
+      },
+      "bodySlot": {
+        "armor": "Armor"
+      }
+    },
     "pc": {
       "nav": {
         "primaryLabel": "Character navigation",

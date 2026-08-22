@@ -63,4 +63,14 @@
     opacity: 0.7;
     white-space: normal;
   }
+
+  /* A row whose quantity has hit zero stays visible (never auto-removed)
+     but reads as depleted — struck through and dimmed, the same "still
+     here but spent" treatment as a destroyed DR location on the
+     Dashboard. Only ever wraps plain name text, never a nested
+     interactive control, so opacity (not color-mix) is safe here. */
+  .depleted {
+    text-decoration: line-through;
+    opacity: 0.7;
+  }
 }

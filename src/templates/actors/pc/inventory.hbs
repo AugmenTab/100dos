@@ -6,7 +6,64 @@
   id="{{sheetId}}-primary-panel-inventory"
   aria-labelledby="{{sheetId}}-primary-tab-inventory"
 >
-  <h2>{{localize "DOS100.pc.nav.primary.inventory"}}</h2>
-  {{!-- TODO: Replace with real Inventory content. --}}
-  <p>This page doesn't have any content yet.</p>
+  {{!-- TODO: no Weapons Item type exists yet — stays a full empty
+       wireframe (header/columns/Add/empty-state only). --}}
+  {{> "systems/100dos/templates/actors/pc/inventory/table-with-actions.hbs"
+    label=(localize "DOS100.inventory.weapons.label")
+    empty=(localize "DOS100.inventory.weapons.empty")
+    add=(localize "DOS100.inventory.weapons.add")
+  }}
+
+  {{> "systems/100dos/templates/actors/pc/inventory/table-with-slot.hbs"
+    label=(localize "DOS100.inventory.armorShields.label")
+    empty=(localize "DOS100.inventory.armorShields.empty")
+    add=(localize "DOS100.inventory.armorShields.add")
+    rows=armorItems
+  }}
+
+  {{!-- TODO: no Equipment Item type exists yet — stays a full empty
+       wireframe. --}}
+  {{> "systems/100dos/templates/actors/pc/inventory/table-with-slot.hbs"
+    label=(localize "DOS100.inventory.equipment.label")
+    empty=(localize "DOS100.inventory.equipment.empty")
+    add=(localize "DOS100.inventory.equipment.add")
+  }}
+
+  {{!-- TODO: no Consumables Item type exists yet — stays a full empty
+       wireframe. --}}
+  {{> "systems/100dos/templates/actors/pc/inventory/table-with-actions.hbs"
+    label=(localize "DOS100.inventory.consumables.label")
+    empty=(localize "DOS100.inventory.consumables.empty")
+    add=(localize "DOS100.inventory.consumables.add")
+  }}
+
+  {{> "systems/100dos/templates/actors/pc/inventory/table-with-actions.hbs"
+    label=(localize "DOS100.inventory.gear.label")
+    empty=(localize "DOS100.inventory.gear.empty")
+    add=(localize "DOS100.inventory.gear.add")
+    rows=gearItems
+  }}
+
+  {{> "systems/100dos/templates/actors/pc/inventory/table-simple.hbs"
+    label=(localize "DOS100.inventory.ammunition.label")
+    empty=(localize "DOS100.inventory.ammunition.empty")
+    add=(localize "DOS100.inventory.ammunition.add")
+    rows=ammunitionItems
+  }}
+
+  {{!-- TODO: no Miscellaneous Item type exists yet — stays a full empty
+       wireframe. --}}
+  {{> "systems/100dos/templates/actors/pc/inventory/table-simple.hbs"
+    label=(localize "DOS100.inventory.miscellaneous.label")
+    empty=(localize "DOS100.inventory.miscellaneous.empty")
+    add=(localize "DOS100.inventory.miscellaneous.add")
+  }}
+
+  {{!-- TODO: no Containers Item type exists yet — stays a full empty
+       wireframe. --}}
+  {{> "systems/100dos/templates/actors/pc/inventory/table-simple.hbs"
+    label=(localize "DOS100.inventory.containers.label")
+    empty=(localize "DOS100.inventory.containers.empty")
+    add=(localize "DOS100.inventory.containers.add")
+  }}
 </section>

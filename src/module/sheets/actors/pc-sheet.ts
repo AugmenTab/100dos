@@ -114,6 +114,8 @@ export class PcActorSheet extends Dos100ActorSheet {
       toggleStatus: PcActorSheet.prototype.onToggleStatus,
       toggleItemPinned: PcActorSheet.prototype.onToggleItemPinned,
       toggleEffectActive: PcActorSheet.prototype.onToggleEffectActive,
+      toggleItemCarried: PcActorSheet.prototype.onToggleItemCarried,
+      toggleItemEquipped: PcActorSheet.prototype.onToggleItemEquipped,
       editItem: PcActorSheet.prototype.onEditItem,
       duplicateItem: PcActorSheet.prototype.onDuplicateItem,
       deleteItem: PcActorSheet.prototype.onDeleteItem,
@@ -179,9 +181,16 @@ export class PcActorSheet extends Dos100ActorSheet {
       // does. The Miscellaneous section is the same: no Item type/source
       // has been implemented for it yet.
       templateItems: [],
-      abilityItems: this.featureRows("ability"),
-      traitItems: this.featureRows("trait"),
+      abilityItems: this.itemActionsRows("ability"),
+      traitItems: this.itemActionsRows("trait"),
       miscellaneousItems: [],
+      // Inventory's Weapons, Equipment, Consumables, Miscellaneous, and
+      // Containers sections have no implemented Item type yet, so they
+      // stay wireframe-empty (no rows= passed to their partial in
+      // inventory.hbs) until one does.
+      armorItems: this.itemActionsRows("armor"),
+      gearItems: this.itemActionsRows("gear"),
+      ammunitionItems: this.inventoryItemRows("ammunition"),
       // Render context, not persisted data: which movement modes this Actor
       // currently has available. "land" (system.movement.base) is always
       // available; the alternate modes are only offered when their schema
@@ -414,21 +423,27 @@ export class PcActorSheet extends Dos100ActorSheet {
       .map((item) => this.itemActionsRow(item));
   }
 
-  // Owned Items of the given type, alphabetized — the Features page's
-  // Templates/Abilities/Traits/Miscellaneous tables. Templates and
-  // Miscellaneous have no implemented Item type/source yet, so their
-  // sections stay wireframe-empty until one exists.
-  private featureRows(type: "ability" | "trait"): ItemActionsRow[] {
+  // Owned Items of the given type, alphabetized — shared by every page that
+  // groups owned Items into per-type tables (Features, Inventory).
+  private itemsOfType(type: string): Dos100Item[] {
     return this.actor.items
       .filter((item) => item.type === type)
       .map((item) => item as Dos100Item)
-      .sort((a, b) => a.name.localeCompare(b.name))
-      .map((item) => this.itemActionsRow(item));
+      .sort((a, b) => a.name.localeCompare(b.name));
+  }
+
+  // Alphabetized rows for an Actions-bearing Item type — the Features
+  // page's Ability/Trait tables, and Inventory's Armor/Gear tables.
+  // Templates and Miscellaneous (Features) have no implemented Item
+  // type/source yet, so their sections stay wireframe-empty until one does.
+  private itemActionsRows(type: string): ItemActionsRow[] {
+    return this.itemsOfType(type).map((item) => this.itemActionsRow(item));
   }
 
   // Reduces one Item's Actions structure to what an Actions-bearing table
   // row needs to display — shared by Effects' tables, the Dashboard's
-  // Active Effect Items list, and Features' tables.
+  // Active Effect Items list, Features' tables, and Inventory's Armor/Gear
+  // tables.
   private itemActionsRow(item: Dos100Item): ItemActionsRow {
     const actions = (item.system as { actions: Actions }).actions;
     const hasActions = Object.keys(actions.items).length > 0;
@@ -437,6 +452,13 @@ export class PcActorSheet extends Dos100ActorSheet {
         ? { value: actions.uses.value, max: actions.uses.max }
         : null;
     return { item, hasActions, uses };
+  }
+
+  // Alphabetized rows for an Item type with no Actions structure at all
+  // (Ammunition) — a bare wrapper rather than the Item itself, matching
+  // every other row partial's `this.item.*` access pattern.
+  private inventoryItemRows(type: string): { item: Dos100Item }[] {
+    return this.itemsOfType(type).map((item) => ({ item }));
   }
 
   // Render context, not persisted data: whether a spellcasting subsystem
@@ -580,6 +602,24 @@ export class PcActorSheet extends Dos100ActorSheet {
     if (!item) return;
     const active = (item.system as EffectData).active;
     await item.update({ "system.active": !active });
+  }
+
+  // Shared by any inventory Item's Carried/Equipped checkbox — Armor, Gear,
+  // and Ammunition all carry these two booleans identically.
+  private async onToggleItemCarried(event: PointerEvent, target: HTMLElement): Promise<void> {
+    await this.toggleItemBoolean(target.dataset.itemId, "carried");
+  }
+
+  private async onToggleItemEquipped(event: PointerEvent, target: HTMLElement): Promise<void> {
+    await this.toggleItemBoolean(target.dataset.itemId, "equipped");
+  }
+
+  private async toggleItemBoolean(itemId: string | undefined, field: "carried" | "equipped"): Promise<void> {
+    const item = itemId ? this.actor.items.get(itemId) : undefined;
+    if (!item) return;
+    const value = (item.system as Record<string, unknown>)[field];
+    if (typeof value !== "boolean") return;
+    await item.update({ [`system.${field}`]: !value });
   }
 
   // Shared by any Item-type row's Edit/Duplicate/Delete controls — Effects
