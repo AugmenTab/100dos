@@ -6,7 +6,139 @@
   id="{{sheetId}}-primary-panel-features"
   aria-labelledby="{{sheetId}}-primary-tab-features"
 >
-  <h2>{{localize "DOS100.pc.nav.primary.features"}}</h2>
-  {{!-- TODO: Replace with real Feature management content. --}}
-  <p>This page doesn't have any content yet.</p>
+  <section aria-label="{{localize "DOS100.features.templates.label"}}">
+    <div class="ledger-table-wrap">
+      <table class="ledger-table dense-table">
+        <thead>
+          <tr>
+            <th scope="col" class="dense-table-name-header">{{localize "DOS100.features.templates.label"}}</th>
+            <th scope="col">{{localize "DOS100.item.table.actions"}}</th>
+            <th scope="col">{{localize "DOS100.item.table.uses"}}</th>
+            <th scope="col">
+              {{!-- TODO: not wired up yet — no Template Item type exists. --}}
+              <a
+                role="button"
+                tabindex="0"
+                class="icon-button"
+                aria-label="{{localize "DOS100.features.templates.add"}}"
+              ><i class="fa-solid fa-plus" inert></i></a>
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          {{#if templateItems.length}}
+            {{#each templateItems}}
+              {{> "systems/100dos/templates/actors/pc/features/row.hbs"}}
+            {{/each}}
+          {{else}}
+            <tr>
+              <td colspan="4" class="ledger-table-empty-state">{{localize "DOS100.features.templates.empty"}}</td>
+            </tr>
+          {{/if}}
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section aria-label="{{localize "DOS100.features.abilities.label"}}">
+    <div class="ledger-table-wrap">
+      <table class="ledger-table dense-table">
+        <thead>
+          <tr>
+            <th scope="col" class="dense-table-name-header">{{localize "DOS100.features.abilities.label"}}</th>
+            <th scope="col">{{localize "DOS100.item.table.actions"}}</th>
+            <th scope="col">{{localize "DOS100.item.table.uses"}}</th>
+            <th scope="col">
+              {{!-- TODO: not wired up yet — no Add-Ability flow exists. --}}
+              <a
+                role="button"
+                tabindex="0"
+                class="icon-button"
+                aria-label="{{localize "DOS100.features.abilities.add"}}"
+              ><i class="fa-solid fa-plus" inert></i></a>
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          {{#if abilityItems.length}}
+            {{#each abilityItems}}
+              {{> "systems/100dos/templates/actors/pc/features/row.hbs"}}
+            {{/each}}
+          {{else}}
+            <tr>
+              <td colspan="4" class="ledger-table-empty-state">{{localize "DOS100.features.abilities.empty"}}</td>
+            </tr>
+          {{/if}}
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section aria-label="{{localize "DOS100.features.traits.label"}}">
+    <div class="ledger-table-wrap">
+      <table class="ledger-table dense-table">
+        <thead>
+          <tr>
+            <th scope="col" class="dense-table-name-header">{{localize "DOS100.features.traits.label"}}</th>
+            <th scope="col">{{localize "DOS100.item.table.actions"}}</th>
+            <th scope="col">{{localize "DOS100.item.table.uses"}}</th>
+            <th scope="col">
+              {{!-- TODO: not wired up yet — no Add-Trait flow exists. --}}
+              <a
+                role="button"
+                tabindex="0"
+                class="icon-button"
+                aria-label="{{localize "DOS100.features.traits.add"}}"
+              ><i class="fa-solid fa-plus" inert></i></a>
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          {{#if traitItems.length}}
+            {{#each traitItems}}
+              {{> "systems/100dos/templates/actors/pc/features/row.hbs"}}
+            {{/each}}
+          {{else}}
+            <tr>
+              <td colspan="4" class="ledger-table-empty-state">{{localize "DOS100.features.traits.empty"}}</td>
+            </tr>
+          {{/if}}
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section aria-label="{{localize "DOS100.features.miscellaneous.label"}}">
+    <div class="ledger-table-wrap">
+      <table class="ledger-table dense-table">
+        <thead>
+          <tr>
+            <th scope="col" class="dense-table-name-header">{{localize "DOS100.features.miscellaneous.label"}}</th>
+            <th scope="col">{{localize "DOS100.item.table.actions"}}</th>
+            <th scope="col">{{localize "DOS100.item.table.uses"}}</th>
+            <th scope="col">
+              {{!-- TODO: not wired up yet — no Miscellaneous Item type/source exists. --}}
+              <a
+                role="button"
+                tabindex="0"
+                class="icon-button"
+                aria-label="{{localize "DOS100.features.miscellaneous.add"}}"
+              ><i class="fa-solid fa-plus" inert></i></a>
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          {{#if miscellaneousItems.length}}
+            {{#each miscellaneousItems}}
+              {{> "systems/100dos/templates/actors/pc/features/row.hbs"}}
+            {{/each}}
+          {{else}}
+            <tr>
+              <td colspan="4" class="ledger-table-empty-state">{{localize "DOS100.features.miscellaneous.empty"}}</td>
+            </tr>
+          {{/if}}
+        </tbody>
+      </table>
+    </div>
+  </section>
 </section>

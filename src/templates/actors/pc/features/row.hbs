@@ -1,31 +1,9 @@
 <tr>
-  <td>
-    <a
-      role="button"
-      tabindex="0"
-      class="icon-button dense-table-pin"
-      data-action="toggleItemPinned"
-      data-item-id="{{this.item.id}}"
-      aria-pressed="{{this.item.system.actions.pinned}}"
-      aria-label="{{#if this.item.system.actions.pinned}}{{localize "DOS100.effects.table.unpin" name=this.item.name}}{{else}}{{localize "DOS100.effects.table.pin" name=this.item.name}}{{/if}}"
-    >
-      {{#if this.item.system.actions.pinned}}
-        <i class="fa-solid fa-thumbtack" inert></i>
-      {{else}}
-        <i class="fa-solid fa-thumbtack-slash" inert></i>
-      {{/if}}
-    </a>
-  </td>
   <td class="dense-table-name">
     <div class="dense-table-name-inner">
       <img class="dense-table-item-img" src="{{this.item.img}}" alt="" />
       <span>{{this.item.name}}</span>
     </div>
-  </td>
-  <td>
-    {{#if this.item.system.duration.value}}
-      {{localizeNumber this.item.system.duration.value}} {{localize (concat "DOS100.effect.duration.abbr." this.item.system.duration.unit)}}
-    {{/if}}
   </td>
   <td>
     {{#if this.hasActions}}
@@ -42,15 +20,6 @@
     {{#if this.uses}}
       {{localizeNumber this.uses.value}} / {{localizeNumber this.uses.max}}
     {{/if}}
-  </td>
-  <td>
-    <input
-      type="checkbox"
-      data-action="toggleEffectActive"
-      data-item-id="{{this.item.id}}"
-      {{checked this.item.system.active}}
-      aria-label="{{localize "DOS100.effects.table.toggleActive" name=this.item.name}}"
-    />
   </td>
   <td>
     <a

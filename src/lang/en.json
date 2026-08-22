@@ -16,7 +16,15 @@
       "name": "Name"
     },
     "item": {
-      "name": "Name"
+      "name": "Name",
+      "table": {
+        "actions": "Actions",
+        "uses": "Uses",
+        "edit": "Edit {name}",
+        "duplicate": "Duplicate {name}",
+        "delete": "Delete {name}",
+        "useActions": "Use Actions: {name}"
+      }
     },
     "setting": {
       "debugMode": {
@@ -288,17 +296,33 @@
       },
       "table": {
         "duration": "Duration",
-        "actions": "Actions",
-        "uses": "Uses",
         "active": "Active",
         "toggleActive": "Toggle Active: {name}",
         "pin": "Pin {name}",
         "unpin": "Unpin {name}",
-        "edit": "Edit {name}",
-        "duplicate": "Duplicate {name}",
-        "delete": "Delete {name}",
-        "roll": "Roll {name}",
         "newEffectName": "New Effect"
+      }
+    },
+    "features": {
+      "templates": {
+        "label": "Templates",
+        "empty": "No Templates recorded yet.",
+        "add": "Add Template"
+      },
+      "abilities": {
+        "label": "Abilities",
+        "empty": "No Abilities recorded yet.",
+        "add": "Add Ability"
+      },
+      "traits": {
+        "label": "Traits",
+        "empty": "No Traits recorded yet.",
+        "add": "Add Trait"
+      },
+      "miscellaneous": {
+        "label": "Miscellaneous",
+        "empty": "No Miscellaneous Features recorded yet.",
+        "add": "Add Miscellaneous Feature"
       }
     },
     "pc": {

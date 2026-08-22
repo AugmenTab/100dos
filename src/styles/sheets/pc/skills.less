@@ -39,4 +39,14 @@
   .dense-table select {
     min-width: 5.5rem;
   }
+
+  /* An owned Item's image in a dense-table name cell (Effects, Features)
+     — Skills/Educations rows have no image since they're Actor-record
+     entries, not Items, but this lives here with the rest of the shared
+     .dense-table shape. */
+  .dense-table-item-img {
+    width: 1.5rem;
+    height: 1.5rem;
+    object-fit: cover;
+  }
 }

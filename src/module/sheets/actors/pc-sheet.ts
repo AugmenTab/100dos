@@ -65,15 +65,17 @@ type StatusButtonRow = {
   active: boolean;
 };
 
-// One row in a Linked/Permanent/Temporary Effects table, or in the
-// Dashboard's Active Effect Items list. TODO: the Actions column is a
-// single inert rollable icon, not a per-Action button list — nothing to
-// resolve yet, so there's nothing to identify a specific Action by. uses
-// is null unless the Effect has Actions AND a non-unlimited shared Uses
-// pool. Left as {value, max} rather than a pre-formatted string so the
-// template can format both through localizeNumber, matching every other
-// numeric display (Skills, Educations, ledgers).
-type EffectRow = {
+// One row in any Actions-bearing Item table — Effects' Linked/Permanent/
+// Temporary tables, the Dashboard's Active Effect Items list, and
+// Features' Templates/Abilities/Traits/Miscellaneous tables all share
+// this shape. TODO: the Actions column is a single inert rollable icon,
+// not a per-Action button list — nothing to resolve yet, so there's
+// nothing to identify a specific Action by. uses is null unless the Item
+// has Actions AND a non-unlimited shared Uses pool. Left as {value, max}
+// rather than a pre-formatted string so the template can format both
+// through localizeNumber, matching every other numeric display (Skills,
+// Educations, ledgers).
+type ItemActionsRow = {
   item: Dos100Item;
   hasActions: boolean;
   uses: { value: number; max: number } | null;
@@ -112,9 +114,9 @@ export class PcActorSheet extends Dos100ActorSheet {
       toggleStatus: PcActorSheet.prototype.onToggleStatus,
       toggleItemPinned: PcActorSheet.prototype.onToggleItemPinned,
       toggleEffectActive: PcActorSheet.prototype.onToggleEffectActive,
-      editEffect: PcActorSheet.prototype.onEditEffect,
-      duplicateEffect: PcActorSheet.prototype.onDuplicateEffect,
-      deleteEffect: PcActorSheet.prototype.onDeleteEffect,
+      editItem: PcActorSheet.prototype.onEditItem,
+      duplicateItem: PcActorSheet.prototype.onDuplicateItem,
+      deleteItem: PcActorSheet.prototype.onDeleteItem,
       createEffect: PcActorSheet.prototype.onCreateEffect,
     },
   };
@@ -155,14 +157,15 @@ export class PcActorSheet extends Dos100ActorSheet {
         this.actor.items.filter(
           (item) => item.uuid === (this.actor.system as { archetype?: string | null }).archetype,
         )[0] ?? null,
-      // TODO: only Ability and Effect carry `actions.pinned` so far. Other
-      // Action-bearing Item types (e.g. Weapons) should be added to this
-      // filter once they adopt the shared Actions structure. An Effect's
-      // click behavior differs from an ordinary Item's (toggles `active`
-      // rather than invoking an Action) — see onUseQuickItem below.
+      // TODO: only Ability, Trait, and Effect carry `actions.pinned` so
+      // far. Other Action-bearing Item types (e.g. Weapons) should be
+      // added to this filter once they adopt the shared Actions structure.
+      // An Effect's click behavior differs from an ordinary Item's
+      // (toggles `active` rather than invoking an Action) — see
+      // onUseQuickItem below.
       quickUseItems: this.actor.items.filter(
         (item) =>
-          (item.type === "ability" || item.type === "effect") &&
+          (item.type === "ability" || item.type === "trait" || item.type === "effect") &&
           (item.system as { actions?: Actions }).actions?.pinned === true,
       ),
       pinnedSkills,
@@ -175,7 +178,14 @@ export class PcActorSheet extends Dos100ActorSheet {
       temporaryEffects: this.effectRows("temporary"),
       activeEffects: this.actor.items
         .filter((item) => item.type === "effect" && (item.system as EffectData).active === true)
-        .map((item) => this.effectRow(item as Dos100Item)),
+        .map((item) => this.itemActionsRow(item as Dos100Item)),
+      // TODO: no Template Item type exists yet — stays empty until one
+      // does. The Miscellaneous section is the same: no Item type/source
+      // has been implemented for it yet.
+      templateItems: [],
+      abilityItems: this.featureRows("ability"),
+      traitItems: this.featureRows("trait"),
+      miscellaneousItems: [],
       // Render context, not persisted data: which movement modes this Actor
       // currently has available. "land" (system.movement.base) is always
       // available; the alternate modes are only offered when their schema
@@ -399,20 +409,32 @@ export class PcActorSheet extends Dos100ActorSheet {
 
   // Effect Items in the given lifecycle group, alphabetized — same sorting
   // rationale as skillRows()/educationRows() above.
-  private effectRows(group: "linked" | "permanent" | "temporary"): EffectRow[] {
+  private effectRows(group: "linked" | "permanent" | "temporary"): ItemActionsRow[] {
     return this.actor.items
       .filter((item) => item.type === "effect")
       .map((item) => item as Dos100Item)
       .filter((item) => this.effectGroup(item) === group)
       .sort((a, b) => a.name.localeCompare(b.name))
-      .map((item) => this.effectRow(item));
+      .map((item) => this.itemActionsRow(item));
   }
 
-  // Reduces one Effect Item's Actions structure to what the Effects
-  // table/Dashboard need to display. Reused by both effectRows() above and
-  // the Dashboard's Active Effect Items list.
-  private effectRow(item: Dos100Item): EffectRow {
-    const actions = (item.system as EffectData).actions;
+  // Owned Items of the given type, alphabetized — the Features page's
+  // Templates/Abilities/Traits/Miscellaneous tables. Templates and
+  // Miscellaneous have no implemented Item type/source yet, so their
+  // sections stay wireframe-empty until one exists.
+  private featureRows(type: "ability" | "trait"): ItemActionsRow[] {
+    return this.actor.items
+      .filter((item) => item.type === type)
+      .map((item) => item as Dos100Item)
+      .sort((a, b) => a.name.localeCompare(b.name))
+      .map((item) => this.itemActionsRow(item));
+  }
+
+  // Reduces one Item's Actions structure to what an Actions-bearing table
+  // row needs to display — shared by Effects' tables, the Dashboard's
+  // Active Effect Items list, and Features' tables.
+  private itemActionsRow(item: Dos100Item): ItemActionsRow {
+    const actions = (item.system as { actions: Actions }).actions;
     const hasActions = Object.keys(actions.items).length > 0;
     const uses =
       hasActions && actions.uses.per !== "unlimited"
@@ -564,20 +586,22 @@ export class PcActorSheet extends Dos100ActorSheet {
     await item.update({ "system.active": !active });
   }
 
-  private onEditEffect(event: PointerEvent, target: HTMLElement): void {
+  // Shared by any Item-type row's Edit/Duplicate/Delete controls — Effects
+  // and Features both use these, and nothing here is specific to either.
+  private onEditItem(event: PointerEvent, target: HTMLElement): void {
     const itemId = target.dataset.itemId;
     const item = itemId ? this.actor.items.get(itemId) : undefined;
     item?.sheet?.render(true);
   }
 
-  private async onDuplicateEffect(event: PointerEvent, target: HTMLElement): Promise<void> {
+  private async onDuplicateItem(event: PointerEvent, target: HTMLElement): Promise<void> {
     const itemId = target.dataset.itemId;
     const item = itemId ? this.actor.items.get(itemId) : undefined;
     if (!item) return;
     await this.actor.createEmbeddedDocuments("Item", [item.toObject()]);
   }
 
-  private async onDeleteEffect(event: PointerEvent, target: HTMLElement): Promise<void> {
+  private async onDeleteItem(event: PointerEvent, target: HTMLElement): Promise<void> {
     const itemId = target.dataset.itemId;
     const item = itemId ? this.actor.items.get(itemId) : undefined;
     await item?.delete();

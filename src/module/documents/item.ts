@@ -1,6 +1,10 @@
-import { type AbilityData } from "../items/ability.js";
 import { type GrantData } from "../items/grants.js";
-import { type UsagePeriod, shouldRecharge } from "../items/action.js";
+import { type Actions, type UsagePeriod, shouldRecharge } from "../items/action.js";
+
+// Item types whose system data carries the shared Actions structure —
+// checked explicitly rather than duck-typed, since not every Item type
+// has (or will have) one.
+const ACTIONS_ITEM_TYPES = new Set(["ability", "trait", "effect"]);
 
 export class Dos100Item extends Item {
   override prepareBaseData(): void {
@@ -68,13 +72,13 @@ export class Dos100Item extends Item {
   }
 
   /**
-   * Triggers the named action on this ability, decrementing its uses if
+   * Triggers the named action on this Item, decrementing its uses if
    * limited. Checks both the shared Actions pool and the action's own pool;
    * emits a warning and returns early if either cannot cover the cost.
    */
   async useAction(actionId: string): Promise<void> {
-    if (this.type !== "ability") return;
-    const system = this.system as AbilityData;
+    if (!ACTIONS_ITEM_TYPES.has(this.type)) return;
+    const system = this.system as { actions: Actions };
     const action = system.actions.items[actionId];
     if (!action || action.activation.type === "passive") return;
 
@@ -124,7 +128,7 @@ export class Dos100Item extends Item {
    */
   async rechargeActions(period: UsagePeriod | "encounter"): Promise<void> {
     if (this.type !== "ability") return;
-    const system = this.system as AbilityData;
+    const system = this.system as { actions: Actions };
 
     const updates: Record<string, number> = {};
 
