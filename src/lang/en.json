@@ -116,7 +116,7 @@
     },
     "basic": {
       "height": "Height",
-      "weight": "Weight",
+      "weight": "Weight (kgs)",
       "age": "Age",
       "gender": "Gender"
     },
