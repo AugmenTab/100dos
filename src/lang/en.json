@@ -8,7 +8,10 @@
     "Item": {
       "ability": "Ability",
       "effect": "Effect",
-      "trait": "Trait"
+      "trait": "Trait",
+      "armor": "Armor",
+      "gear": "Gear",
+      "ammunition": "Ammunition"
     }
   },
   "DOS100": {

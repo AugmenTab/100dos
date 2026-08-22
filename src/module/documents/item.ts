@@ -4,7 +4,7 @@ import { type Actions, type UsagePeriod, shouldRecharge } from "../items/action.
 // Item types whose system data carries the shared Actions structure —
 // checked explicitly rather than duck-typed, since not every Item type
 // has (or will have) one.
-const ACTIONS_ITEM_TYPES = new Set(["ability", "trait", "effect"]);
+export const ACTIONS_ITEM_TYPES = new Set(["ability", "trait", "effect", "armor", "gear"]);
 
 export class Dos100Item extends Item {
   override prepareBaseData(): void {

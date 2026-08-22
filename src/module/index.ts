@@ -9,9 +9,15 @@ import { VehicleActorSheet } from "./sheets/actors/vehicle-sheet.js";
 import { AbilityItemSheet } from "./sheets/items/ability-sheet.js";
 import { EffectItemSheet } from "./sheets/items/effect-sheet.js";
 import { TraitItemSheet } from "./sheets/items/trait-sheet.js";
+import { ArmorItemSheet } from "./sheets/items/armor-sheet.js";
+import { GearItemSheet } from "./sheets/items/gear-sheet.js";
+import { AmmunitionItemSheet } from "./sheets/items/ammunition-sheet.js";
 import { AbilityDataModel } from "./items/ability.js";
 import { EffectDataModel } from "./items/effect.js";
 import { TraitDataModel } from "./items/trait.js";
+import { ArmorDataModel } from "./items/armor.js";
+import { GearDataModel } from "./items/gear.js";
+import { AmmunitionDataModel } from "./items/ammunition.js";
 import { registerStatusEffects } from "./status.js";
 
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
@@ -77,6 +83,9 @@ Hooks.once("init", (): void => {
   CONFIG.Item.dataModels["ability"] = AbilityDataModel;
   CONFIG.Item.dataModels["effect"] = EffectDataModel;
   CONFIG.Item.dataModels["trait"] = TraitDataModel;
+  CONFIG.Item.dataModels["armor"] = ArmorDataModel;
+  CONFIG.Item.dataModels["gear"] = GearDataModel;
+  CONFIG.Item.dataModels["ammunition"] = AmmunitionDataModel;
   foundry.documents.collections.Items.registerSheet(game.system.id, AbilityItemSheet, {
     types: ["ability"],
     makeDefault: true,
@@ -87,6 +96,18 @@ Hooks.once("init", (): void => {
   });
   foundry.documents.collections.Items.registerSheet(game.system.id, TraitItemSheet, {
     types: ["trait"],
+    makeDefault: true,
+  });
+  foundry.documents.collections.Items.registerSheet(game.system.id, ArmorItemSheet, {
+    types: ["armor"],
+    makeDefault: true,
+  });
+  foundry.documents.collections.Items.registerSheet(game.system.id, GearItemSheet, {
+    types: ["gear"],
+    makeDefault: true,
+  });
+  foundry.documents.collections.Items.registerSheet(game.system.id, AmmunitionItemSheet, {
+    types: ["ammunition"],
     makeDefault: true,
   });
 

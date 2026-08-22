@@ -1,5 +1,5 @@
 import { Dos100ActorSheet } from "../actor-sheet.js";
-import { Dos100Item } from "../../documents/item.js";
+import { Dos100Item, ACTIONS_ITEM_TYPES } from "../../documents/item.js";
 import { type ActorMovement, type MovementMode } from "../../movement.js";
 import { type MythicCharacteristics } from "../../mythic-characteristic.js";
 import {
@@ -157,15 +157,11 @@ export class PcActorSheet extends Dos100ActorSheet {
         this.actor.items.filter(
           (item) => item.uuid === (this.actor.system as { archetype?: string | null }).archetype,
         )[0] ?? null,
-      // TODO: only Ability, Trait, and Effect carry `actions.pinned` so
-      // far. Other Action-bearing Item types (e.g. Weapons) should be
-      // added to this filter once they adopt the shared Actions structure.
-      // An Effect's click behavior differs from an ordinary Item's
-      // (toggles `active` rather than invoking an Action) — see
-      // onUseQuickItem below.
+      // An Effect's click behavior differs from an ordinary Item's (toggles
+      // `active` rather than invoking an Action) — see onUseQuickItem below.
       quickUseItems: this.actor.items.filter(
         (item) =>
-          (item.type === "ability" || item.type === "trait" || item.type === "effect") &&
+          ACTIONS_ITEM_TYPES.has(item.type) &&
           (item.system as { actions?: Actions }).actions?.pinned === true,
       ),
       pinnedSkills,

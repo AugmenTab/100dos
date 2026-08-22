@@ -31,7 +31,10 @@
     "Item": {
       "ability": {},
       "effect": {},
-      "trait": {}
+      "trait": {},
+      "armor": {},
+      "gear": {},
+      "ammunition": {}
     }
   },
   "socket": false,
