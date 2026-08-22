@@ -9,6 +9,14 @@
     gap: 0.375rem;
   }
 
+  /* Separates the status palette from the Effect tables below it — the
+     tab-shell gap between every section was removed sheet-wide, and the
+     tables stay flush against each other by design (matching Inventory's
+     tables), so this divider is the one visible break on this page. */
+  hr {
+    margin: var(--spacer-8, 0.5rem) 0;
+  }
+
   .pc-status-button {
     display: flex;
     align-items: center;

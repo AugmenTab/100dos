@@ -5,6 +5,13 @@
    rather than being forced into the shared ledger-table component. */
 
 .pc-sheet-body {
+  /* Educations needs separation from the Skills table above it — the
+     tab-shell gap between every section was removed sheet-wide, so this
+     one pairing needs its own explicit spacing back. */
+  .ledger-table-wrap + section {
+    margin-top: var(--spacer-8, 0.5rem);
+  }
+
   .dense-table {
     th,
     td {

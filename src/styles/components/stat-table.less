@@ -109,4 +109,13 @@
     white-space: normal;
     text-align: center;
   }
+
+  /* Immediately followed by a ledger table (XP, Finances) — the tab-shell
+     gap between every section was removed sheet-wide, so this pairing
+     needs its own explicit spacing back. Dashboard's stat tables sit next
+     to other stat tables, never a ledger table, so this only ever matches
+     the XP/Finances shape. */
+  & + .ledger-table-wrap {
+    margin-top: var(--spacer-8, 0.5rem);
+  }
 }
