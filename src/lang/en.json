@@ -386,6 +386,27 @@
         "armor": "Armor"
       }
     },
+    "encumbrance": {
+      "label": "Carrying Capacity",
+      "carried": "Carried Weight",
+      "felt": "Felt Weight",
+      "total": "Total Weight",
+      "carriedValue": "Carried Value",
+      "bars": "Carrying capacity load",
+      "thresholds": {
+        "carry": "Carry Weight",
+        "lift": "Lift Weight",
+        "push": "Push Weight"
+      },
+      "bands": {
+        "normal": "Normal",
+        "overEncumbered": "Over-Encumbered",
+        "heavilyEncumbered": "Heavily Encumbered",
+        "encumbered": "Encumbered",
+        "heavy": "Heavy",
+        "maximumLoad": "Maximum Load"
+      }
+    },
     "pc": {
       "nav": {
         "primaryLabel": "Character navigation",

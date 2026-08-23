@@ -109,7 +109,7 @@ test.describe("Finances ledger page", () => {
   test("a new PC has Finances schema defaults", async ({ page }) => {
     const { actorId } = await resetFixtures(page);
     const finances = await page.evaluate((actorId) => game.actors.get(actorId)?.system.finances, actorId);
-    expect(finances).toEqual({ received: 0, spent: 0, available: 0, ledger: [] });
+    expect(finances).toEqual({ received: 0, spent: 0, available: 0, carried: 0, ledger: [] });
   });
 
   test("summary fields and ledger rows render from schema data; an unresolved recorder falls back to a neutral label", async ({

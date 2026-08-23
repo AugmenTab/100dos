@@ -8,6 +8,7 @@ import { damageResistanceField } from "../damage-resistance.js";
 import { actorMovementField } from "../movement.js";
 import { experienceLedgerField } from "../xp.js";
 import { financesField } from "../finances.js";
+import { encumbranceField } from "../encumbrance.js";
 import { basicField } from "../basic.js";
 import { skillsField } from "../skill.js";
 import { educationField, educationsField } from "../education.js";
@@ -34,6 +35,7 @@ export class PcDataModel extends foundry.abstract.TypeDataModel {
       fatigue: fatigueField(),
       dr: damageResistanceField(),
       movement: actorMovementField(),
+      encumbrance: encumbranceField(),
       skills: skillsField(),
       education: educationField(),
       educations: educationsField(),

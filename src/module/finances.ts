@@ -14,6 +14,11 @@ export type Finances = {
   received: number;
   spent: number;
   available: number;
+  // The combined monetary value of the Actor's currently-carried Items
+  // (quantity x unit value, carried Items only) — distinct from available
+  // (total wealth) and not ledger-derived. Read by the Inventory tab's
+  // carrying-capacity Carried Value cell.
+  carried: number;
   ledger: FinanceLedgerItem[];
 };
 
@@ -33,15 +38,17 @@ function financeLedgerItemField(): foundry.data.fields.SchemaField {
   });
 }
 
-// TODO: received/spent/available are unrelated placeholders (default 0)
-// until a calculation system derives them from the ledger — no calculation
-// exists yet (wireframe only).
+// TODO: received/spent/available are placeholders (default 0) until a
+// calculation system derives them from the ledger; carried is a separate
+// placeholder pending Item pricing/aggregation (see the Finances type
+// above) — no calculation exists yet for any of them (wireframe only).
 export function financesField(): foundry.data.fields.SchemaField {
   const { SchemaField, NumberField, ArrayField } = foundry.data.fields;
   return new SchemaField({
     received: new NumberField({ required: true, initial: 0, integer: true }),
     spent: new NumberField({ required: true, initial: 0, integer: true }),
     available: new NumberField({ required: true, initial: 0, integer: true }),
+    carried: new NumberField({ required: true, initial: 0, integer: true }),
     ledger: new ArrayField(financeLedgerItemField(), { required: true, initial: [] }),
   });
 }

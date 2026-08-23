@@ -1,6 +1,7 @@
 import { Dos100ActorSheet } from "../actor-sheet.js";
 import { Dos100Item, ACTIONS_ITEM_TYPES } from "../../documents/item.js";
 import { type ActorMovement, type MovementMode } from "../../movement.js";
+import { type Encumbrance, type EncumbranceBand, encumbranceBands } from "../../encumbrance.js";
 import { type MythicCharacteristics } from "../../mythic-characteristic.js";
 import {
   DR_LOCATION_TYPES,
@@ -191,6 +192,7 @@ export class PcActorSheet extends Dos100ActorSheet {
       armorItems: this.itemActionsRows("armor"),
       gearItems: this.itemActionsRows("gear"),
       ammunitionItems: this.inventoryItemRows("ammunition"),
+      encumbranceBands: this.encumbranceBands(),
       // Render context, not persisted data: which movement modes this Actor
       // currently has available. "land" (system.movement.base) is always
       // available; the alternate modes are only offered when their schema
@@ -475,6 +477,15 @@ export class PcActorSheet extends Dos100ActorSheet {
     const config = super._getTabsConfig(group);
     if (group !== "primary" || config === null || this.hasSpells()) return config;
     return { ...config, tabs: config.tabs.filter((tab) => tab.id !== "spells") };
+  }
+
+  // Render context, not persisted data: each sequential load bar's fill
+  // percentage for the Actor's currently active movement track (base for
+  // land/climb/burrow, swim, or fly) — see encumbranceBands() in
+  // encumbrance.ts for the calculation itself.
+  private encumbranceBands(): EncumbranceBand[] {
+    const system = this.actor.system as { encumbrance: Encumbrance; movement: ActorMovement };
+    return encumbranceBands(system.encumbrance, system.movement.mode);
   }
 
   private movementModeOptions(): { value: MovementMode; label: string }[] {

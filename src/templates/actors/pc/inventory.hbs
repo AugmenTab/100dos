@@ -6,6 +6,57 @@
   id="{{sheetId}}-primary-panel-inventory"
   aria-labelledby="{{sheetId}}-primary-tab-inventory"
 >
+  <section class="pc-inventory-encumbrance" aria-label="{{localize "DOS100.encumbrance.label"}}">
+    <div class="simple-stat-table">
+      <div>
+        <div>
+          <span class="eyebrow-label">{{localize "DOS100.encumbrance.carried"}}</span>
+          <span>{{localizeNumber actor.system.encumbrance.carried}} {{localize "DOS100.inventory.table.weightUnit"}}</span>
+        </div>
+        <div>
+          <span class="eyebrow-label">{{localize "DOS100.encumbrance.felt"}}</span>
+          <span>{{localizeNumber actor.system.encumbrance.felt}} {{localize "DOS100.inventory.table.weightUnit"}}</span>
+        </div>
+        <div>
+          <span class="eyebrow-label">{{localize "DOS100.encumbrance.total"}}</span>
+          <span>{{localizeNumber actor.system.encumbrance.total}} {{localize "DOS100.inventory.table.weightUnit"}}</span>
+        </div>
+        <div>
+          <span class="eyebrow-label">{{localize "DOS100.encumbrance.carriedValue"}}</span>
+          <span>{{localizeNumber actor.system.finances.carried}}</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="pc-encumbrance-bars" role="group" aria-label="{{localize "DOS100.encumbrance.bars"}}">
+      {{#each encumbranceBands}}
+        <div class="pc-encumbrance-bar">
+          <div class="pc-encumbrance-bar-fill" style="width: {{this.fillPercent}}%"></div>
+          <span class="pc-encumbrance-bar-label">{{localize (concat "DOS100.encumbrance.bands." this.labelKey)}} ({{localizeNumber this.thresholdValue}} {{localize "DOS100.inventory.table.weightUnit"}})</span>
+        </div>
+      {{/each}}
+    </div>
+
+    <div class="simple-stat-table">
+      <div>
+        <div>
+          <span class="eyebrow-label">{{localize "DOS100.encumbrance.thresholds.carry"}}</span>
+          <span data-tooltip-html="{{contributionTooltipHtml (localize "DOS100.encumbrance.thresholds.carry") (localizeNumber actor.system.encumbrance.thresholds.base.carry.value) actor.system.encumbrance.thresholds.base.carry.contributions}}">{{localizeNumber actor.system.encumbrance.thresholds.base.carry.value}} {{localize "DOS100.inventory.table.weightUnit"}}</span>
+        </div>
+        <div>
+          <span class="eyebrow-label">{{localize "DOS100.encumbrance.thresholds.lift"}}</span>
+          <span data-tooltip-html="{{contributionTooltipHtml (localize "DOS100.encumbrance.thresholds.lift") (localizeNumber actor.system.encumbrance.thresholds.base.lift.value) actor.system.encumbrance.thresholds.base.lift.contributions}}">{{localizeNumber actor.system.encumbrance.thresholds.base.lift.value}} {{localize "DOS100.inventory.table.weightUnit"}}</span>
+        </div>
+        <div>
+          <span class="eyebrow-label">{{localize "DOS100.encumbrance.thresholds.push"}}</span>
+          <span data-tooltip-html="{{contributionTooltipHtml (localize "DOS100.encumbrance.thresholds.push") (localizeNumber actor.system.encumbrance.thresholds.base.push.value) actor.system.encumbrance.thresholds.base.push.contributions}}">{{localizeNumber actor.system.encumbrance.thresholds.base.push.value}} {{localize "DOS100.inventory.table.weightUnit"}}</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <hr />
+
   {{!-- TODO: no Weapons Item type exists yet — stays a full empty
        wireframe (header/columns/Add/empty-state only). --}}
   {{> "systems/100dos/templates/actors/pc/inventory/table-with-actions.hbs"

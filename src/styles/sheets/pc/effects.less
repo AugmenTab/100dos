@@ -12,9 +12,22 @@
   /* Separates the status palette from the Effect tables below it — the
      tab-shell gap between every section was removed sheet-wide, and the
      tables stay flush against each other by design (matching Inventory's
-     tables), so this divider is the one visible break on this page. */
+     tables), so this divider is the one visible break on this page. No
+     border — Foundry core's own default hr rendering (a background-image
+     gradient) is what's wanted here, shared as-is by the Inventory tab's
+     divider.
+     flex-shrink: 0 is required, not cosmetic: .tab.active is a fixed-height
+     flex column, and when a tab's total content exceeds that height (as
+     Inventory's 8 tables + the carrying-capacity section do), the flexbox
+     algorithm shrinks children to fit. An empty hr has ~0 min-content size,
+     so without this it silently absorbs the entire overflow alone and
+     renders at 0px height — background-image still computes correctly,
+     the box is just crushed to nothing. Confirmed via browser devtools:
+     height 0 on Inventory's hr vs 2 on Effects', identical
+     background-image on both. */
   hr {
     margin: var(--spacer-8, 0.5rem) 0;
+    flex-shrink: 0;
   }
 
   .pc-status-button {

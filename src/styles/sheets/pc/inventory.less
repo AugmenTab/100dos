@@ -1,0 +1,61 @@
+/* Inventory page — the carrying-capacity section above the owned-Item
+   tables. */
+
+.pc-sheet-body {
+  .pc-inventory-encumbrance {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacer-8, 0.5rem);
+  }
+
+  .pc-encumbrance-bars {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--spacer-8, 0.5rem);
+  }
+
+  /* Track + fill + label all live on one element rather than three nested
+     ones — matches the PF1 system's own carrying-capacity bars (one bar
+     per band, its label overlaid on top rather than above/below it).
+     flex-basis 0 gives every bar in the active track an equal share of the
+     row; min-width is what lets bars wrap onto multiple lines at narrow
+     sheet widths instead of shrinking to illegibility. */
+  .pc-encumbrance-bar {
+    position: relative;
+    flex: 1 1 0;
+    min-width: 6rem;
+    height: 1.5rem;
+    border: 1px solid var(--color-border-light-2, currentColor);
+    border-radius: 4px;
+    overflow: hidden;
+    /* Translucent tint (not a solid fill) so the overlaid label — plain
+       text, no shadow/blend-mode trick — stays legible over both the
+       filled and unfilled portions. Same technique as the Effects page's
+       active-status highlight (color-mix(currentColor, transparent)), but
+       spread much further apart (8% vs 50%, not 12% vs 30%) — a fully
+       filled bar needs to read as obviously "filled" at a glance, not as a
+       faint tint indistinguishable from empty. Label text itself is full-
+       opacity currentColor regardless (only the backgrounds are
+       translucent), so legibility isn't a tradeoff here either way. */
+    background: color-mix(in srgb, currentColor 8%, transparent);
+  }
+
+  .pc-encumbrance-bar-fill {
+    position: absolute;
+    inset: 0;
+    background: color-mix(in srgb, currentColor 50%, transparent);
+  }
+
+  .pc-encumbrance-bar-label {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    padding: 0 0.375rem;
+    font-size: var(--font-size-11, 0.7rem);
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    white-space: nowrap;
+  }
+}
