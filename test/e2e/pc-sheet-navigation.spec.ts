@@ -61,8 +61,9 @@ function recordPanel(sheet: ReturnType<Page["locator"]>, tabId: string) {
 
 test("PC sheet shows the primary tab shell, defaults to Dashboard, and switches between primary tabs", async ({
   foundryPage: page,
+  fixtureLane,
 }) => {
-  const { actorId } = await resetFixtures(page);
+  const { actorId } = await resetFixtures(page, fixtureLane);
   // The Spells tab/panel only render once system.spells is populated (see
   // pc-sheet.ts) — set here so this general navigation test still exercises
   // the sheet's full ten-tab set. The null-hides-it behavior itself has its
@@ -117,8 +118,9 @@ test("PC sheet shows the primary tab shell, defaults to Dashboard, and switches 
 
 test("the Spells tab and its panel are absent while system.spells is null, and appear once it's populated", async ({
   foundryPage: page,
+  fixtureLane,
 }) => {
-  const { actorId } = await resetFixtures(page);
+  const { actorId } = await resetFixtures(page, fixtureLane);
   const sheetId = await openPcSheet(page, actorId);
   const sheet = page.locator(`#${sheetId}`);
 
@@ -137,8 +139,8 @@ test("the Spells tab and its panel are absent while system.spells is null, and a
   await expect(primaryPanel(sheet, "spells")).toBeVisible();
 });
 
-test("Record remembers its most recent secondary tab across navigation and rerenders", async ({ foundryPage: page }) => {
-  const { actorId } = await resetFixtures(page);
+test("Record remembers its most recent secondary tab across navigation and rerenders", async ({ foundryPage: page, fixtureLane }) => {
+  const { actorId } = await resetFixtures(page, fixtureLane);
   const sheetId = await openPcSheet(page, actorId);
   const sheet = page.locator(`#${sheetId}`);
 
@@ -166,8 +168,8 @@ test("Record remembers its most recent secondary tab across navigation and reren
   await expect(recordPanel(sheet, "biography")).toBeVisible();
 });
 
-test("primary and Record tab lists support keyboard navigation independently", async ({ foundryPage: page }) => {
-  const { actorId } = await resetFixtures(page);
+test("primary and Record tab lists support keyboard navigation independently", async ({ foundryPage: page, fixtureLane }) => {
+  const { actorId } = await resetFixtures(page, fixtureLane);
   const sheetId = await openPcSheet(page, actorId);
   const sheet = page.locator(`#${sheetId}`);
 
@@ -212,8 +214,14 @@ test("primary and Record tab lists support keyboard navigation independently", a
   await expect(basicsTab).toBeFocused();
 });
 
-test("primary and Record navigation remain usable at representative sheet widths", async ({ foundryPage: page }) => {
-  const { actorId } = await resetFixtures(page);
+test("primary and Record navigation remain usable at representative sheet widths", async ({ foundryPage: page, fixtureLane }) => {
+  // Under multi-worker parallel execution, this test's ~18 real tab-click/
+  // assert cycles across 3 widths can run alongside other workers' full
+  // Foundry clients competing for the same CPU, pushing it past the default
+  // 60s test timeout even though nothing is actually stuck. Not a
+  // correctness issue — see .local/retro-ui-test-performance.md.
+  test.setTimeout(120_000);
+  const { actorId } = await resetFixtures(page, fixtureLane);
   const sheetId = await openPcSheet(page, actorId);
   const sheet = page.locator(`#${sheetId}`);
   const primaryNav = sheet.locator('[role="tablist"][data-group="primary"]');

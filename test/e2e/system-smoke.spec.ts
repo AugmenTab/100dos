@@ -45,8 +45,8 @@ async function renderAbilitySheet(
   );
 }
 
-test("PC name persists through the sheet", async ({ foundryPage: page }) => {
-  const { actorId } = await resetFixtures(page);
+test("PC name persists through the sheet", async ({ foundryPage: page, fixtureLane }) => {
+  const { actorId } = await resetFixtures(page, fixtureLane);
 
   let sheetId = await openActorSheet(page, actorId);
   const nameInput = page.locator(`#${sheetId} input[name="name"]`);
@@ -70,8 +70,8 @@ test("PC name persists through the sheet", async ({ foundryPage: page }) => {
   await closeActorSheet(page, sheetId);
 });
 
-test("embedded Ability sheet persists and cleans up", async ({ foundryPage: page }) => {
-  const { actorId, itemId } = await resetFixtures(page);
+test("embedded Ability sheet persists and cleans up", async ({ foundryPage: page, fixtureLane }) => {
+  const { actorId, itemId } = await resetFixtures(page, fixtureLane);
 
   let sheetId = await renderAbilitySheet(page, actorId, itemId);
   const nameInput = page.locator(`#${sheetId} input[name="name"]`);

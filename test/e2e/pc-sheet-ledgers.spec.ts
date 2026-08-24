@@ -22,16 +22,17 @@ async function openRecordTab(page: Page, sheetId: string, tabId: string): Promis
 }
 
 test.describe("XP ledger page", () => {
-  test("a new PC has ExperienceLedger schema defaults", async ({ foundryPage: page }) => {
-    const { actorId } = await resetFixtures(page);
+  test("a new PC has ExperienceLedger schema defaults", async ({ foundryPage: page, fixtureLane }) => {
+    const { actorId } = await resetFixtures(page, fixtureLane);
     const xp = await page.evaluate((actorId) => game.actors.get(actorId)?.system.xp, actorId);
     expect(xp).toEqual({ tier: 0, earned: 0, spent: 0, available: 0, ledger: [] });
   });
 
   test("summary fields and ledger rows render from schema data; an unresolved recorder falls back to a neutral label", async ({
     foundryPage: page,
+    fixtureLane,
   }) => {
-    const { actorId } = await resetFixtures(page);
+    const { actorId } = await resetFixtures(page, fixtureLane);
     await updateActor(page, actorId, {
       "system.xp": {
         tier: 5,
@@ -69,8 +70,8 @@ test.describe("XP ledger page", () => {
     await expect(row).toContainText("Unknown");
   });
 
-  test("the action column has no textual header and carries labeled Add/Delete icon controls", async ({ foundryPage: page }) => {
-    const { actorId } = await resetFixtures(page);
+  test("the action column has no textual header and carries labeled Add/Delete icon controls", async ({ foundryPage: page, fixtureLane }) => {
+    const { actorId } = await resetFixtures(page, fixtureLane);
     await updateActor(page, actorId, {
       "system.xp.ledger": [
         { type: "purchase", description: "Strength Advancement", value: 50, recordedBy: null, worldTime: 0, realTime: Date.now() },
@@ -87,8 +88,8 @@ test.describe("XP ledger page", () => {
     await expect(deleteControl).toHaveAttribute("aria-label", "Delete transaction: Strength Advancement");
   });
 
-  test("an empty ledger still shows the summary, headings, Add control, and an intentional empty state", async ({ foundryPage: page }) => {
-    const { actorId } = await resetFixtures(page);
+  test("an empty ledger still shows the summary, headings, Add control, and an intentional empty state", async ({ foundryPage: page, fixtureLane }) => {
+    const { actorId } = await resetFixtures(page, fixtureLane);
     const sheetId = await openPcSheet(page, actorId);
     const panel = await openRecordTab(page, sheetId, "xp");
 
@@ -100,16 +101,17 @@ test.describe("XP ledger page", () => {
 });
 
 test.describe("Finances ledger page", () => {
-  test("a new PC has Finances schema defaults", async ({ foundryPage: page }) => {
-    const { actorId } = await resetFixtures(page);
+  test("a new PC has Finances schema defaults", async ({ foundryPage: page, fixtureLane }) => {
+    const { actorId } = await resetFixtures(page, fixtureLane);
     const finances = await page.evaluate((actorId) => game.actors.get(actorId)?.system.finances, actorId);
     expect(finances).toEqual({ received: 0, spent: 0, available: 0, carried: 0, ledger: [] });
   });
 
   test("summary fields and ledger rows render from schema data; an unresolved recorder falls back to a neutral label", async ({
     foundryPage: page,
+    fixtureLane,
   }) => {
-    const { actorId } = await resetFixtures(page);
+    const { actorId } = await resetFixtures(page, fixtureLane);
     await updateActor(page, actorId, {
       "system.finances": {
         received: 3200,
@@ -146,8 +148,8 @@ test.describe("Finances ledger page", () => {
     await expect(row).toContainText("Unknown");
   });
 
-  test("the action column has no textual header and carries labeled Add/Delete icon controls", async ({ foundryPage: page }) => {
-    const { actorId } = await resetFixtures(page);
+  test("the action column has no textual header and carries labeled Add/Delete icon controls", async ({ foundryPage: page, fixtureLane }) => {
+    const { actorId } = await resetFixtures(page, fixtureLane);
     await updateActor(page, actorId, {
       "system.finances.ledger": [
         { id: "a", type: "purchase", description: "Battle Rifle", value: 600, recordedBy: null, worldTime: 0, realTime: Date.now() },
@@ -164,8 +166,8 @@ test.describe("Finances ledger page", () => {
     await expect(deleteControl).toHaveAttribute("aria-label", "Delete transaction: Battle Rifle");
   });
 
-  test("an empty ledger still shows the summary, headings, Add control, and an intentional empty state", async ({ foundryPage: page }) => {
-    const { actorId } = await resetFixtures(page);
+  test("an empty ledger still shows the summary, headings, Add control, and an intentional empty state", async ({ foundryPage: page, fixtureLane }) => {
+    const { actorId } = await resetFixtures(page, fixtureLane);
     const sheetId = await openPcSheet(page, actorId);
     const panel = await openRecordTab(page, sheetId, "finances");
 
@@ -175,8 +177,8 @@ test.describe("Finances ledger page", () => {
     await expect(panel.locator(".ledger-table-empty-state")).toHaveText("No finance transactions recorded yet.");
   });
 
-  test("values render as locale-formatted numbers with no currency symbol", async ({ foundryPage: page }) => {
-    const { actorId } = await resetFixtures(page);
+  test("values render as locale-formatted numbers with no currency symbol", async ({ foundryPage: page, fixtureLane }) => {
+    const { actorId } = await resetFixtures(page, fixtureLane);
     await updateActor(page, actorId, {
       "system.finances.ledger": [
         { id: "a", type: "income", description: "Payment", value: 2500000, recordedBy: null, worldTime: 0, realTime: Date.now() },
@@ -188,8 +190,8 @@ test.describe("Finances ledger page", () => {
   });
 });
 
-test("XP and Finances ledgers remain usable, without whole-sheet overflow, at representative sheet widths", async ({ foundryPage: page }) => {
-  const { actorId } = await resetFixtures(page);
+test("XP and Finances ledgers remain usable, without whole-sheet overflow, at representative sheet widths", async ({ foundryPage: page, fixtureLane }) => {
+  const { actorId } = await resetFixtures(page, fixtureLane);
   await updateActor(page, actorId, {
     "system.xp.ledger": [
       { type: "reward", description: "Completed Investigation", value: 100, recordedBy: null, worldTime: 0, realTime: Date.now() },

@@ -153,11 +153,11 @@ async function launchExistingWorld(page: Page): Promise<void> {
   }
 }
 
-async function joinAsGM(page: Page): Promise<void> {
+async function joinAsUser(page: Page, userLabel: string): Promise<void> {
   const form = page.locator("#join-game-form");
   await form
     .locator('select[name="userid"]')
-    .selectOption({ label: GM_USER_LABEL });
+    .selectOption({ label: userLabel });
 
   const gmPassword = process.env.FOUNDRY_E2E_GM_PASSWORD;
   if (gmPassword) {
@@ -204,11 +204,11 @@ const GAME_VIEW_ATTEMPTS = 3;
  * been hit by re-running a whole test command by hand; automate exactly
  * that instead of surfacing the failure.
  */
-export async function ensureGameView(page: Page): Promise<void> {
+export async function ensureGameView(page: Page, userLabel: string): Promise<void> {
   let lastError: unknown;
   for (let attempt = 1; attempt <= GAME_VIEW_ATTEMPTS; attempt++) {
     try {
-      await attemptGameView(page);
+      await attemptGameView(page, userLabel);
       return;
     } catch (err) {
       lastError = err;
@@ -219,7 +219,7 @@ export async function ensureGameView(page: Page): Promise<void> {
   throw lastError;
 }
 
-async function attemptGameView(page: Page): Promise<void> {
+async function attemptGameView(page: Page, userLabel: string): Promise<void> {
   await dismissOverlaysIfPresent(page);
   let state = await detectState(page);
 
@@ -242,7 +242,7 @@ async function attemptGameView(page: Page): Promise<void> {
   }
 
   if (state === "join") {
-    await joinAsGM(page);
+    await joinAsUser(page, userLabel);
     await dismissOverlaysIfPresent(page);
     state = await detectState(page);
   }

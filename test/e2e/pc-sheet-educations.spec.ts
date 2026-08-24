@@ -69,8 +69,8 @@ function educationsTable(panel: Locator): Locator {
 }
 
 test.describe("Educations section", () => {
-  test("a new PC has a zeroed EducationRecord and an empty ActorEducations record", async ({ foundryPage: page }) => {
-    const { actorId } = await resetFixtures(page);
+  test("a new PC has a zeroed EducationRecord and an empty ActorEducations record", async ({ foundryPage: page, fixtureLane }) => {
+    const { actorId } = await resetFixtures(page, fixtureLane);
     const system = await page.evaluate(
       (actorId) => {
         const actor = game.actors.get(actorId);
@@ -84,8 +84,9 @@ test.describe("Educations section", () => {
 
   test("the Educations heading displays stored system.education value/max, with a Contributions tooltip on max", async ({
     foundryPage: page,
+    fixtureLane,
   }) => {
-    const { actorId } = await resetFixtures(page);
+    const { actorId } = await resetFixtures(page, fixtureLane);
     await updateActor(page, actorId, {
       "system.education": {
         value: 55,
@@ -113,8 +114,8 @@ test.describe("Educations section", () => {
     expect(values.map(Number)).toEqual([25, 55]);
   });
 
-  test("a representative Education renders its stored schema data", async ({ foundryPage: page }) => {
-    const { actorId } = await resetFixtures(page);
+  test("a representative Education renders its stored schema data", async ({ foundryPage: page, fixtureLane }) => {
+    const { actorId } = await resetFixtures(page, fixtureLane);
     await updateActor(page, actorId, { "system.educations.engineering": ENGINEERING });
     const sheetId = await openPcSheet(page, actorId);
     const panel = await openSkillsTab(page, sheetId);
@@ -128,8 +129,9 @@ test.describe("Educations section", () => {
 
   test("the header row has no textual label for Pinned, Name spans both columns, and the final column's header is the inert Add control", async ({
     foundryPage: page,
+    fixtureLane,
   }) => {
-    const { actorId } = await resetFixtures(page);
+    const { actorId } = await resetFixtures(page, fixtureLane);
     const sheetId = await openPcSheet(page, actorId);
     const panel = await openSkillsTab(page, sheetId);
 
@@ -145,8 +147,9 @@ test.describe("Educations section", () => {
 
   test("the Characteristic/Skill selector offers only that Education's own options, resolving a Characteristic ID to its abbreviation and a Skill identifier to the Actor's Skill name, with the stored value selected", async ({
     foundryPage: page,
+    fixtureLane,
   }) => {
-    const { actorId } = await resetFixtures(page);
+    const { actorId } = await resetFixtures(page, fixtureLane);
     await updateActor(page, actorId, {
       "system.skills.pilotGround": PILOT_GROUND_SKILL,
       "system.educations.engineering": ENGINEERING,
@@ -172,8 +175,9 @@ test.describe("Educations section", () => {
 
   test("a Skill-identifier option with no matching Actor Skill falls back to the raw identifier rather than being hidden or mutated", async ({
     foundryPage: page,
+    fixtureLane,
   }) => {
-    const { actorId } = await resetFixtures(page);
+    const { actorId } = await resetFixtures(page, fixtureLane);
     await updateActor(page, actorId, {
       "system.educations.militaryHistory": {
         ...ENGINEERING,
@@ -197,8 +201,9 @@ test.describe("Educations section", () => {
 
   test("Name includes Edit, Info, and a Delete affordance carrying the Education's stable identifier", async ({
     foundryPage: page,
+    fixtureLane,
   }) => {
-    const { actorId } = await resetFixtures(page);
+    const { actorId } = await resetFixtures(page, fixtureLane);
     await updateActor(page, actorId, { "system.educations.engineering": ENGINEERING });
     const sheetId = await openPcSheet(page, actorId);
     const panel = await openSkillsTab(page, sheetId);
@@ -226,8 +231,9 @@ test.describe("Educations section", () => {
 
   test("the pin control represents the persisted pinned state without requiring toggle behavior", async ({
     foundryPage: page,
+    fixtureLane,
   }) => {
-    const { actorId } = await resetFixtures(page);
+    const { actorId } = await resetFixtures(page, fixtureLane);
     await updateActor(page, actorId, {
       "system.educations.engineering": ENGINEERING,
       "system.educations.militaryHistory": { ...ENGINEERING, name: "Military History", pinned: false },
@@ -251,8 +257,9 @@ test.describe("Educations section", () => {
 
   test("the value control shows the stored value via a simple button with the existing Contributions tooltip", async ({
     foundryPage: page,
+    fixtureLane,
   }) => {
-    const { actorId } = await resetFixtures(page);
+    const { actorId } = await resetFixtures(page, fixtureLane);
     await updateActor(page, actorId, { "system.educations.engineering": ENGINEERING });
     const sheetId = await openPcSheet(page, actorId);
     const panel = await openSkillsTab(page, sheetId);
@@ -274,8 +281,9 @@ test.describe("Educations section", () => {
 
   test("the record key is an Education's stable identity and is never duplicated inside the persisted Education object", async ({
     foundryPage: page,
+    fixtureLane,
   }) => {
-    const { actorId } = await resetFixtures(page);
+    const { actorId } = await resetFixtures(page, fixtureLane);
     await updateActor(page, actorId, { "system.educations.engineering": ENGINEERING });
 
     const education = await getEducation(page, actorId, "engineering");
@@ -288,8 +296,9 @@ test.describe("Educations section", () => {
 
   test("an empty ActorEducations record still shows the summary, table structure, Add control, and an intentional empty state", async ({
     foundryPage: page,
+    fixtureLane,
   }) => {
-    const { actorId } = await resetFixtures(page);
+    const { actorId } = await resetFixtures(page, fixtureLane);
     const sheetId = await openPcSheet(page, actorId);
     const panel = await openSkillsTab(page, sheetId);
 
@@ -304,8 +313,9 @@ test.describe("Educations section", () => {
 
   test("the combined Skills/Educations page remains usable, without whole-sheet overflow, at representative sheet widths", async ({
     foundryPage: page,
+    fixtureLane,
   }) => {
-    const { actorId } = await resetFixtures(page);
+    const { actorId } = await resetFixtures(page, fixtureLane);
     await updateActor(page, actorId, {
       "system.skills.pilotGround": PILOT_GROUND_SKILL,
       "system.educations.engineering": ENGINEERING,

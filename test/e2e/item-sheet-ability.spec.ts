@@ -34,8 +34,9 @@ async function openTab(sheet: Locator, tabId: string): Promise<void> {
 
 test("the Ability sheet renders the abstract Item shell: editable header, sidebar heading, and Description/Details/Changes navigation", async ({
   foundryPage: page,
+  fixtureLane,
 }) => {
-  const { actorId, itemId } = await resetFixtures(page);
+  const { actorId, itemId } = await resetFixtures(page, fixtureLane);
   const sheetId = await openItemSheet(page, actorId, itemId);
   const sheet = page.locator(`#${sheetId}`);
 
@@ -49,8 +50,8 @@ test("the Ability sheet renders the abstract Item shell: editable header, sideba
   expect(tabLabels).toEqual(["Description", "Details", "Changes"]);
 });
 
-test("sidebar checkboxes are ordered Disabled, Pinned, Combat Tab and bind to their schema fields", async ({ foundryPage: page }) => {
-  const { actorId, itemId } = await resetFixtures(page);
+test("sidebar checkboxes are ordered Disabled, Pinned, Combat Tab and bind to their schema fields", async ({ foundryPage: page, fixtureLane }) => {
+  const { actorId, itemId } = await resetFixtures(page, fixtureLane);
   await updateItem(page, actorId, itemId, {
     "system.disabled": true,
     "system.actions.pinned": true,
@@ -79,8 +80,9 @@ test("sidebar checkboxes are ordered Disabled, Pinned, Combat Tab and bind to th
 
 test("the name field carries the shared depleted (gray/strikethrough) treatment when the Ability is disabled", async ({
   foundryPage: page,
+  fixtureLane,
 }) => {
-  const { actorId, itemId } = await resetFixtures(page);
+  const { actorId, itemId } = await resetFixtures(page, fixtureLane);
   const sheetId = await openItemSheet(page, actorId, itemId);
   const sheet = page.locator(`#${sheetId}`);
   const nameInput = sheet.locator('input[name="name"]');
@@ -95,8 +97,8 @@ test("the name field carries the shared depleted (gray/strikethrough) treatment 
   await expect(nameInput).toHaveClass(/depleted/);
 });
 
-test("sidebar Tags render from system.tags", async ({ foundryPage: page }) => {
-  const { actorId, itemId } = await resetFixtures(page);
+test("sidebar Tags render from system.tags", async ({ foundryPage: page, fixtureLane }) => {
+  const { actorId, itemId } = await resetFixtures(page, fixtureLane);
   await updateItem(page, actorId, itemId, { "system.tags": ["combat", "movement"] });
   const sheetId = await openItemSheet(page, actorId, itemId);
   const sheet = page.locator(`#${sheetId}`);
@@ -109,8 +111,9 @@ test("sidebar Tags render from system.tags", async ({ foundryPage: page }) => {
 
 test("Description renders the rich-text editor bound to system.description; Details and Changes are selectable placeholders", async ({
   foundryPage: page,
+  fixtureLane,
 }) => {
-  const { actorId, itemId } = await resetFixtures(page);
+  const { actorId, itemId } = await resetFixtures(page, fixtureLane);
   await updateItem(page, actorId, itemId, { "system.description": "<p>Sample description.</p>" });
   const sheetId = await openItemSheet(page, actorId, itemId);
   const sheet = page.locator(`#${sheetId}`);
@@ -130,8 +133,8 @@ test("Description renders the rich-text editor bound to system.description; Deta
   await expect(sheet.locator('.tab[data-tab="changes"].active')).toContainText("This page doesn't have any content yet.");
 });
 
-test("the shell remains usable, without overflow, at representative sheet widths", async ({ foundryPage: page }) => {
-  const { actorId, itemId } = await resetFixtures(page);
+test("the shell remains usable, without overflow, at representative sheet widths", async ({ foundryPage: page, fixtureLane }) => {
+  const { actorId, itemId } = await resetFixtures(page, fixtureLane);
   const sheetId = await openItemSheet(page, actorId, itemId);
   const sheet = page.locator(`#${sheetId}`);
 

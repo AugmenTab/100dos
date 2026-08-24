@@ -1,5 +1,5 @@
 import { devices, test as base, type Page } from "@playwright/test";
-import { AUTH_STATE_PATH } from "./constants.js";
+import { e2eGmUserLabel } from "./e2e-users.js";
 import { ensureGameView } from "./foundry-session.js";
 
 const BASE_URL = process.env.PLAYWRIGHT_BASE_URL ?? "http://foundry-test:30000";
@@ -12,16 +12,28 @@ const BASE_URL = process.env.PLAYWRIGHT_BASE_URL ?? "http://foundry-test:30000";
  * option in Playwright's fixture typing, so it isn't available to a
  * worker-scoped fixture — read the same env var the config itself does.
  */
-export const test = base.extend<Record<never, never>, { foundryPage: Page }>({
+export const test = base.extend<Record<never, never>, { foundryPage: Page; fixtureLane: number }>({
+  // parallelIndex (not workerIndex) is the stable 0..N-1 concurrent-slot id
+  // Playwright itself recommends for scoping a shared/exclusive resource —
+  // it stays put even if a crashed worker process is restarted mid-run.
+  fixtureLane: [
+    async ({}, use, workerInfo) => {
+      await use(workerInfo.parallelIndex);
+    },
+    { scope: "worker" },
+  ],
   foundryPage: [
-    async ({ browser }, use) => {
+    async ({ browser, fixtureLane }, use) => {
+      // No shared storageState: each worker joins as its own dedicated
+      // [E2E] Gamemaster N user (provisioned once in global-setup.ts).
+      // Concurrent workers sharing one authenticated session previously
+      // collided on that single user's session slot on the /join screen.
       const context = await browser.newContext({
         ...devices["Desktop Chrome"],
-        storageState: AUTH_STATE_PATH,
       });
       const page = await context.newPage();
       await page.goto(BASE_URL);
-      await ensureGameView(page);
+      await ensureGameView(page, e2eGmUserLabel(fixtureLane));
 
       // Foundry core sets `html:focus-within { scroll-behavior: smooth; }`
       // (foundry2.css), which is true throughout normal interactive test

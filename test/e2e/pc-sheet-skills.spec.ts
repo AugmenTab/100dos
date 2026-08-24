@@ -58,16 +58,17 @@ function skillsTable(panel: Locator): Locator {
 }
 
 test.describe("Skills page", () => {
-  test("a new PC has an empty ActorSkills record", async ({ foundryPage: page }) => {
-    const { actorId } = await resetFixtures(page);
+  test("a new PC has an empty ActorSkills record", async ({ foundryPage: page, fixtureLane }) => {
+    const { actorId } = await resetFixtures(page, fixtureLane);
     const skills = await page.evaluate((actorId) => game.actors.get(actorId)?.system.skills, actorId);
     expect(skills).toEqual({});
   });
 
   test("a representative Skill renders its stored schema data, with Type shown as a comma-separated list", async ({
     foundryPage: page,
+    fixtureLane,
   }) => {
-    const { actorId } = await resetFixtures(page);
+    const { actorId } = await resetFixtures(page, fixtureLane);
     await updateActor(page, actorId, {
       "system.skills.pilotGround": { ...PILOT_GROUND, type: ["movement", "fieldcraft"] },
     });
@@ -84,8 +85,9 @@ test.describe("Skills page", () => {
 
   test("the header row has no textual label for Pinned, Name spans both columns, and the final column's header is the inert Add control", async ({
     foundryPage: page,
+    fixtureLane,
   }) => {
-    const { actorId } = await resetFixtures(page);
+    const { actorId } = await resetFixtures(page, fixtureLane);
     const sheetId = await openPcSheet(page, actorId);
     const panel = await openSkillsTab(page, sheetId);
 
@@ -101,8 +103,9 @@ test.describe("Skills page", () => {
 
   test("the Characteristic selector offers only that Skill's own allowed Characteristics, in order, with the stored value selected", async ({
     foundryPage: page,
+    fixtureLane,
   }) => {
-    const { actorId } = await resetFixtures(page);
+    const { actorId } = await resetFixtures(page, fixtureLane);
     await updateActor(page, actorId, { "system.skills.pilotGround": PILOT_GROUND });
     const sheetId = await openPcSheet(page, actorId);
     const panel = await openSkillsTab(page, sheetId);
@@ -125,8 +128,9 @@ test.describe("Skills page", () => {
 
   test("the Training selector offers the four fixed options with the stored value selected, and updates only training through normal binding", async ({
     foundryPage: page,
+    fixtureLane,
   }) => {
-    const { actorId } = await resetFixtures(page);
+    const { actorId } = await resetFixtures(page, fixtureLane);
     await updateActor(page, actorId, { "system.skills.pilotGround": PILOT_GROUND });
     const sheetId = await openPcSheet(page, actorId);
     const panel = await openSkillsTab(page, sheetId);
@@ -147,8 +151,8 @@ test.describe("Skills page", () => {
     expect(skill?.characteristic).toBe("int");
   });
 
-  test("the pin control reflects and toggles the persisted pinned state", async ({ foundryPage: page }) => {
-    const { actorId } = await resetFixtures(page);
+  test("the pin control reflects and toggles the persisted pinned state", async ({ foundryPage: page, fixtureLane }) => {
+    const { actorId } = await resetFixtures(page, fixtureLane);
     await updateActor(page, actorId, {
       "system.skills.pilotGround": PILOT_GROUND,
       "system.skills.persuasion": { ...PILOT_GROUND, name: "Persuasion", pinned: false },
@@ -174,8 +178,9 @@ test.describe("Skills page", () => {
 
   test("Edit and description controls carry the Skill's stable identifier and an accessible name; the value control shows the stored value via a simple button with the existing Contributions tooltip", async ({
     foundryPage: page,
+    fixtureLane,
   }) => {
-    const { actorId } = await resetFixtures(page);
+    const { actorId } = await resetFixtures(page, fixtureLane);
     await updateActor(page, actorId, { "system.skills.pilotGround": PILOT_GROUND });
     const sheetId = await openPcSheet(page, actorId);
     const panel = await openSkillsTab(page, sheetId);
@@ -205,8 +210,9 @@ test.describe("Skills page", () => {
 
   test("the record key is a Skill's stable identity and is never duplicated inside the persisted Skill object", async ({
     foundryPage: page,
+    fixtureLane,
   }) => {
-    const { actorId } = await resetFixtures(page);
+    const { actorId } = await resetFixtures(page, fixtureLane);
     await updateActor(page, actorId, { "system.skills.pilotGround": PILOT_GROUND });
 
     const skill = await getSkill(page, actorId, "pilotGround");
@@ -219,8 +225,9 @@ test.describe("Skills page", () => {
 
   test("an empty ActorSkills record still shows the table structure, the Add control, and an intentional empty state", async ({
     foundryPage: page,
+    fixtureLane,
   }) => {
-    const { actorId } = await resetFixtures(page);
+    const { actorId } = await resetFixtures(page, fixtureLane);
     const sheetId = await openPcSheet(page, actorId);
     const panel = await openSkillsTab(page, sheetId);
 
@@ -234,8 +241,9 @@ test.describe("Skills page", () => {
 
   test("the Skills table remains usable, without whole-sheet overflow, at representative sheet widths", async ({
     foundryPage: page,
+    fixtureLane,
   }) => {
-    const { actorId } = await resetFixtures(page);
+    const { actorId } = await resetFixtures(page, fixtureLane);
     await updateActor(page, actorId, {
       "system.skills.pilotGround": PILOT_GROUND,
       "system.skills.persuasion": { ...PILOT_GROUND, name: "Persuasion", pinned: false },

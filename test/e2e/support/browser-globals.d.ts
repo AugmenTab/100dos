@@ -53,10 +53,24 @@ declare const Actor: {
   create(data: object): Promise<E2EActorDocument | undefined>;
 };
 
+interface E2EUserDocument {
+  readonly id: string;
+  readonly name: string;
+}
+
+declare const User: {
+  create(data: object | object[]): Promise<E2EUserDocument[]>;
+};
+
+declare const CONST: {
+  USER_ROLES: { GAMEMASTER: number };
+};
+
 declare const game: {
   ready: boolean;
   system: { id: string };
   user?: { id: string; isGM: boolean; name: string };
+  users: E2EUserDocument[];
   actors: {
     filter(fn: (actor: E2EActorDocument) => boolean): E2EActorDocument[];
     get(id: string): E2EActorDocument | undefined;

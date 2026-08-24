@@ -49,8 +49,9 @@ async function getSystemValue(page: Page, actorId: string, path: string): Promis
 
 test("Dashboard renders identity, resources, Characteristics, DR, and dynamic collections from real schema-backed Actor data", async ({
   foundryPage: page,
+  fixtureLane,
 }) => {
-  const { actorId } = await resetFixtures(page);
+  const { actorId } = await resetFixtures(page, fixtureLane);
   await updateActor(page, actorId, { "system.dr": HUMANOID_DR });
   const sheetId = await openPcSheet(page, actorId);
   const sheet = page.locator(`#${sheetId}`);
@@ -100,8 +101,9 @@ test("Dashboard renders identity, resources, Characteristics, DR, and dynamic co
 
 test("all ten Characteristics render in order with accessible names and editable, independent temporary modifiers", async ({
   foundryPage: page,
+  fixtureLane,
 }) => {
-  const { actorId } = await resetFixtures(page);
+  const { actorId } = await resetFixtures(page, fixtureLane);
   const sheetId = await openPcSheet(page, actorId);
   const sheet = page.locator(`#${sheetId}`);
 
@@ -132,8 +134,9 @@ test("all ten Characteristics render in order with accessible names and editable
 
 test("the contribution tooltip presents stored Contributions in order with correctly signed values, and still appears (empty) when the collection is empty", async ({
   foundryPage: page,
+  fixtureLane,
 }) => {
-  const { actorId } = await resetFixtures(page);
+  const { actorId } = await resetFixtures(page, fixtureLane);
   await updateActor(page, actorId, {
     "system.characteristics.str.value": 63,
     "system.characteristics.str.contributions": [
@@ -188,8 +191,9 @@ test("the contribution tooltip presents stored Contributions in order with corre
 
 test("Initiative, Luck, Wounds, Fatigue, and all six Damage Resistance locations render stored schema values", async ({
   foundryPage: page,
+  fixtureLane,
 }) => {
-  const { actorId } = await resetFixtures(page);
+  const { actorId } = await resetFixtures(page, fixtureLane);
   await updateActor(page, actorId, {
     "system.initiative.value": 5,
     "system.luck": { value: 2, max: 3 },
@@ -239,8 +243,9 @@ test("Initiative, Luck, Wounds, Fatigue, and all six Damage Resistance locations
 
 test("Movement speeds accept decimal values, stored at full precision but displayed rounded to 2 places without padding whole numbers", async ({
   foundryPage: page,
+  fixtureLane,
 }) => {
-  const { actorId } = await resetFixtures(page);
+  const { actorId } = await resetFixtures(page, fixtureLane);
   await updateActor(page, actorId, {
     "system.movement.base.half.value": 4.256,
     "system.movement.base.full.value": 8,
@@ -269,8 +274,9 @@ test("Movement speeds accept decimal values, stored at full precision but displa
 
 test("pinning an Ability surfaces it as a quick-use control that delegates to the existing Action-use path", async ({
   foundryPage: page,
+  fixtureLane,
 }) => {
-  const { actorId, itemId } = await resetFixtures(page);
+  const { actorId, itemId } = await resetFixtures(page, fixtureLane);
   const sheetId = await openPcSheet(page, actorId);
   const sheet = page.locator(`#${sheetId}`);
 
@@ -320,8 +326,9 @@ test("pinning an Ability surfaces it as a quick-use control that delegates to th
 
 test("pinned Skills and pinned Educations render as two separate alphabetized clusters, not merged, in the Dashboard's Pinned Skills & Educations region", async ({
   foundryPage: page,
+  fixtureLane,
 }) => {
-  const { actorId } = await resetFixtures(page);
+  const { actorId } = await resetFixtures(page, fixtureLane);
   const sheet = page.locator(`#${await openPcSheet(page, actorId)}`);
   await expect(sheet.locator(".pc-dashboard-pinned-skills .pc-dashboard-empty-state")).toBeVisible();
 
@@ -379,8 +386,8 @@ test("pinned Skills and pinned Educations render as two separate alphabetized cl
   await expect(lists.nth(1).locator("li")).toHaveText(["Engineering"]);
 });
 
-test("only active Effects appear in the active-Effects Dashboard region", async ({ foundryPage: page }) => {
-  const { actorId } = await resetFixtures(page);
+test("only active Effects appear in the active-Effects Dashboard region", async ({ foundryPage: page, fixtureLane }) => {
+  const { actorId } = await resetFixtures(page, fixtureLane);
   await page.evaluate(async (actorId) => {
     const actor = game.actors.get(actorId);
     if (!actor) throw new Error(`Fixture actor ${actorId} not found.`);
@@ -398,8 +405,8 @@ test("only active Effects appear in the active-Effects Dashboard region", async 
   await expect(effectsList).not.toContainText("[E2E] Inactive Effect");
 });
 
-test("Dashboard remains usable, without overlap or overflow, at representative sheet widths", async ({ foundryPage: page }) => {
-  const { actorId } = await resetFixtures(page);
+test("Dashboard remains usable, without overlap or overflow, at representative sheet widths", async ({ foundryPage: page, fixtureLane }) => {
+  const { actorId } = await resetFixtures(page, fixtureLane);
   // DR is empty by default now — seed it so the DR/Movement row (whose
   // content, not just presence, matters for overflow testing) has
   // something to actually wrap/overflow-check against.

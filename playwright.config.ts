@@ -2,15 +2,16 @@ import { defineConfig, devices } from "@playwright/test";
 
 export default defineConfig({
   testDir: "test/e2e",
-  fullyParallel: false,
-  // Multiple workers were tried and reverted: each would join Foundry as
-  // the same "Gamemaster" user, and concurrent joins race on that user's
-  // session slot on the /join screen (Foundry blocks a second concurrent
-  // login as an already-connecting user), causing real timeouts/failures.
-  // Fixing that requires provisioning a separate GM-privileged User per
-  // worker lane in the dedicated test world — real infra work, not a
-  // config change — so this stays serial for now.
-  workers: 1,
+  fullyParallel: true,
+  // Each worker joins Foundry as its own dedicated [E2E] Gamemaster N user
+  // (support/e2e-users.ts, support/session.ts) instead of sharing one
+  // authenticated session, so concurrent workers no longer collide on a
+  // single user's /join session slot. Benchmarked at 2/3/4 workers (see
+  // .local/retro-ui-test-performance.md): 3 was fastest and stable — 4
+  // workers was consistently slower (more concurrent Foundry clients
+  // competing for the same resources), matching Foundry's own scaling
+  // limits rather than a harness problem.
+  workers: 3,
   retries: process.env.CI ? 1 : 0,
   reporter: [["line"], ["html", { open: "never" }]],
   globalSetup: "./test/e2e/support/global-setup.ts",
@@ -20,7 +21,6 @@ export default defineConfig({
   },
   use: {
     baseURL: process.env.PLAYWRIGHT_BASE_URL ?? "http://foundry-test:30000",
-    storageState: "test-results/.auth/gm.json",
     trace: "retain-on-failure",
     screenshot: "only-on-failure",
     navigationTimeout: 30_000,

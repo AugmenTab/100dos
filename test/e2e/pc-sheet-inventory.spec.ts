@@ -52,8 +52,9 @@ function bandFills(sheet: ReturnType<Page["locator"]>) {
 
 test("the carrying-capacity Top Summary and Bottom Reference render stored Encumbrance/Finances data", async ({
   foundryPage: page,
+  fixtureLane,
 }) => {
-  const { actorId } = await resetFixtures(page);
+  const { actorId } = await resetFixtures(page, fixtureLane);
   await updateActor(page, actorId, {
     "system.encumbrance": ENCUMBRANCE,
     "system.finances.carried": 1250,
@@ -79,8 +80,9 @@ test("the carrying-capacity Top Summary and Bottom Reference render stored Encum
 
 test("switching movement mode changes the active bar track — 3 base / 4 swim / 2 fly — with exact fill percentages", async ({
   foundryPage: page,
+  fixtureLane,
 }) => {
-  const { actorId } = await resetFixtures(page);
+  const { actorId } = await resetFixtures(page, fixtureLane);
   await updateActor(page, actorId, { "system.encumbrance": ENCUMBRANCE, "system.movement.mode": "land" });
   const sheetId = await openPcSheet(page, actorId);
   const sheet = page.locator(`#${sheetId}`);
@@ -117,8 +119,8 @@ test("switching movement mode changes the active bar track — 3 base / 4 swim /
   expect(flyStyles).toEqual(["width: 47.5%", "width: 0%"]);
 });
 
-test("fly renders no bars when the Actor has no Flight movement mode (thresholds.fly is null)", async ({ foundryPage: page }) => {
-  const { actorId } = await resetFixtures(page);
+test("fly renders no bars when the Actor has no Flight movement mode (thresholds.fly is null)", async ({ foundryPage: page, fixtureLane }) => {
+  const { actorId } = await resetFixtures(page, fixtureLane);
   await updateActor(page, actorId, {
     "system.encumbrance": { ...ENCUMBRANCE, thresholds: { ...ENCUMBRANCE.thresholds, fly: null } },
     "system.movement.mode": "fly",
@@ -132,8 +134,9 @@ test("fly renders no bars when the Actor has no Flight movement mode (thresholds
 
 test("Armor rows render Carried/Equipped toggles, quantity suffix, and depleted styling from real Item data, and toggling Carried persists", async ({
   foundryPage: page,
+  fixtureLane,
 }) => {
-  const { actorId } = await resetFixtures(page);
+  const { actorId } = await resetFixtures(page, fixtureLane);
   const leatherArmorId = await page.evaluate(async (actorId) => {
     const actor = game.actors.get(actorId);
     if (!actor) throw new Error("no actor");
@@ -209,8 +212,9 @@ test("Armor rows render Carried/Equipped toggles, quantity suffix, and depleted 
 
 test("Item-type-less Inventory sections (Weapons, Equipment, Consumables, Miscellaneous, Containers) render their own localized empty state", async ({
   foundryPage: page,
+  fixtureLane,
 }) => {
-  const { actorId } = await resetFixtures(page);
+  const { actorId } = await resetFixtures(page, fixtureLane);
   const sheetId = await openPcSheet(page, actorId);
   const sheet = page.locator(`#${sheetId}`);
   await sheet.locator('[role="tab"][data-group="primary"][data-tab="inventory"]').click();
@@ -228,8 +232,9 @@ test("Item-type-less Inventory sections (Weapons, Equipment, Consumables, Miscel
 
 test("the carrying-capacity section remains usable, without overflow, at representative sheet widths", async ({
   foundryPage: page,
+  fixtureLane,
 }) => {
-  const { actorId } = await resetFixtures(page);
+  const { actorId } = await resetFixtures(page, fixtureLane);
   await updateActor(page, actorId, { "system.encumbrance": ENCUMBRANCE, "system.movement.mode": "swim" });
   const sheetId = await openPcSheet(page, actorId);
   const sheet = page.locator(`#${sheetId}`);
