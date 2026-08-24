@@ -415,14 +415,19 @@ test("Dashboard remains usable, without overlap or overflow, at representative s
   const sheet = page.locator(`#${sheetId}`);
   const dashboard = sheet.locator(".pc-dashboard");
 
+  // Characteristic tile order (data-characteristic-id sequence) is not
+  // checked per-width here: resizing only affects layout/CSS
+  // (setPosition()), never DOM order, and this exact assertion
+  // (tileIds/characteristicIds against CHARACTERISTIC_IDS) is already
+  // proven once by "all ten Characteristics render in order..." above —
+  // re-asserting an already-covered, width-invariant fact 3 more times
+  // added no coverage. DR-location presence/visibility and the overflow
+  // measurement stay at every width: unlike tile order, they interact with
+  // the same auto-fit/minmax responsive grid flagged below as capable of
+  // behaving differently as columns reflow.
   const widths = [1000, 720, 360];
   for (const width of widths) {
     await resizePcSheet(page, sheetId, width);
-
-    const characteristicIds = await sheet
-      .locator("[data-characteristic-id]")
-      .evaluateAll((els) => els.map((el) => el.getAttribute("data-characteristic-id")));
-    expect(characteristicIds).toEqual(CHARACTERISTIC_IDS);
 
     await expect(sheet.locator("[data-dr-location-id]")).toHaveCount(DR_LOCATION_IDS.length);
     for (const id of DR_LOCATION_IDS) {
@@ -442,7 +447,11 @@ test("Dashboard remains usable, without overlap or overflow, at representative s
     const overflow = await dashboard.evaluate((el) => el.scrollWidth - el.clientWidth);
     expect(overflow).toBeLessThanOrEqual(4);
 
-    if (width === 900) {
+    // Was previously guarded by `width === 900`, which never matches any
+    // value in `widths` — this alignment check has never actually run.
+    // Found while reviewing this test for this pass; fixed alongside it
+    // since it's a one-line correction directly in the code being touched.
+    if (width === 1000) {
       const tops = await sheet
         .locator("[data-characteristic-id]")
         .evaluateAll((els) => els.map((el) => el.getBoundingClientRect().top));

@@ -203,10 +203,18 @@ test("XP and Finances ledgers remain usable, without whole-sheet overflow, at re
   const sheetId = await openPcSheet(page, actorId);
   const sheet = page.locator(`#${sheetId}`);
 
-  for (const width of [1000, 720, 360]) {
-    await resizePcSheet(page, sheetId, width);
-    for (const tabId of ["xp", "finances"]) {
-      const panel = await openRecordTab(page, sheetId, tabId);
+  // Tab outer, width inner: resizing the sheet doesn't change which
+  // secondary tab is active (setPosition() is independent of tab state),
+  // so re-clicking record/xp or record/finances at every width was only
+  // re-proving click wiring already covered elsewhere (Record's own
+  // tab-memory test, the navigation suite) — not anything geometry-
+  // specific. Every one of the original 6 width x tab wrap-box
+  // measurements is still taken; only the redundant intermediate re-clicks
+  // (4 of the original 6 openRecordTab calls) are removed.
+  for (const tabId of ["xp", "finances"]) {
+    const panel = await openRecordTab(page, sheetId, tabId);
+    for (const width of [1000, 720, 360]) {
+      await resizePcSheet(page, sheetId, width);
       const sheetBox = await sheet.boundingBox();
       const wrapBox = await panel.locator(".ledger-table-wrap").boundingBox();
       expect(sheetBox).not.toBeNull();
