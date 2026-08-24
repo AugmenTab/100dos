@@ -64,43 +64,6 @@ test.describe("Skills page", () => {
     expect(skills).toEqual({});
   });
 
-  test("a representative Skill renders its stored schema data, with Type shown as a comma-separated list", async ({
-    foundryPage: page,
-    fixtureLane,
-  }) => {
-    const { actorId } = await resetFixtures(page, fixtureLane);
-    await updateActor(page, actorId, {
-      "system.skills.pilotGround": { ...PILOT_GROUND, type: ["movement", "fieldcraft"] },
-    });
-    const sheetId = await openPcSheet(page, actorId);
-    const panel = await openSkillsTab(page, sheetId);
-
-    const row = skillsTable(panel).locator("tbody tr").filter({ hasText: "Pilot (Ground)" });
-    await expect(row).toHaveCount(1);
-    await expect(row).toContainText("Advanced");
-    await expect(row).toContainText("Movement, Fieldcraft");
-    await expect(row.locator("select").nth(0)).toHaveValue("plus10");
-    await expect(row.locator("button.simple-button")).toHaveText("62");
-  });
-
-  test("the header row has no textual label for Pinned, Name spans both columns, and the final column's header is the inert Add control", async ({
-    foundryPage: page,
-    fixtureLane,
-  }) => {
-    const { actorId } = await resetFixtures(page, fixtureLane);
-    const sheetId = await openPcSheet(page, actorId);
-    const panel = await openSkillsTab(page, sheetId);
-
-    const headers = skillsTable(panel).locator("thead th");
-    await expect(headers).toHaveCount(6);
-    await expect(headers.nth(0)).toHaveAttribute("colspan", "2");
-    await expect(headers.nth(0)).toHaveText("Name");
-
-    const addHeader = headers.last();
-    await expect(addHeader).toHaveText("");
-    await expect(addHeader.locator('a[role="button"]')).toHaveAttribute("aria-label", "Add Skill");
-  });
-
   test("the Characteristic selector offers only that Skill's own allowed Characteristics, in order, with the stored value selected", async ({
     foundryPage: page,
     fixtureLane,
@@ -223,42 +186,4 @@ test.describe("Skills page", () => {
     await expect(skillsTable(panel).locator('.dense-table-pin[data-identifier="pilotGround"]')).toHaveCount(1);
   });
 
-  test("an empty ActorSkills record still shows the table structure, the Add control, and an intentional empty state", async ({
-    foundryPage: page,
-    fixtureLane,
-  }) => {
-    const { actorId } = await resetFixtures(page, fixtureLane);
-    const sheetId = await openPcSheet(page, actorId);
-    const panel = await openSkillsTab(page, sheetId);
-
-    await expect(skillsTable(panel).locator("thead th")).toHaveCount(6);
-    await expect(skillsTable(panel).locator('thead a[role="button"]')).toBeVisible();
-    await expect(skillsTable(panel).locator("tbody tr")).toHaveCount(1);
-    const emptyState = skillsTable(panel).locator(".ledger-table-empty-state");
-    await expect(emptyState).toHaveText("No Skills recorded yet.");
-    await expect(emptyState).toHaveAttribute("colspan", "7");
-  });
-
-  test("the Skills table remains usable, without whole-sheet overflow, at representative sheet widths", async ({
-    foundryPage: page,
-    fixtureLane,
-  }) => {
-    const { actorId } = await resetFixtures(page, fixtureLane);
-    await updateActor(page, actorId, {
-      "system.skills.pilotGround": PILOT_GROUND,
-      "system.skills.persuasion": { ...PILOT_GROUND, name: "Persuasion", pinned: false },
-    });
-    const sheetId = await openPcSheet(page, actorId);
-    const sheet = page.locator(`#${sheetId}`);
-
-    for (const width of [1000, 720, 360]) {
-      await resizePcSheet(page, sheetId, width);
-      const panel = await openSkillsTab(page, sheetId);
-      const sheetBox = await sheet.boundingBox();
-      const wrapBox = await panel.locator(".ledger-table-wrap").first().boundingBox();
-      expect(sheetBox).not.toBeNull();
-      expect(wrapBox).not.toBeNull();
-      expect(wrapBox!.width).toBeLessThanOrEqual(sheetBox!.width + 1);
-    }
-  });
 });

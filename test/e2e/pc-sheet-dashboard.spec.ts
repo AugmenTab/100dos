@@ -3,8 +3,6 @@ import { resetFixtures } from "./support/fixtures.js";
 import { openPcSheet, rerenderPcSheet, resizePcSheet } from "./support/pc-sheet.js";
 import { type Page } from "@playwright/test";
 
-const CHARACTERISTIC_IDS = ["str", "tou", "agi", "wfr", "wfm", "int", "per", "crg", "cha", "ldr"];
-
 // system.dr is a keyed collection of arbitrary locations, empty by
 // default — nothing assumes a humanoid shape at the schema level. This is
 // a representative humanoid set for tests that
@@ -35,102 +33,6 @@ async function updateActor(page: Page, actorId: string, data: Record<string, unk
     { actorId, data },
   );
 }
-
-async function getSystemValue(page: Page, actorId: string, path: string): Promise<unknown> {
-  return page.evaluate(
-    ({ actorId, path }) => {
-      const actor = game.actors.get(actorId);
-      if (!actor) throw new Error(`Fixture actor ${actorId} not found.`);
-      return path.split(".").reduce<unknown>((value, key) => (value as Record<string, unknown>)?.[key], actor.system);
-    },
-    { actorId, path },
-  );
-}
-
-test("Dashboard renders identity, resources, Characteristics, DR, and dynamic collections from real schema-backed Actor data", async ({
-  foundryPage: page,
-  fixtureLane,
-}) => {
-  const { actorId } = await resetFixtures(page, fixtureLane);
-  await updateActor(page, actorId, { "system.dr": HUMANOID_DR });
-  const sheetId = await openPcSheet(page, actorId);
-  const sheet = page.locator(`#${sheetId}`);
-
-  await expect(sheet.locator(".pc-dashboard-portrait")).toBeVisible();
-  const nameInput = sheet.locator('input[name="name"]');
-  await expect(nameInput).toHaveValue("[E2E] PC");
-
-  // No Archetype Item type exists yet, so selectedArchetype is always null
-  // and the Dashboard falls to the "add an Archetype" branch, not a select.
-  await expect(sheet.locator('select[name="system.archetype"]')).toHaveCount(0);
-  await expect(sheet.locator(".pc-dashboard-archetype-row a[role=\"button\"]")).toBeVisible();
-
-  // Current/Temp fields are <input>s — their value never appears in
-  // textContent, so they're checked separately from the tooltip-rendered
-  // Maximum values (real text nodes, safe for toContainText).
-  await expect(sheet.getByRole("group", { name: "Initiative" })).toContainText("0");
-
-  const luckGroup = sheet.getByRole("group", { name: "Luck" });
-  await expect(luckGroup.locator('input[name="system.luck.value"]')).toHaveValue("0");
-  await expect(luckGroup).toContainText("0");
-
-  const woundsGroup = sheet.getByRole("group", { name: "Wounds" });
-  await expect(woundsGroup.locator('input[name="system.wounds.value"]')).toHaveValue("0");
-  await expect(woundsGroup.locator('input[name="system.wounds.temp"]')).toHaveValue("0");
-  await expect(woundsGroup).toContainText("0");
-
-  const fatigueGroup = sheet.getByRole("group", { name: "Fatigue" });
-  await expect(fatigueGroup.locator('input[name="system.fatigue.value"]')).toHaveValue("0");
-  await expect(fatigueGroup).toContainText("0");
-
-  await expect(sheet.locator("[data-dr-location-id]")).toHaveCount(DR_LOCATION_IDS.length);
-  for (const id of DR_LOCATION_IDS) {
-    await expect(sheet.locator(`[data-dr-location-id="${id}"]`)).toBeVisible();
-  }
-
-  await expect(sheet.locator(".pc-dashboard-quick-use .pc-dashboard-empty-state")).toBeVisible();
-  await expect(sheet.locator(".pc-dashboard-pinned-skills .pc-dashboard-empty-state")).toBeVisible();
-  await expect(sheet.locator(".pc-dashboard-effects .pc-dashboard-empty-state")).toBeVisible();
-
-  await nameInput.fill("[E2E] PC Dashboard Renamed");
-  await nameInput.blur();
-  await expect
-    .poll(async () => page.evaluate((id) => game.actors.get(id)?.name, actorId))
-    .toBe("[E2E] PC Dashboard Renamed");
-});
-
-test("all ten Characteristics render in order with accessible names and editable, independent temporary modifiers", async ({
-  foundryPage: page,
-  fixtureLane,
-}) => {
-  const { actorId } = await resetFixtures(page, fixtureLane);
-  const sheetId = await openPcSheet(page, actorId);
-  const sheet = page.locator(`#${sheetId}`);
-
-  const tiles = sheet.locator("[data-characteristic-id]");
-  await expect(tiles).toHaveCount(CHARACTERISTIC_IDS.length);
-  const tileIds = await tiles.evaluateAll((els) => els.map((el) => el.getAttribute("data-characteristic-id")));
-  expect(tileIds).toEqual(CHARACTERISTIC_IDS);
-
-  for (const id of CHARACTERISTIC_IDS) {
-    const tile = sheet.locator(`[data-characteristic-id="${id}"]`);
-    await expect(tile).toHaveAttribute("role", "group");
-    await expect(tile).toHaveAttribute("aria-label", /.+/);
-    await expect(tile.locator(`input[name="system.characteristics.${id}.temp"]`)).toBeEnabled();
-  }
-
-  const strInput = sheet.locator('input[name="system.characteristics.str.temp"]');
-  await strInput.fill("2");
-  await strInput.blur();
-
-  await expect.poll(async () => getSystemValue(page, actorId, "characteristics.str.temp")).toBe(2);
-  expect(await getSystemValue(page, actorId, "characteristics.str.value")).toBe(0);
-  expect(await getSystemValue(page, actorId, "characteristics.str.mod.value")).toBe(0);
-
-  await resizePcSheet(page, sheetId, 900);
-  const boxes = await tiles.evaluateAll((els) => els.map((el) => el.getBoundingClientRect().top));
-  expect(new Set(boxes).size).toBe(1);
-});
 
 test("the contribution tooltip presents stored Contributions in order with correctly signed values, and still appears (empty) when the collection is empty", async ({
   foundryPage: page,
@@ -239,37 +141,6 @@ test("Initiative, Luck, Wounds, Fatigue, and all six Damage Resistance locations
   const drSection = sheet.locator(".pc-dashboard-dr-movement-row");
   await expect(drSection).not.toContainText("Wing");
   await expect(drSection).not.toContainText("Tail");
-});
-
-test("Movement speeds accept decimal values, stored at full precision but displayed rounded to 2 places without padding whole numbers", async ({
-  foundryPage: page,
-  fixtureLane,
-}) => {
-  const { actorId } = await resetFixtures(page, fixtureLane);
-  await updateActor(page, actorId, {
-    "system.movement.base.half.value": 4.256,
-    "system.movement.base.full.value": 8,
-    "system.movement.base.charge.value": 8.5,
-    "system.movement.base.run.value": 12.1,
-    "system.movement.base.climb.value": 3.75,
-  });
-  const sheetId = await openPcSheet(page, actorId);
-  const sheet = page.locator(`#${sheetId}`);
-
-  // Stored at full precision — the schema no longer rounds/truncates to an
-  // integer, only the display layer caps decimals.
-  expect(await getSystemValue(page, actorId, "movement.base.half.value")).toBe(4.256);
-
-  const movementSection = sheet.getByRole("region", { name: "Movement" });
-
-  // sprint is null by default and not rendered at all, so the Speed row
-  // ends after Run — half/full/charge/run rounded to 2 places, and whole
-  // numbers (full: 8) stay unpadded rather than showing "8.00".
-  const speedRow = movementSection.locator('[data-tooltip-html*="Half"]').locator("..");
-  await expect(speedRow).toHaveText("4.26 / 8 / 8.5 / 12.1");
-
-  const climbRow = movementSection.locator('[data-tooltip-html*="Climb"]');
-  await expect(climbRow).toHaveText("3.75");
 });
 
 test("pinning an Ability surfaces it as a quick-use control that delegates to the existing Action-use path", async ({
@@ -417,14 +288,14 @@ test("Dashboard remains usable, without overlap or overflow, at representative s
 
   // Characteristic tile order (data-characteristic-id sequence) is not
   // checked per-width here: resizing only affects layout/CSS
-  // (setPosition()), never DOM order, and this exact assertion
-  // (tileIds/characteristicIds against CHARACTERISTIC_IDS) is already
-  // proven once by "all ten Characteristics render in order..." above —
-  // re-asserting an already-covered, width-invariant fact 3 more times
-  // added no coverage. DR-location presence/visibility and the overflow
-  // measurement stay at every width: unlike tile order, they interact with
-  // the same auto-fit/minmax responsive grid flagged below as capable of
-  // behaving differently as columns reflow.
+  // (setPosition()), never DOM order, and that exact assertion is already
+  // proven once by the lightweight tier's "all ten Characteristics render
+  // in order..." (test/browser/pc-sheet-dashboard.spec.ts) — re-asserting
+  // an already-covered, width-invariant fact 3 more times added no
+  // coverage. DR-location presence/visibility and the overflow measurement
+  // stay at every width: unlike tile order, they interact with the same
+  // auto-fit/minmax responsive grid flagged below as capable of behaving
+  // differently as columns reflow.
   const widths = [1000, 720, 360];
   for (const width of widths) {
     await resizePcSheet(page, sheetId, width);

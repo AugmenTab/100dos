@@ -12,7 +12,10 @@ foundrydata-v13/
 
 # Playwright output
 playwright-report/
+browser-test-report/
 test-results/
+test-results-browser/
+.browser-tier-run.log
 
 # logs
 *.log

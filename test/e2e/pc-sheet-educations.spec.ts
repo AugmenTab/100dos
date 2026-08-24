@@ -114,37 +114,6 @@ test.describe("Educations section", () => {
     expect(values.map(Number)).toEqual([25, 55]);
   });
 
-  test("a representative Education renders its stored schema data", async ({ foundryPage: page, fixtureLane }) => {
-    const { actorId } = await resetFixtures(page, fixtureLane);
-    await updateActor(page, actorId, { "system.educations.engineering": ENGINEERING });
-    const sheetId = await openPcSheet(page, actorId);
-    const panel = await openSkillsTab(page, sheetId);
-
-    const row = educationsTable(panel).locator("tbody tr").filter({ hasText: "Engineering" });
-    await expect(row).toHaveCount(1);
-    await expect(row).toContainText("Advanced");
-    await expect(row).toContainText("+10");
-    await expect(row.locator("button.simple-button")).toHaveText("55");
-  });
-
-  test("the header row has no textual label for Pinned, Name spans both columns, and the final column's header is the inert Add control", async ({
-    foundryPage: page,
-    fixtureLane,
-  }) => {
-    const { actorId } = await resetFixtures(page, fixtureLane);
-    const sheetId = await openPcSheet(page, actorId);
-    const panel = await openSkillsTab(page, sheetId);
-
-    const headers = educationsTable(panel).locator("thead th");
-    await expect(headers).toHaveCount(5);
-    await expect(headers.nth(0)).toHaveAttribute("colspan", "2");
-    await expect(headers.nth(0)).toHaveText("Name");
-
-    const addHeader = headers.last();
-    await expect(addHeader).toHaveText("");
-    await expect(addHeader.locator('a[role="button"]')).toHaveAttribute("aria-label", "Add Education");
-  });
-
   test("the Characteristic/Skill selector offers only that Education's own options, resolving a Characteristic ID to its abbreviation and a Skill identifier to the Actor's Skill name, with the stored value selected", async ({
     foundryPage: page,
     fixtureLane,
@@ -199,62 +168,6 @@ test.describe("Educations section", () => {
     expect(education?.options).toEqual(["int", "survival"]);
   });
 
-  test("Name includes Edit, Info, and a Delete affordance carrying the Education's stable identifier", async ({
-    foundryPage: page,
-    fixtureLane,
-  }) => {
-    const { actorId } = await resetFixtures(page, fixtureLane);
-    await updateActor(page, actorId, { "system.educations.engineering": ENGINEERING });
-    const sheetId = await openPcSheet(page, actorId);
-    const panel = await openSkillsTab(page, sheetId);
-    const row = educationsTable(panel).locator("tbody tr").filter({ hasText: "Engineering" });
-
-    const editControl = row.locator("a").filter({ has: page.locator("i.fa-pen-to-square") });
-    await expect(editControl).toHaveAttribute("data-identifier", "engineering");
-    await expect(editControl).toHaveAttribute("aria-label", "Edit Education: Engineering");
-
-    const infoControl = row.locator("a").filter({ has: page.locator("i.fa-book-open") });
-    await expect(infoControl).toHaveAttribute("data-identifier", "engineering");
-    await expect(infoControl).toHaveAttribute("aria-label", "View Education Description: Engineering");
-
-    const deleteControl = row.locator("a.dense-table-delete");
-    await expect(deleteControl).toHaveCount(1);
-    await expect(deleteControl).toHaveAttribute("data-identifier", "engineering");
-    await expect(deleteControl).toHaveAttribute("aria-label", "Delete Education: Engineering");
-    await expect(deleteControl.locator("i.fa-trash")).toHaveCount(1);
-
-    // Delete must come after Edit and Info.
-    const nameControls = row.locator(".dense-table-name-inner a");
-    await expect(nameControls).toHaveCount(3);
-    await expect(nameControls.nth(2)).toHaveClass(/dense-table-delete/);
-  });
-
-  test("the pin control represents the persisted pinned state without requiring toggle behavior", async ({
-    foundryPage: page,
-    fixtureLane,
-  }) => {
-    const { actorId } = await resetFixtures(page, fixtureLane);
-    await updateActor(page, actorId, {
-      "system.educations.engineering": ENGINEERING,
-      "system.educations.militaryHistory": { ...ENGINEERING, name: "Military History", pinned: false },
-    });
-    const sheetId = await openPcSheet(page, actorId);
-    const panel = await openSkillsTab(page, sheetId);
-
-    const pinnedRow = educationsTable(panel).locator("tbody tr").filter({ hasText: "Engineering" });
-    const pinnedControl = pinnedRow.locator(".dense-table-pin");
-    await expect(pinnedControl).toHaveAttribute("data-identifier", "engineering");
-    await expect(pinnedControl).toHaveAttribute("aria-pressed", "true");
-    await expect(pinnedControl).toHaveAttribute("aria-label", "Unpin Engineering");
-    await expect(pinnedControl.locator("i.fa-thumbtack")).toHaveCount(1);
-
-    const unpinnedRow = educationsTable(panel).locator("tbody tr").filter({ hasText: "Military History" });
-    const unpinnedControl = unpinnedRow.locator(".dense-table-pin");
-    await expect(unpinnedControl).toHaveAttribute("aria-pressed", "false");
-    await expect(unpinnedControl).toHaveAttribute("aria-label", "Pin Military History");
-    await expect(unpinnedControl.locator("i.fa-thumbtack-slash")).toHaveCount(1);
-  });
-
   test("the value control shows the stored value via a simple button with the existing Contributions tooltip", async ({
     foundryPage: page,
     fixtureLane,
@@ -294,47 +207,4 @@ test.describe("Educations section", () => {
     await expect(educationsTable(panel).locator('[data-identifier="engineering"]').first()).toBeVisible();
   });
 
-  test("an empty ActorEducations record still shows the summary, table structure, Add control, and an intentional empty state", async ({
-    foundryPage: page,
-    fixtureLane,
-  }) => {
-    const { actorId } = await resetFixtures(page, fixtureLane);
-    const sheetId = await openPcSheet(page, actorId);
-    const panel = await openSkillsTab(page, sheetId);
-
-    await expect(panel.locator(".pc-section-heading-value")).toContainText("0");
-    await expect(educationsTable(panel).locator("thead th")).toHaveCount(5);
-    await expect(educationsTable(panel).locator('thead a[role="button"]')).toBeVisible();
-    await expect(educationsTable(panel).locator("tbody tr")).toHaveCount(1);
-    const emptyState = educationsTable(panel).locator(".ledger-table-empty-state");
-    await expect(emptyState).toHaveText("No Educations recorded yet.");
-    await expect(emptyState).toHaveAttribute("colspan", "6");
-  });
-
-  test("the combined Skills/Educations page remains usable, without whole-sheet overflow, at representative sheet widths", async ({
-    foundryPage: page,
-    fixtureLane,
-  }) => {
-    const { actorId } = await resetFixtures(page, fixtureLane);
-    await updateActor(page, actorId, {
-      "system.skills.pilotGround": PILOT_GROUND_SKILL,
-      "system.educations.engineering": ENGINEERING,
-    });
-    const sheetId = await openPcSheet(page, actorId);
-    const sheet = page.locator(`#${sheetId}`);
-
-    for (const width of [1000, 720, 360]) {
-      await resizePcSheet(page, sheetId, width);
-      const panel = await openSkillsTab(page, sheetId);
-      const sheetBox = await sheet.boundingBox();
-      const wrapBoxes = await panel.locator(".ledger-table-wrap").all();
-      expect(sheetBox).not.toBeNull();
-      expect(wrapBoxes.length).toBe(2);
-      for (const wrap of wrapBoxes) {
-        const wrapBox = await wrap.boundingBox();
-        expect(wrapBox).not.toBeNull();
-        expect(wrapBox!.width).toBeLessThanOrEqual(sheetBox!.width + 1);
-      }
-    }
-  });
 });

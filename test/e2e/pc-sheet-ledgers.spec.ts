@@ -70,34 +70,6 @@ test.describe("XP ledger page", () => {
     await expect(row).toContainText("Unknown");
   });
 
-  test("the action column has no textual header and carries labeled Add/Delete icon controls", async ({ foundryPage: page, fixtureLane }) => {
-    const { actorId } = await resetFixtures(page, fixtureLane);
-    await updateActor(page, actorId, {
-      "system.xp.ledger": [
-        { type: "purchase", description: "Strength Advancement", value: 50, recordedBy: null, worldTime: 0, realTime: Date.now() },
-      ],
-    });
-    const sheetId = await openPcSheet(page, actorId);
-    const panel = await openRecordTab(page, sheetId, "xp");
-
-    const actionHeader = panel.locator("thead th").last();
-    await expect(actionHeader).toHaveText("");
-    await expect(actionHeader.locator('a[role="button"]')).toHaveAttribute("aria-label", "Add XP Transaction");
-
-    const deleteControl = panel.locator("tbody tr").first().locator('a[role="button"]');
-    await expect(deleteControl).toHaveAttribute("aria-label", "Delete transaction: Strength Advancement");
-  });
-
-  test("an empty ledger still shows the summary, headings, Add control, and an intentional empty state", async ({ foundryPage: page, fixtureLane }) => {
-    const { actorId } = await resetFixtures(page, fixtureLane);
-    const sheetId = await openPcSheet(page, actorId);
-    const panel = await openRecordTab(page, sheetId, "xp");
-
-    await expect(panel.locator(".simple-stat-table")).toBeVisible();
-    await expect(panel.locator('thead a[role="button"]')).toBeVisible();
-    await expect(panel.locator("tbody tr")).toHaveCount(1);
-    await expect(panel.locator(".ledger-table-empty-state")).toHaveText("No XP transactions recorded yet.");
-  });
 });
 
 test.describe("Finances ledger page", () => {
@@ -148,78 +120,5 @@ test.describe("Finances ledger page", () => {
     await expect(row).toContainText("Unknown");
   });
 
-  test("the action column has no textual header and carries labeled Add/Delete icon controls", async ({ foundryPage: page, fixtureLane }) => {
-    const { actorId } = await resetFixtures(page, fixtureLane);
-    await updateActor(page, actorId, {
-      "system.finances.ledger": [
-        { id: "a", type: "purchase", description: "Battle Rifle", value: 600, recordedBy: null, worldTime: 0, realTime: Date.now() },
-      ],
-    });
-    const sheetId = await openPcSheet(page, actorId);
-    const panel = await openRecordTab(page, sheetId, "finances");
-
-    const actionHeader = panel.locator("thead th").last();
-    await expect(actionHeader).toHaveText("");
-    await expect(actionHeader.locator('a[role="button"]')).toHaveAttribute("aria-label", "Add Finance Transaction");
-
-    const deleteControl = panel.locator("tbody tr").first().locator('a[role="button"]');
-    await expect(deleteControl).toHaveAttribute("aria-label", "Delete transaction: Battle Rifle");
-  });
-
-  test("an empty ledger still shows the summary, headings, Add control, and an intentional empty state", async ({ foundryPage: page, fixtureLane }) => {
-    const { actorId } = await resetFixtures(page, fixtureLane);
-    const sheetId = await openPcSheet(page, actorId);
-    const panel = await openRecordTab(page, sheetId, "finances");
-
-    await expect(panel.locator(".simple-stat-table")).toBeVisible();
-    await expect(panel.locator('thead a[role="button"]')).toBeVisible();
-    await expect(panel.locator("tbody tr")).toHaveCount(1);
-    await expect(panel.locator(".ledger-table-empty-state")).toHaveText("No finance transactions recorded yet.");
-  });
-
-  test("values render as locale-formatted numbers with no currency symbol", async ({ foundryPage: page, fixtureLane }) => {
-    const { actorId } = await resetFixtures(page, fixtureLane);
-    await updateActor(page, actorId, {
-      "system.finances.ledger": [
-        { id: "a", type: "income", description: "Payment", value: 2500000, recordedBy: null, worldTime: 0, realTime: Date.now() },
-      ],
-    });
-    const sheetId = await openPcSheet(page, actorId);
-    const panel = await openRecordTab(page, sheetId, "finances");
-    await expect(panel.locator("tbody tr").first().locator("td.ledger-table-value")).toHaveText("2,500,000");
-  });
 });
 
-test("XP and Finances ledgers remain usable, without whole-sheet overflow, at representative sheet widths", async ({ foundryPage: page, fixtureLane }) => {
-  const { actorId } = await resetFixtures(page, fixtureLane);
-  await updateActor(page, actorId, {
-    "system.xp.ledger": [
-      { type: "reward", description: "Completed Investigation", value: 100, recordedBy: null, worldTime: 0, realTime: Date.now() },
-    ],
-    "system.finances.ledger": [
-      { id: "a", type: "income", description: "Mission Payment", value: 1000, recordedBy: null, worldTime: 0, realTime: Date.now() },
-    ],
-  });
-  const sheetId = await openPcSheet(page, actorId);
-  const sheet = page.locator(`#${sheetId}`);
-
-  // Tab outer, width inner: resizing the sheet doesn't change which
-  // secondary tab is active (setPosition() is independent of tab state),
-  // so re-clicking record/xp or record/finances at every width was only
-  // re-proving click wiring already covered elsewhere (Record's own
-  // tab-memory test, the navigation suite) — not anything geometry-
-  // specific. Every one of the original 6 width x tab wrap-box
-  // measurements is still taken; only the redundant intermediate re-clicks
-  // (4 of the original 6 openRecordTab calls) are removed.
-  for (const tabId of ["xp", "finances"]) {
-    const panel = await openRecordTab(page, sheetId, tabId);
-    for (const width of [1000, 720, 360]) {
-      await resizePcSheet(page, sheetId, width);
-      const sheetBox = await sheet.boundingBox();
-      const wrapBox = await panel.locator(".ledger-table-wrap").boundingBox();
-      expect(sheetBox).not.toBeNull();
-      expect(wrapBox).not.toBeNull();
-      expect(wrapBox!.width).toBeLessThanOrEqual(sheetBox!.width + 1);
-    }
-  }
-});

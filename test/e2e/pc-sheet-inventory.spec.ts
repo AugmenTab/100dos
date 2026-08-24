@@ -50,34 +50,6 @@ function bandFills(sheet: ReturnType<Page["locator"]>) {
   return sheet.locator(".pc-encumbrance-bar-fill");
 }
 
-test("the carrying-capacity Top Summary and Bottom Reference render stored Encumbrance/Finances data", async ({
-  foundryPage: page,
-  fixtureLane,
-}) => {
-  const { actorId } = await resetFixtures(page, fixtureLane);
-  await updateActor(page, actorId, {
-    "system.encumbrance": ENCUMBRANCE,
-    "system.finances.carried": 1250,
-  });
-  const sheetId = await openPcSheet(page, actorId);
-  const sheet = page.locator(`#${sheetId}`);
-  await sheet.locator('[role="tab"][data-group="primary"][data-tab="inventory"]').click();
-
-  const encumbranceSection = sheet.locator(".pc-inventory-encumbrance");
-  await expect(encumbranceSection).toContainText("45 kgs");
-  await expect(encumbranceSection).toContainText("38 kgs");
-  await expect(encumbranceSection).toContainText("127 kgs");
-  await expect(encumbranceSection).toContainText("1,250");
-
-  // Bottom Reference: Carry/Lift/Push, each with a real Contributions
-  // tooltip (unlike the Top Summary's plain carried/felt/total/value).
-  await expect(encumbranceSection).toContainText("20 kgs");
-  await expect(encumbranceSection).toContainText("35 kgs");
-  await expect(encumbranceSection).toContainText("60 kgs");
-  const liftCell = encumbranceSection.locator('[data-tooltip-html*="Lift"]');
-  await expect(liftCell).toHaveAttribute("data-tooltip-html", /Base/);
-});
-
 test("switching movement mode changes the active bar track — 3 base / 4 swim / 2 fly — with exact fill percentages", async ({
   foundryPage: page,
   fixtureLane,
@@ -117,19 +89,6 @@ test("switching movement mode changes the active bar track — 3 base / 4 swim /
   await expect(flyFills).toHaveCount(2);
   const flyStyles = await flyFills.evaluateAll((els) => els.map((el) => el.getAttribute("style")));
   expect(flyStyles).toEqual(["width: 47.5%", "width: 0%"]);
-});
-
-test("fly renders no bars when the Actor has no Flight movement mode (thresholds.fly is null)", async ({ foundryPage: page, fixtureLane }) => {
-  const { actorId } = await resetFixtures(page, fixtureLane);
-  await updateActor(page, actorId, {
-    "system.encumbrance": { ...ENCUMBRANCE, thresholds: { ...ENCUMBRANCE.thresholds, fly: null } },
-    "system.movement.mode": "fly",
-  });
-  const sheetId = await openPcSheet(page, actorId);
-  const sheet = page.locator(`#${sheetId}`);
-  await sheet.locator('[role="tab"][data-group="primary"][data-tab="inventory"]').click();
-
-  await expect(bandFills(sheet)).toHaveCount(0);
 });
 
 test("Armor rows render Carried/Equipped toggles, quantity suffix, and depleted styling from real Item data, and toggling Carried persists", async ({
@@ -210,41 +169,3 @@ test("Armor rows render Carried/Equipped toggles, quantity suffix, and depleted 
   await expect(commands.locator('[data-action="deleteItem"]')).toHaveCount(1);
 });
 
-test("Item-type-less Inventory sections (Weapons, Equipment, Consumables, Miscellaneous, Containers) render their own localized empty state", async ({
-  foundryPage: page,
-  fixtureLane,
-}) => {
-  const { actorId } = await resetFixtures(page, fixtureLane);
-  const sheetId = await openPcSheet(page, actorId);
-  const sheet = page.locator(`#${sheetId}`);
-  await sheet.locator('[role="tab"][data-group="primary"][data-tab="inventory"]').click();
-
-  for (const [region, message] of [
-    ["Weapons", "No Weapons recorded yet."],
-    ["Equipment", "No Equipment recorded yet."],
-    ["Consumables", "No Consumables recorded yet."],
-    ["Miscellaneous", "No Miscellaneous Items recorded yet."],
-    ["Containers", "No Containers recorded yet."],
-  ] as const) {
-    await expect(sheet.getByRole("region", { name: region })).toContainText(message);
-  }
-});
-
-test("the carrying-capacity section remains usable, without overflow, at representative sheet widths", async ({
-  foundryPage: page,
-  fixtureLane,
-}) => {
-  const { actorId } = await resetFixtures(page, fixtureLane);
-  await updateActor(page, actorId, { "system.encumbrance": ENCUMBRANCE, "system.movement.mode": "swim" });
-  const sheetId = await openPcSheet(page, actorId);
-  const sheet = page.locator(`#${sheetId}`);
-  await sheet.locator('[role="tab"][data-group="primary"][data-tab="inventory"]').click();
-
-  const encumbranceSection = sheet.locator(".pc-inventory-encumbrance");
-  for (const width of [1000, 720, 400]) {
-    await resizePcSheet(page, sheetId, width);
-    await expect(bandFills(sheet)).toHaveCount(4);
-    const overflow = await encumbranceSection.evaluate((el) => el.scrollWidth - el.clientWidth);
-    expect(overflow).toBeLessThanOrEqual(2);
-  }
-});

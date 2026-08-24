@@ -32,24 +32,6 @@ async function openTab(sheet: Locator, tabId: string): Promise<void> {
   await sheet.locator(`[role="tab"][data-group="primary"][data-tab="${tabId}"]`).click();
 }
 
-test("the Ability sheet renders the abstract Item shell: editable header, sidebar heading, and Description/Details/Changes navigation", async ({
-  foundryPage: page,
-  fixtureLane,
-}) => {
-  const { actorId, itemId } = await resetFixtures(page, fixtureLane);
-  const sheetId = await openItemSheet(page, actorId, itemId);
-  const sheet = page.locator(`#${sheetId}`);
-
-  await expect(sheet.locator(".dos100-item-portrait")).toHaveAttribute("src", /.+/);
-  await expect(sheet.locator('input[name="name"]')).toHaveValue("[E2E] Ability");
-
-  const sidebar = sheet.locator(".dos100-item-sidebar");
-  await expect(sidebar).toContainText("Ability");
-
-  const tabLabels = await sheet.locator('[role="tab"][data-group="primary"]').allTextContents();
-  expect(tabLabels).toEqual(["Description", "Details", "Changes"]);
-});
-
 test("sidebar checkboxes are ordered Disabled, Pinned, Combat Tab and bind to their schema fields", async ({ foundryPage: page, fixtureLane }) => {
   const { actorId, itemId } = await resetFixtures(page, fixtureLane);
   await updateItem(page, actorId, itemId, {
@@ -97,18 +79,6 @@ test("the name field carries the shared depleted (gray/strikethrough) treatment 
   await expect(nameInput).toHaveClass(/depleted/);
 });
 
-test("sidebar Tags render from system.tags", async ({ foundryPage: page, fixtureLane }) => {
-  const { actorId, itemId } = await resetFixtures(page, fixtureLane);
-  await updateItem(page, actorId, itemId, { "system.tags": ["combat", "movement"] });
-  const sheetId = await openItemSheet(page, actorId, itemId);
-  const sheet = page.locator(`#${sheetId}`);
-
-  const chips = sheet.locator(".dos100-item-tag");
-  await expect(chips).toHaveCount(2);
-  await expect(chips.nth(0)).toHaveText("combat");
-  await expect(chips.nth(1)).toHaveText("movement");
-});
-
 test("Description renders the rich-text editor bound to system.description; Details and Changes are selectable placeholders", async ({
   foundryPage: page,
   fixtureLane,
@@ -133,15 +103,3 @@ test("Description renders the rich-text editor bound to system.description; Deta
   await expect(sheet.locator('.tab[data-tab="changes"].active')).toContainText("This page doesn't have any content yet.");
 });
 
-test("the shell remains usable, without overflow, at representative sheet widths", async ({ foundryPage: page, fixtureLane }) => {
-  const { actorId, itemId } = await resetFixtures(page, fixtureLane);
-  const sheetId = await openItemSheet(page, actorId, itemId);
-  const sheet = page.locator(`#${sheetId}`);
-
-  for (const width of [640, 480, 360]) {
-    await resizeSheet(page, sheetId, width);
-    await expect(sheet.locator(".dos100-item-shell")).toBeVisible();
-    const overflow = await sheet.locator(".dos100-item-shell").evaluate((el) => el.scrollWidth - el.clientWidth);
-    expect(overflow).toBeLessThanOrEqual(2);
-  }
-});
