@@ -4,9 +4,10 @@ import { ensureGameView } from "./support/foundry-session.js";
 import { openPcSheet, resizePcSheet } from "./support/pc-sheet.js";
 import { type Locator, type Page } from "@playwright/test";
 
-// Representative populated Education — a Skill-tag option list including a
-// tag the fixture Actor doesn't actually have (see the missing-target test
-// below), plus a real Skill so the resolved-label path is also exercised.
+// Representative populated Education — a Skill-identifier option list
+// including an identifier the fixture Actor doesn't actually have (see the
+// missing-target test below), plus a real Skill so the resolved-label path
+// is also exercised.
 const ENGINEERING = {
   name: "Engineering",
   difficulty: "advanced",
@@ -46,12 +47,12 @@ async function updateActor(page: Page, actorId: string, data: Record<string, unk
   );
 }
 
-async function getEducation(page: Page, actorId: string, tag: string): Promise<Record<string, unknown> | undefined> {
+async function getEducation(page: Page, actorId: string, identifier: string): Promise<Record<string, unknown> | undefined> {
   return page.evaluate(
-    ({ actorId, tag }) =>
+    ({ actorId, identifier }) =>
       (game.actors.get(actorId) as unknown as { system: { educations: Record<string, Record<string, unknown>> } })
-        ?.system.educations[tag],
-    { actorId, tag },
+        ?.system.educations[identifier],
+    { actorId, identifier },
   );
 }
 
@@ -148,7 +149,7 @@ test.describe("Educations section", () => {
     await expect(addHeader.locator('a[role="button"]')).toHaveAttribute("aria-label", "Add Education");
   });
 
-  test("the Characteristic/Skill selector offers only that Education's own options, resolving a Characteristic ID to its abbreviation and a Skill tag to the Actor's Skill name, with the stored value selected", async ({
+  test("the Characteristic/Skill selector offers only that Education's own options, resolving a Characteristic ID to its abbreviation and a Skill identifier to the Actor's Skill name, with the stored value selected", async ({
     page,
   }) => {
     const { actorId } = await resetFixtures(page);
@@ -175,7 +176,7 @@ test.describe("Educations section", () => {
     expect(education?.contributions).toEqual(ENGINEERING.contributions);
   });
 
-  test("a Skill-tag option with no matching Actor Skill falls back to the raw tag rather than being hidden or mutated", async ({
+  test("a Skill-identifier option with no matching Actor Skill falls back to the raw identifier rather than being hidden or mutated", async ({
     page,
   }) => {
     const { actorId } = await resetFixtures(page);
@@ -200,7 +201,7 @@ test.describe("Educations section", () => {
     expect(education?.options).toEqual(["int", "survival"]);
   });
 
-  test("Name includes Edit, Info, and a Delete affordance carrying the Education's stable tag", async ({
+  test("Name includes Edit, Info, and a Delete affordance carrying the Education's stable identifier", async ({
     page,
   }) => {
     const { actorId } = await resetFixtures(page);
@@ -210,16 +211,16 @@ test.describe("Educations section", () => {
     const row = educationsTable(panel).locator("tbody tr").filter({ hasText: "Engineering" });
 
     const editControl = row.locator("a").filter({ has: page.locator("i.fa-pen-to-square") });
-    await expect(editControl).toHaveAttribute("data-tag", "engineering");
+    await expect(editControl).toHaveAttribute("data-identifier", "engineering");
     await expect(editControl).toHaveAttribute("aria-label", "Edit Education: Engineering");
 
     const infoControl = row.locator("a").filter({ has: page.locator("i.fa-book-open") });
-    await expect(infoControl).toHaveAttribute("data-tag", "engineering");
+    await expect(infoControl).toHaveAttribute("data-identifier", "engineering");
     await expect(infoControl).toHaveAttribute("aria-label", "View Education Description: Engineering");
 
     const deleteControl = row.locator("a.dense-table-delete");
     await expect(deleteControl).toHaveCount(1);
-    await expect(deleteControl).toHaveAttribute("data-tag", "engineering");
+    await expect(deleteControl).toHaveAttribute("data-identifier", "engineering");
     await expect(deleteControl).toHaveAttribute("aria-label", "Delete Education: Engineering");
     await expect(deleteControl.locator("i.fa-trash")).toHaveCount(1);
 
@@ -242,7 +243,7 @@ test.describe("Educations section", () => {
 
     const pinnedRow = educationsTable(panel).locator("tbody tr").filter({ hasText: "Engineering" });
     const pinnedControl = pinnedRow.locator(".dense-table-pin");
-    await expect(pinnedControl).toHaveAttribute("data-tag", "engineering");
+    await expect(pinnedControl).toHaveAttribute("data-identifier", "engineering");
     await expect(pinnedControl).toHaveAttribute("aria-pressed", "true");
     await expect(pinnedControl).toHaveAttribute("aria-label", "Unpin Engineering");
     await expect(pinnedControl.locator("i.fa-thumbtack")).toHaveCount(1);
@@ -284,11 +285,11 @@ test.describe("Educations section", () => {
     await updateActor(page, actorId, { "system.educations.engineering": ENGINEERING });
 
     const education = await getEducation(page, actorId, "engineering");
-    expect(education?.tag).toBeUndefined();
+    expect(education?.identifier).toBeUndefined();
 
     const sheetId = await openPcSheet(page, actorId);
     const panel = await openSkillsTab(page, sheetId);
-    await expect(educationsTable(panel).locator('[data-tag="engineering"]').first()).toBeVisible();
+    await expect(educationsTable(panel).locator('[data-identifier="engineering"]').first()).toBeVisible();
   });
 
   test("an empty ActorEducations record still shows the summary, table structure, Add control, and an intentional empty state", async ({

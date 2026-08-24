@@ -47,12 +47,12 @@ type FinanceLedgerRow = FinanceLedgerItem & {
 };
 
 type SkillRow = ActorSkill & {
-  tag: string;
+  identifier: string;
   characteristicOptions: { value: CharacteristicId; label: string }[];
 };
 
 type EducationRow = ActorEducation & {
-  tag: string;
+  identifier: string;
   targetOptions: { value: EducationTarget; label: string }[];
 };
 
@@ -277,10 +277,10 @@ export class PcActorSheet extends Dos100ActorSheet {
   // & Educations" section, not merged/interleaved with pinnedEducations()
   // below (see dashboard.hbs). Derived from system.skills (see skill.ts)
   // rather than embedded Items.
-  private pinnedSkills(): { tag: string; name: string }[] {
+  private pinnedSkills(): { identifier: string; name: string }[] {
     return Object.entries((this.actor.system as { skills: ActorSkills }).skills)
       .filter(([, skill]) => skill.pinned)
-      .map(([tag, skill]) => ({ tag, name: skill.name }))
+      .map(([identifier, skill]) => ({ identifier, name: skill.name }))
       .sort((a, b) => a.name.localeCompare(b.name));
   }
 
@@ -288,10 +288,10 @@ export class PcActorSheet extends Dos100ActorSheet {
   // same rationale (own alphabetized cluster, not merged with Skills).
   // Derived from system.educations (see education.ts) rather than embedded
   // Items.
-  private pinnedEducations(): { tag: string; name: string }[] {
+  private pinnedEducations(): { identifier: string; name: string }[] {
     return Object.entries((this.actor.system as { educations: ActorEducations }).educations)
       .filter(([, education]) => education.pinned)
-      .map(([tag, education]) => ({ tag, name: education.name }))
+      .map(([identifier, education]) => ({ identifier, name: education.name }))
       .sort((a, b) => a.name.localeCompare(b.name));
   }
 
@@ -303,9 +303,9 @@ export class PcActorSheet extends Dos100ActorSheet {
   private skillRows(): SkillRow[] {
     const skills = (this.actor.system as { skills: ActorSkills }).skills;
     return Object.entries(skills)
-      .map(([tag, skill]) => ({
+      .map(([identifier, skill]) => ({
         ...skill,
-        tag,
+        identifier,
         characteristicOptions: skill.characteristics.map((id) => ({
           value: id,
           label: game.i18n.localize(`DOS100.characteristic.${id}.abbr`),
@@ -332,9 +332,9 @@ export class PcActorSheet extends Dos100ActorSheet {
     const educations = (this.actor.system as { educations: ActorEducations }).educations;
     const skills = (this.actor.system as { skills: ActorSkills }).skills;
     return Object.entries(educations)
-      .map(([tag, education]) => ({
+      .map(([identifier, education]) => ({
         ...education,
-        tag,
+        identifier,
         targetOptions: education.options.map((target) => ({
           value: target,
           label: this.educationTargetLabel(target, skills),
@@ -344,10 +344,10 @@ export class PcActorSheet extends Dos100ActorSheet {
   }
 
   // A target is either one of the ten reserved Characteristic IDs or a
-  // Skill tag (see education.ts) — resolved to a display label here, never
-  // persisted. A Skill tag with no matching system.skills entry falls back
-  // to the raw tag itself rather than mutating the Education or hiding the
-  // option.
+  // Skill identifier (see education.ts) — resolved to a display label here,
+  // never persisted. A Skill identifier with no matching system.skills
+  // entry falls back to the raw identifier itself rather than mutating the
+  // Education or hiding the option.
   private educationTargetLabel(target: EducationTarget, skills: ActorSkills): string {
     if (isCharacteristicId(target)) return game.i18n.localize(`DOS100.characteristic.${target}.abbr`);
     return skills[target]?.name ?? target;
@@ -582,11 +582,11 @@ export class PcActorSheet extends Dos100ActorSheet {
   }
 
   private async onTogglePinnedSkill(event: PointerEvent, target: HTMLElement): Promise<void> {
-    const tag = target.dataset.tag;
-    if (!tag) return;
-    const skill = (this.actor.system as { skills: ActorSkills }).skills[tag];
+    const identifier = target.dataset.identifier;
+    if (!identifier) return;
+    const skill = (this.actor.system as { skills: ActorSkills }).skills[identifier];
     if (!skill) return;
-    await this.actor.update({ [`system.skills.${tag}.pinned`]: !skill.pinned });
+    await this.actor.update({ [`system.skills.${identifier}.pinned`]: !skill.pinned });
   }
 
   private async onToggleStatus(event: PointerEvent, target: HTMLElement): Promise<void> {

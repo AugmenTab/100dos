@@ -10,7 +10,7 @@ const SKILL_TYPES: SkillType[] = ["social", "movement", "fieldcraft"];
 export type SkillTraining = "none" | "trained" | "plus10" | "plus20";
 export const SKILL_TRAININGS: SkillTraining[] = ["none", "trained", "plus10", "plus20"];
 
-export type SkillTag = string;
+export type SkillIdentifier = string;
 
 // The record key under system.skills is the Skill's stable identity — not
 // duplicated here. A later name change must not imply re-keying the
@@ -33,7 +33,7 @@ export type ActorSkill = {
   contributions: Contributions;
 };
 
-export type ActorSkills = Record<SkillTag, ActorSkill>;
+export type ActorSkills = Record<SkillIdentifier, ActorSkill>;
 
 function actorSkillField(): foundry.data.fields.SchemaField {
   const { SchemaField, StringField, NumberField, BooleanField, HTMLField, ArrayField } = foundry.data.fields;
@@ -62,9 +62,9 @@ function actorSkillField(): foundry.data.fields.SchemaField {
   });
 }
 
-// A keyed collection of arbitrary Skill tags, not a fixed set of named
-// fields — every Actor's Skill list is arbitrary, so there's nothing to
-// default to. TODO: empty by design; core Skill seeding is a future task.
+// A keyed collection of arbitrary Skill identifiers, not a fixed set of
+// named fields — every Actor's Skill list is arbitrary, so there's nothing
+// to default to. TODO: empty by design; core Skill seeding is a future task.
 export function skillsField(): foundry.data.fields.TypedObjectField {
   const { TypedObjectField } = foundry.data.fields;
   return new TypedObjectField(actorSkillField(), { required: true, initial: {} });

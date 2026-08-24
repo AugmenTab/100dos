@@ -36,7 +36,7 @@
                   tabindex="0"
                   class="icon-button dense-table-pin"
                   data-action="togglePinnedSkill"
-                  data-tag="{{this.tag}}"
+                  data-identifier="{{this.identifier}}"
                   aria-pressed="{{this.pinned}}"
                   aria-label="{{#if this.pinned}}{{localize "DOS100.skills.table.unpin" name=this.name}}{{else}}{{localize "DOS100.skills.table.pin" name=this.name}}{{/if}}"
                 >
@@ -55,7 +55,7 @@
                     role="button"
                     tabindex="0"
                     class="icon-button"
-                    data-tag="{{this.tag}}"
+                    data-identifier="{{this.identifier}}"
                     aria-label="{{localize "DOS100.skills.table.edit" name=this.name}}"
                   ><i class="fa-solid fa-pen-to-square" inert></i></a>
                   {{!-- TODO: not wired up yet — no description popup exists. --}}
@@ -63,7 +63,7 @@
                     role="button"
                     tabindex="0"
                     class="icon-button"
-                    data-tag="{{this.tag}}"
+                    data-identifier="{{this.identifier}}"
                     aria-label="{{localize "DOS100.skills.table.viewDescription" name=this.name}}"
                   ><i class="fa-solid fa-book-open" inert></i></a>
                 </div>
@@ -73,7 +73,7 @@
               <td>
                 <select
                   class="eyebrow-label"
-                  name="system.skills.{{this.tag}}.training"
+                  name="system.skills.{{this.identifier}}.training"
                   aria-label="{{localize "DOS100.skills.table.training"}} — {{this.name}}"
                 >
                   {{selectOptions ../skillTrainingOptions selected=this.training}}
@@ -82,7 +82,7 @@
               <td>
                 <select
                   class="eyebrow-label"
-                  name="system.skills.{{this.tag}}.characteristic"
+                  name="system.skills.{{this.identifier}}.characteristic"
                   aria-label="{{localize "DOS100.skills.table.characteristic"}} — {{this.name}}"
                 >
                   {{selectOptions this.characteristicOptions selected=this.characteristic}}
@@ -149,7 +149,7 @@
                     role="button"
                     tabindex="0"
                     class="icon-button dense-table-pin"
-                    data-tag="{{this.tag}}"
+                    data-identifier="{{this.identifier}}"
                     aria-pressed="{{this.pinned}}"
                     aria-label="{{#if this.pinned}}{{localize "DOS100.educations.table.unpin" name=this.name}}{{else}}{{localize "DOS100.educations.table.pin" name=this.name}}{{/if}}"
                   >
@@ -168,7 +168,7 @@
                       role="button"
                       tabindex="0"
                       class="icon-button"
-                      data-tag="{{this.tag}}"
+                      data-identifier="{{this.identifier}}"
                       aria-label="{{localize "DOS100.educations.table.edit" name=this.name}}"
                     ><i class="fa-solid fa-pen-to-square" inert></i></a>
                     {{!-- TODO: not wired up yet — no description popup exists. --}}
@@ -176,7 +176,7 @@
                       role="button"
                       tabindex="0"
                       class="icon-button"
-                      data-tag="{{this.tag}}"
+                      data-identifier="{{this.identifier}}"
                       aria-label="{{localize "DOS100.educations.table.viewDescription" name=this.name}}"
                     ><i class="fa-solid fa-book-open" inert></i></a>
                     {{!-- TODO: not wired up yet — no Education deletion exists. --}}
@@ -184,7 +184,7 @@
                       role="button"
                       tabindex="0"
                       class="icon-button dense-table-delete"
-                      data-tag="{{this.tag}}"
+                      data-identifier="{{this.identifier}}"
                       aria-label="{{localize "DOS100.educations.table.delete" name=this.name}}"
                     ><i class="fa-solid fa-trash" inert></i></a>
                   </div>
@@ -194,7 +194,7 @@
                 <td>
                   <select
                     class="eyebrow-label"
-                    name="system.educations.{{this.tag}}.selected"
+                    name="system.educations.{{this.identifier}}.selected"
                     aria-label="{{localize "DOS100.educations.table.target"}} — {{this.name}}"
                   >
                     {{selectOptions this.targetOptions selected=this.selected}}

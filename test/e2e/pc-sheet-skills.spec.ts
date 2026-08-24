@@ -35,12 +35,12 @@ async function updateActor(page: Page, actorId: string, data: Record<string, unk
   );
 }
 
-async function getSkill(page: Page, actorId: string, tag: string): Promise<Record<string, unknown> | undefined> {
+async function getSkill(page: Page, actorId: string, identifier: string): Promise<Record<string, unknown> | undefined> {
   return page.evaluate(
-    ({ actorId, tag }) =>
+    ({ actorId, identifier }) =>
       (game.actors.get(actorId) as unknown as { system: { skills: Record<string, Record<string, unknown>> } })
-        ?.system.skills[tag],
-    { actorId, tag },
+        ?.system.skills[identifier],
+    { actorId, identifier },
   );
 }
 
@@ -162,12 +162,12 @@ test.describe("Skills page", () => {
     const sheetId = await openPcSheet(page, actorId);
     const panel = await openSkillsTab(page, sheetId);
 
-    const pinnedControl = skillsTable(panel).locator('.dense-table-pin[data-tag="pilotGround"]');
+    const pinnedControl = skillsTable(panel).locator('.dense-table-pin[data-identifier="pilotGround"]');
     await expect(pinnedControl).toHaveAttribute("aria-pressed", "true");
     await expect(pinnedControl).toHaveAttribute("aria-label", "Unpin Pilot (Ground)");
     await expect(pinnedControl.locator("i.fa-thumbtack")).toHaveCount(1);
 
-    const unpinnedControl = skillsTable(panel).locator('.dense-table-pin[data-tag="persuasion"]');
+    const unpinnedControl = skillsTable(panel).locator('.dense-table-pin[data-identifier="persuasion"]');
     await expect(unpinnedControl).toHaveAttribute("aria-pressed", "false");
     await expect(unpinnedControl).toHaveAttribute("aria-label", "Pin Persuasion");
     await expect(unpinnedControl.locator("i.fa-thumbtack-slash")).toHaveCount(1);
@@ -178,7 +178,7 @@ test.describe("Skills page", () => {
       .toBe(true);
   });
 
-  test("Edit and description controls carry the Skill's stable tag and an accessible name; the value control shows the stored value via a simple button with the existing Contributions tooltip", async ({
+  test("Edit and description controls carry the Skill's stable identifier and an accessible name; the value control shows the stored value via a simple button with the existing Contributions tooltip", async ({
     page,
   }) => {
     const { actorId } = await resetFixtures(page);
@@ -188,11 +188,11 @@ test.describe("Skills page", () => {
     const row = skillsTable(panel).locator("tbody tr").filter({ hasText: "Pilot (Ground)" });
 
     const editControl = row.locator("a").filter({ has: page.locator("i.fa-pen-to-square") });
-    await expect(editControl).toHaveAttribute("data-tag", "pilotGround");
+    await expect(editControl).toHaveAttribute("data-identifier", "pilotGround");
     await expect(editControl).toHaveAttribute("aria-label", "Edit Skill: Pilot (Ground)");
 
     const descriptionControl = row.locator("a").filter({ has: page.locator("i.fa-book-open") });
-    await expect(descriptionControl).toHaveAttribute("data-tag", "pilotGround");
+    await expect(descriptionControl).toHaveAttribute("data-identifier", "pilotGround");
     await expect(descriptionControl).toHaveAttribute("aria-label", "View Skill Description: Pilot (Ground)");
 
     const rollButton = row.locator("button.simple-button");
@@ -216,11 +216,11 @@ test.describe("Skills page", () => {
     await updateActor(page, actorId, { "system.skills.pilotGround": PILOT_GROUND });
 
     const skill = await getSkill(page, actorId, "pilotGround");
-    expect(skill?.tag).toBeUndefined();
+    expect(skill?.identifier).toBeUndefined();
 
     const sheetId = await openPcSheet(page, actorId);
     const panel = await openSkillsTab(page, sheetId);
-    await expect(skillsTable(panel).locator('.dense-table-pin[data-tag="pilotGround"]')).toHaveCount(1);
+    await expect(skillsTable(panel).locator('.dense-table-pin[data-identifier="pilotGround"]')).toHaveCount(1);
   });
 
   test("an empty ActorSkills record still shows the table structure, the Add control, and an intentional empty state", async ({

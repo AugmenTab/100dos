@@ -1,17 +1,17 @@
 import { type CharacteristicId } from "./characteristic.js";
 import { type Contributions, contributionsField } from "./contribution.js";
-import { SKILL_DIFFICULTIES, type SkillDifficulty, type SkillTag } from "./skill.js";
+import { SKILL_DIFFICULTIES, type SkillDifficulty, type SkillIdentifier } from "./skill.js";
 
 export type EducationTraining = "plus5" | "plus10";
 export const EDUCATION_TRAININGS: EducationTraining[] = ["plus5", "plus10"];
 
 // A bare string, distinguished at read time by isCharacteristicId (see
 // characteristic.ts) rather than a tagged/wrapped value — the ten
-// Characteristic IDs are reserved and unavailable as Skill tags so this
-// stays unambiguous.
-export type EducationTarget = SkillTag | CharacteristicId;
+// Characteristic IDs are reserved and unavailable as Skill identifiers so
+// this stays unambiguous.
+export type EducationTarget = SkillIdentifier | CharacteristicId;
 
-export type EducationTag = string;
+export type EducationIdentifier = string;
 
 // The record key under system.educations is the Education's stable
 // identity — not duplicated here, matching ActorSkill (see skill.ts).
@@ -33,7 +33,7 @@ export type ActorEducation = {
   contributions: Contributions;
 };
 
-export type ActorEducations = Record<EducationTag, ActorEducation>;
+export type ActorEducations = Record<EducationIdentifier, ActorEducation>;
 
 // The Actor's overall Education resource — a single aggregate, not keyed
 // like ActorEducations. TODO: the relationship between value/max and
@@ -60,7 +60,7 @@ function actorEducationField(): foundry.data.fields.SchemaField {
     difficulty: new StringField({ required: true, initial: SKILL_DIFFICULTIES[0], choices: SKILL_DIFFICULTIES }),
     training: new StringField({ required: true, initial: EDUCATION_TRAININGS[0], choices: EDUCATION_TRAININGS }),
     // No `choices` constraint: a valid target is any of the ten
-    // Characteristic IDs or an arbitrary Skill tag, not a statically
+    // Characteristic IDs or an arbitrary Skill identifier, not a statically
     // enumerable list — unlike ActorSkill's `characteristic`, there's no
     // fixed array to draw a leftmost-literal default from, so this is a
     // plain blank string like `name`/`description`.
@@ -73,7 +73,7 @@ function actorEducationField(): foundry.data.fields.SchemaField {
   });
 }
 
-// A keyed collection of arbitrary Education tags — empty by design. Unlike
+// A keyed collection of arbitrary Education identifiers — empty by design. Unlike
 // Skills, an Education exists in this record only once purchased; there is
 // no "untrained" entry.
 export function educationsField(): foundry.data.fields.TypedObjectField {
