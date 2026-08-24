@@ -1,5 +1,5 @@
 <tr>
-  <td class="dense-table-name">
+  <td class="dense-table-flexible">
     <div class="dense-table-name-inner">
       <img class="dense-table-item-img" src="{{this.item.img}}" alt="" />
       <span{{#if (eq this.item.system.quantity 0)}} class="depleted"{{/if}}>
@@ -57,8 +57,8 @@
       {{/if}}
     </a>
   </td>
-  <td class="ledger-table-value">{{localizeNumber this.item.system.weight.actual.total}} {{localize "DOS100.inventory.table.weightUnit"}}</td>
-  <td class="ledger-table-value">{{localizeNumber this.item.system.weight.felt.total}} {{localize "DOS100.inventory.table.weightUnit"}}</td>
+  <td class="dense-table-value">{{localizeNumber this.item.system.weight.actual.total}} {{localize "DOS100.inventory.table.weightUnit"}}</td>
+  <td class="dense-table-value">{{localizeNumber this.item.system.weight.felt.total}} {{localize "DOS100.inventory.table.weightUnit"}}</td>
   <td>
     {{!-- TODO: not wired up yet — no quantity update flow exists. --}}
     <a

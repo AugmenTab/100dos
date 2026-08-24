@@ -1,0 +1,81 @@
+/* Dense table: shared shape for every compact record table in the system
+   (XP, Finances, Skills, Educations, Effects, Features, Inventory, and
+   Item-sheet Change tables) — a real <table> bound to an array of rows,
+   with an unnamed final action column holding an Add control (header) and
+   row-level controls (body). Unscoped, like the other shared components:
+   any sheet can drop one in without re-deriving this layout. Per-page
+   differences (alignment, richer row content) are ordinary scoped
+   overrides layered by the page that needs them — see skills.less and
+   abstract-item.less — not a second component. */
+
+.dense-table-wrap {
+  /* Horizontal scroll containment for the table itself, not the whole
+     sheet — stays usable at narrow widths rather than forcing the sheet
+     to overflow (a card/reflow treatment is deferred until real content
+     demonstrates the need). */
+  overflow-x: auto;
+}
+
+.dense-table {
+  width: 100%;
+  margin: 0;
+  border-collapse: collapse;
+
+  /* Every column shrinks to its content by default — a table's shape is
+     dictated by whichever one column opts into .dense-table-flexible,
+     not by the browser's natural column-sizing guesses. */
+  th,
+  td {
+    width: 1%;
+    padding: 0.25rem 0.5rem;
+    text-align: left;
+    white-space: nowrap;
+  }
+
+  /* color, not opacity — opacity would also dim any interactive control
+     nested in a header cell (e.g. the Add icon-button), compounding with
+     that control's own hover/pressed opacity instead of just muting the
+     label text. */
+  thead th {
+    font-size: var(--font-size-11, 0.7rem);
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    color: color-mix(in srgb, currentColor 70%, transparent);
+    border-bottom: 1px solid var(--color-border-light-2, currentColor);
+  }
+
+  /* Explicit opt-in per cell, not by column position — the column that
+     should absorb a row's remaining width differs by table (Description
+     for XP/Finances, Name for Skills/Effects/Features/Inventory, Formula/
+     Notes for Item-sheet Changes). */
+  .dense-table-flexible {
+    width: auto;
+  }
+
+  /* A ledger's Value column right-justifies so figures line up on their
+     ones place, the way a ledger sheet reads. Also used by Inventory's
+     weight columns — genuinely cross-page, not ledger-specific. */
+  .dense-table-value {
+    text-align: right;
+  }
+
+  /* Nested (not a sibling rule) so this outranks the base `td` rule's own
+     text-align — a bare `.dense-table-empty-state` selector is no more
+     specific than `.dense-table td` and loses the cascade tie to it. */
+  .dense-table-empty-state {
+    text-align: center;
+    font-style: italic;
+    opacity: 0.7;
+    white-space: normal;
+  }
+
+  /* A row whose quantity has hit zero stays visible (never auto-removed)
+     but reads as depleted — struck through and dimmed, the same "still
+     here but spent" treatment as a destroyed DR location on the
+     Dashboard. Only ever wraps plain name text, never a nested
+     interactive control, so opacity (not color-mix) is safe here. */
+  .depleted {
+    text-decoration: line-through;
+    opacity: 0.7;
+  }
+}

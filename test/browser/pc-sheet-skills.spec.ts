@@ -66,7 +66,7 @@ test("an empty ActorSkills record still shows the table structure, the Add contr
   await expect(skillsTable(page).locator("thead th")).toHaveCount(6);
   await expect(skillsTable(page).locator('thead a[role="button"]')).toBeVisible();
   await expect(skillsTable(page).locator("tbody tr")).toHaveCount(1);
-  const emptyState = skillsTable(page).locator(".ledger-table-empty-state");
+  const emptyState = skillsTable(page).locator(".dense-table-empty-state");
   await expect(emptyState).toHaveText("No Skills recorded yet.");
   await expect(emptyState).toHaveAttribute("colspan", "7");
 });
@@ -83,7 +83,7 @@ test("the Skills table remains usable, without whole-sheet overflow, at represen
 
   for (const width of [1000, 720, 360]) {
     await page.setViewportSize({ width, height: 2000 });
-    const wrapBox = await page.locator(".ledger-table-wrap").first().boundingBox();
+    const wrapBox = await page.locator(".dense-table-wrap").first().boundingBox();
     expect(wrapBox).not.toBeNull();
     expect(wrapBox!.width).toBeLessThanOrEqual(width + 1);
   }

@@ -1,9 +1,9 @@
 <section aria-label="{{label}}">
-  <div class="ledger-table-wrap">
-    <table class="ledger-table dense-table">
+  <div class="dense-table-wrap">
+    <table class="dense-table">
       <thead>
         <tr>
-          <th scope="col" class="dense-table-name-header">{{label}}</th>
+          <th scope="col" class="dense-table-flexible">{{label}}</th>
           <th scope="col">{{localize "DOS100.item.table.actions"}}</th>
           <th scope="col">{{localize "DOS100.item.table.uses"}}</th>
           <th scope="col">{{localize "DOS100.inventory.table.carried"}}</th>
@@ -27,7 +27,7 @@
           {{/each}}
         {{else}}
           <tr>
-            <td colspan="8" class="ledger-table-empty-state">{{empty}}</td>
+            <td colspan="8" class="dense-table-empty-state">{{empty}}</td>
           </tr>
         {{/if}}
       </tbody>

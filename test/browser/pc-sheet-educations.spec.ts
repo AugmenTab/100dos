@@ -108,7 +108,7 @@ test("an empty ActorEducations record still shows the summary, table structure, 
   await expect(educationsTable(page).locator("thead th")).toHaveCount(5);
   await expect(educationsTable(page).locator('thead a[role="button"]')).toBeVisible();
   await expect(educationsTable(page).locator("tbody tr")).toHaveCount(1);
-  const emptyState = educationsTable(page).locator(".ledger-table-empty-state");
+  const emptyState = educationsTable(page).locator(".dense-table-empty-state");
   await expect(emptyState).toHaveText("No Educations recorded yet.");
   await expect(emptyState).toHaveAttribute("colspan", "6");
 });
@@ -125,7 +125,7 @@ test("the combined Skills/Educations page remains usable, without whole-sheet ov
 
   for (const width of [1000, 720, 360]) {
     await page.setViewportSize({ width, height: 2000 });
-    const wraps = await page.locator(".ledger-table-wrap").all();
+    const wraps = await page.locator(".dense-table-wrap").all();
     expect(wraps.length).toBe(2);
     for (const wrap of wraps) {
       const wrapBox = await wrap.boundingBox();

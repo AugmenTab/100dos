@@ -124,3 +124,21 @@
   overflow-y: auto;
   padding-top: var(--spacer-8, 0.5rem);
 }
+
+/* Item-sheet dense tables (e.g. Ability's Changes/Conditionals) get the
+   same center-align, vertical-middle spice PC-sheet dense tables get in
+   skills.less — same reasoning, different root scope, since Item sheets
+   aren't wrapped in .pc-sheet-body. */
+.dos100-item-sheet {
+  .dense-table {
+    th,
+    td {
+      vertical-align: middle;
+      text-align: center;
+    }
+
+    .dense-table-flexible {
+      text-align: left;
+    }
+  }
+}

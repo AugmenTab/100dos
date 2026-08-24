@@ -1,33 +1,39 @@
 /* Skills page — the Skills table and (below it) the Educations section.
-   Both tables share the same dense, per-row-control shape (a pin toggle,
-   stacked name/edit/journal controls, several schema-bound selects) that
-   genuinely differs from XP/Finances, so it lives here as .dense-table
-   rather than being forced into the shared ledger-table component. */
+   Both tables are .dense-table, same as every other compact record table
+   in the system; this block is the PC-sheet-specific spice layered on top
+   (center-align, vertical-middle, and the row-content helper classes for
+   a pin toggle, stacked name/edit/journal controls, and schema-bound
+   selects) — not a second table shape. */
 
 .pc-sheet-body {
   /* Educations needs separation from the Skills table above it — the
      tab-shell gap between every section was removed sheet-wide, so this
      one pairing needs its own explicit spacing back. */
-  .ledger-table-wrap + section {
+  .dense-table-wrap + section {
     margin-top: var(--spacer-8, 0.5rem);
   }
 
-  .dense-table {
+  /* Scoped to the primary tab group (Skills, Effects, Features, Inventory)
+     — not every .dense-table under .pc-sheet-body, since XP/Finances (the
+     record tab group) are dense tables too but want the plain left/right
+     ledger reading order instead of this per-row-control centering. */
+  [data-group="primary"] .dense-table {
     th,
     td {
-      width: 1%;
-      white-space: nowrap;
       vertical-align: middle;
       text-align: center;
     }
 
-    /* Name is the one column that absorbs the row's remaining width —
-       every other column shrinks to its content (the width: 1% trick
-       above) so Name gets whatever space is left. */
-    .dense-table-name-header,
-    .dense-table-name {
-      width: auto;
+    /* Name is the one column that absorbs the row's remaining width. */
+    .dense-table-flexible {
       text-align: left;
+    }
+
+    /* One more class than the th/td rule above, so a numeric column (e.g.
+       Inventory's weight columns) stays right-aligned instead of losing
+       to the blanket center default on specificity. */
+    .dense-table-value {
+      text-align: right;
     }
   }
 
@@ -50,7 +56,7 @@
   /* An owned Item's image in a dense-table name cell (Effects, Features)
      — Skills/Educations rows have no image since they're Actor-record
      entries, not Items, but this lives here with the rest of the shared
-     .dense-table shape. */
+     helper classes. */
   .dense-table-item-img {
     width: 1.5rem;
     height: 1.5rem;

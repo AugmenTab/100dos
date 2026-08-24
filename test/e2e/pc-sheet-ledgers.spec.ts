@@ -65,7 +65,7 @@ test.describe("XP ledger page", () => {
     const row = panel.locator("tbody tr").first();
     await expect(row).toContainText("Reward");
     await expect(row).toContainText("Completed Investigation");
-    await expect(row.locator("td.ledger-table-value")).toHaveText("100");
+    await expect(row.locator("td.dense-table-value")).toHaveText("100");
     await expect(row).toContainText("123");
     await expect(row).toContainText("Unknown");
   });
@@ -115,7 +115,7 @@ test.describe("Finances ledger page", () => {
     const row = panel.locator("tbody tr").first();
     await expect(row).toContainText("Income");
     await expect(row).toContainText("Mission Payment");
-    await expect(row.locator("td.ledger-table-value")).toHaveText("1,000");
+    await expect(row.locator("td.dense-table-value")).toHaveText("1,000");
     await expect(row).toContainText("123");
     await expect(row).toContainText("Unknown");
   });

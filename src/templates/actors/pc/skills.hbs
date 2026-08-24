@@ -6,11 +6,11 @@
   id="{{sheetId}}-primary-panel-skills"
   aria-labelledby="{{sheetId}}-primary-tab-skills"
 >
-  <div class="ledger-table-wrap">
-    <table class="ledger-table dense-table">
+  <div class="dense-table-wrap">
+    <table class="dense-table">
       <thead>
         <tr>
-          <th scope="col" colspan="2" class="dense-table-name-header">{{localize "DOS100.skills.table.name"}}</th>
+          <th scope="col" colspan="2" class="dense-table-flexible">{{localize "DOS100.skills.table.name"}}</th>
           <th scope="col">{{localize "DOS100.skills.table.difficulty"}}</th>
           <th scope="col">{{localize "DOS100.skills.table.type"}}</th>
           <th scope="col">{{localize "DOS100.skills.table.training"}}</th>
@@ -47,7 +47,7 @@
                   {{/if}}
                 </a>
               </td>
-              <td class="dense-table-name">
+              <td class="dense-table-flexible">
                 <div class="dense-table-name-inner">
                   <span>{{this.name}}</span>
                   {{!-- TODO: not wired up yet — no Skill edit modal exists. --}}
@@ -101,7 +101,7 @@
           {{/each}}
         {{else}}
           <tr>
-            <td colspan="7" class="ledger-table-empty-state">{{localize "DOS100.skills.table.empty"}}</td>
+            <td colspan="7" class="dense-table-empty-state">{{localize "DOS100.skills.table.empty"}}</td>
           </tr>
         {{/if}}
       </tbody>
@@ -121,11 +121,11 @@
       </span>
     </h3>
 
-    <div class="ledger-table-wrap">
-      <table class="ledger-table dense-table">
+    <div class="dense-table-wrap">
+      <table class="dense-table">
         <thead>
           <tr>
-            <th scope="col" colspan="2" class="dense-table-name-header">{{localize "DOS100.educations.table.name"}}</th>
+            <th scope="col" colspan="2" class="dense-table-flexible">{{localize "DOS100.educations.table.name"}}</th>
             <th scope="col">{{localize "DOS100.educations.table.difficulty"}}</th>
             <th scope="col">{{localize "DOS100.educations.table.training"}}</th>
             <th scope="col">{{localize "DOS100.educations.table.target"}}</th>
@@ -160,7 +160,7 @@
                     {{/if}}
                   </a>
                 </td>
-                <td class="dense-table-name">
+                <td class="dense-table-flexible">
                   <div class="dense-table-name-inner">
                     <span>{{this.name}}</span>
                     {{!-- TODO: not wired up yet — no Education edit modal exists. --}}
@@ -213,7 +213,7 @@
             {{/each}}
           {{else}}
             <tr>
-              <td colspan="6" class="ledger-table-empty-state">{{localize "DOS100.educations.table.empty"}}</td>
+              <td colspan="6" class="dense-table-empty-state">{{localize "DOS100.educations.table.empty"}}</td>
             </tr>
           {{/if}}
         </tbody>

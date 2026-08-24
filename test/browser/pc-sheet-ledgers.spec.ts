@@ -38,7 +38,7 @@ test.describe("XP ledger page", () => {
     await expect(page.locator(".simple-stat-table")).toBeVisible();
     await expect(page.locator('thead a[role="button"]')).toBeVisible();
     await expect(page.locator("tbody tr")).toHaveCount(1);
-    await expect(page.locator(".ledger-table-empty-state")).toHaveText("No XP transactions recorded yet.");
+    await expect(page.locator(".dense-table-empty-state")).toHaveText("No XP transactions recorded yet.");
   });
 });
 
@@ -60,12 +60,12 @@ test.describe("Finances ledger page", () => {
     await expect(page.locator(".simple-stat-table")).toBeVisible();
     await expect(page.locator('thead a[role="button"]')).toBeVisible();
     await expect(page.locator("tbody tr")).toHaveCount(1);
-    await expect(page.locator(".ledger-table-empty-state")).toHaveText("No finance transactions recorded yet.");
+    await expect(page.locator(".dense-table-empty-state")).toHaveText("No finance transactions recorded yet.");
   });
 
   test("values render as locale-formatted numbers with no currency symbol", async ({ page }) => {
     await page.setContent(renderFinances({ financesLedger: [{ type: "income", description: "Payment", value: 2500000 }] }));
-    await expect(page.locator("tbody tr").first().locator("td.ledger-table-value")).toHaveText("2,500,000");
+    await expect(page.locator("tbody tr").first().locator("td.dense-table-value")).toHaveText("2,500,000");
   });
 });
 
@@ -80,7 +80,7 @@ test("XP and Finances ledgers remain usable, without whole-sheet overflow, at re
     ]) {
       await page.setContent(html);
       await page.setViewportSize({ width, height: 2000 });
-      const wrapBox = await page.locator(".ledger-table-wrap").boundingBox();
+      const wrapBox = await page.locator(".dense-table-wrap").boundingBox();
       expect(wrapBox).not.toBeNull();
       expect(wrapBox!.width).toBeLessThanOrEqual(width + 1);
     }

@@ -27,13 +27,13 @@
     </div>
   </div>
 
-  <div class="ledger-table-wrap">
-    <table class="ledger-table">
+  <div class="dense-table-wrap">
+    <table class="dense-table">
       <thead>
         <tr>
           <th scope="col">{{localize "DOS100.xp.ledger.type"}}</th>
-          <th scope="col">{{localize "DOS100.xp.ledger.description"}}</th>
-          <th scope="col" class="ledger-table-value">{{localize "DOS100.xp.ledger.value"}}</th>
+          <th scope="col" class="dense-table-flexible">{{localize "DOS100.xp.ledger.description"}}</th>
+          <th scope="col" class="dense-table-value">{{localize "DOS100.xp.ledger.value"}}</th>
           <th scope="col">{{localize "DOS100.xp.ledger.gameDate"}}</th>
           <th scope="col">{{localize "DOS100.xp.ledger.recordedBy"}}</th>
           <th scope="col">
@@ -52,8 +52,8 @@
           {{#each xpLedger}}
             <tr>
               <td>{{localize (concat "DOS100.xp.ledger.types." this.type)}}</td>
-              <td>{{this.description}}</td>
-              <td class="ledger-table-value">{{localizeNumber this.value}}</td>
+              <td class="dense-table-flexible">{{this.description}}</td>
+              <td class="dense-table-value">{{localizeNumber this.value}}</td>
               <td data-tooltip="{{this.realTimeDisplay}}">
                 {{#if (eq this.worldTime null)}}—{{else}}{{localizeNumber this.worldTime}}{{/if}}
               </td>
@@ -71,7 +71,7 @@
           {{/each}}
         {{else}}
           <tr>
-            <td colspan="6" class="ledger-table-empty-state">{{localize "DOS100.xp.ledger.empty"}}</td>
+            <td colspan="6" class="dense-table-empty-state">{{localize "DOS100.xp.ledger.empty"}}</td>
           </tr>
         {{/if}}
       </tbody>

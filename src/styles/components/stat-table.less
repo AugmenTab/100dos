@@ -110,12 +110,12 @@
     text-align: center;
   }
 
-  /* Immediately followed by a ledger table (XP, Finances) — the tab-shell
+  /* Immediately followed by a dense table (XP, Finances) — the tab-shell
      gap between every section was removed sheet-wide, so this pairing
      needs its own explicit spacing back. Dashboard's stat tables sit next
-     to other stat tables, never a ledger table, so this only ever matches
+     to other stat tables, never a dense table, so this only ever matches
      the XP/Finances shape. */
-  & + .ledger-table-wrap {
+  & + .dense-table-wrap {
     margin-top: var(--spacer-8, 0.5rem);
   }
 }
