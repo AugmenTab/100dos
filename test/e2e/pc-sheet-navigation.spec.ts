@@ -1,6 +1,5 @@
 import { expect, test } from "./support/diagnostics.js";
 import { resetFixtures } from "./support/fixtures.js";
-import { ensureGameView } from "./support/foundry-session.js";
 import { openPcSheet, rerenderPcSheet, resizePcSheet } from "./support/pc-sheet.js";
 import { getActorSnapshot } from "./support/state.js";
 import { type Page } from "@playwright/test";
@@ -60,13 +59,8 @@ function recordPanel(sheet: ReturnType<Page["locator"]>, tabId: string) {
   return sheet.locator(`.tab[data-group="record"][data-tab="${tabId}"]`);
 }
 
-test.beforeEach(async ({ page, baseURL }) => {
-  await page.goto(baseURL ?? "/");
-  await ensureGameView(page);
-});
-
 test("PC sheet shows the primary tab shell, defaults to Dashboard, and switches between primary tabs", async ({
-  page,
+  foundryPage: page,
 }) => {
   const { actorId } = await resetFixtures(page);
   // The Spells tab/panel only render once system.spells is populated (see
@@ -122,7 +116,7 @@ test("PC sheet shows the primary tab shell, defaults to Dashboard, and switches 
 });
 
 test("the Spells tab and its panel are absent while system.spells is null, and appear once it's populated", async ({
-  page,
+  foundryPage: page,
 }) => {
   const { actorId } = await resetFixtures(page);
   const sheetId = await openPcSheet(page, actorId);
@@ -143,7 +137,7 @@ test("the Spells tab and its panel are absent while system.spells is null, and a
   await expect(primaryPanel(sheet, "spells")).toBeVisible();
 });
 
-test("Record remembers its most recent secondary tab across navigation and rerenders", async ({ page }) => {
+test("Record remembers its most recent secondary tab across navigation and rerenders", async ({ foundryPage: page }) => {
   const { actorId } = await resetFixtures(page);
   const sheetId = await openPcSheet(page, actorId);
   const sheet = page.locator(`#${sheetId}`);
@@ -172,7 +166,7 @@ test("Record remembers its most recent secondary tab across navigation and reren
   await expect(recordPanel(sheet, "biography")).toBeVisible();
 });
 
-test("primary and Record tab lists support keyboard navigation independently", async ({ page }) => {
+test("primary and Record tab lists support keyboard navigation independently", async ({ foundryPage: page }) => {
   const { actorId } = await resetFixtures(page);
   const sheetId = await openPcSheet(page, actorId);
   const sheet = page.locator(`#${sheetId}`);
@@ -218,7 +212,7 @@ test("primary and Record tab lists support keyboard navigation independently", a
   await expect(basicsTab).toBeFocused();
 });
 
-test("primary and Record navigation remain usable at representative sheet widths", async ({ page }) => {
+test("primary and Record navigation remain usable at representative sheet widths", async ({ foundryPage: page }) => {
   const { actorId } = await resetFixtures(page);
   const sheetId = await openPcSheet(page, actorId);
   const sheet = page.locator(`#${sheetId}`);

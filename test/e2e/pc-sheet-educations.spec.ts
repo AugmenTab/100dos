@@ -1,6 +1,5 @@
 import { expect, test } from "./support/diagnostics.js";
 import { resetFixtures } from "./support/fixtures.js";
-import { ensureGameView } from "./support/foundry-session.js";
 import { openPcSheet, resizePcSheet } from "./support/pc-sheet.js";
 import { type Locator, type Page } from "@playwright/test";
 
@@ -69,13 +68,8 @@ function educationsTable(panel: Locator): Locator {
   return panel.locator("table").nth(1);
 }
 
-test.beforeEach(async ({ page, baseURL }) => {
-  await page.goto(baseURL ?? "/");
-  await ensureGameView(page);
-});
-
 test.describe("Educations section", () => {
-  test("a new PC has a zeroed EducationRecord and an empty ActorEducations record", async ({ page }) => {
+  test("a new PC has a zeroed EducationRecord and an empty ActorEducations record", async ({ foundryPage: page }) => {
     const { actorId } = await resetFixtures(page);
     const system = await page.evaluate(
       (actorId) => {
@@ -89,7 +83,7 @@ test.describe("Educations section", () => {
   });
 
   test("the Educations heading displays stored system.education value/max, with a Contributions tooltip on max", async ({
-    page,
+    foundryPage: page,
   }) => {
     const { actorId } = await resetFixtures(page);
     await updateActor(page, actorId, {
@@ -119,7 +113,7 @@ test.describe("Educations section", () => {
     expect(values.map(Number)).toEqual([25, 55]);
   });
 
-  test("a representative Education renders its stored schema data", async ({ page }) => {
+  test("a representative Education renders its stored schema data", async ({ foundryPage: page }) => {
     const { actorId } = await resetFixtures(page);
     await updateActor(page, actorId, { "system.educations.engineering": ENGINEERING });
     const sheetId = await openPcSheet(page, actorId);
@@ -133,7 +127,7 @@ test.describe("Educations section", () => {
   });
 
   test("the header row has no textual label for Pinned, Name spans both columns, and the final column's header is the inert Add control", async ({
-    page,
+    foundryPage: page,
   }) => {
     const { actorId } = await resetFixtures(page);
     const sheetId = await openPcSheet(page, actorId);
@@ -150,7 +144,7 @@ test.describe("Educations section", () => {
   });
 
   test("the Characteristic/Skill selector offers only that Education's own options, resolving a Characteristic ID to its abbreviation and a Skill identifier to the Actor's Skill name, with the stored value selected", async ({
-    page,
+    foundryPage: page,
   }) => {
     const { actorId } = await resetFixtures(page);
     await updateActor(page, actorId, {
@@ -177,7 +171,7 @@ test.describe("Educations section", () => {
   });
 
   test("a Skill-identifier option with no matching Actor Skill falls back to the raw identifier rather than being hidden or mutated", async ({
-    page,
+    foundryPage: page,
   }) => {
     const { actorId } = await resetFixtures(page);
     await updateActor(page, actorId, {
@@ -202,7 +196,7 @@ test.describe("Educations section", () => {
   });
 
   test("Name includes Edit, Info, and a Delete affordance carrying the Education's stable identifier", async ({
-    page,
+    foundryPage: page,
   }) => {
     const { actorId } = await resetFixtures(page);
     await updateActor(page, actorId, { "system.educations.engineering": ENGINEERING });
@@ -231,7 +225,7 @@ test.describe("Educations section", () => {
   });
 
   test("the pin control represents the persisted pinned state without requiring toggle behavior", async ({
-    page,
+    foundryPage: page,
   }) => {
     const { actorId } = await resetFixtures(page);
     await updateActor(page, actorId, {
@@ -256,7 +250,7 @@ test.describe("Educations section", () => {
   });
 
   test("the value control shows the stored value via a simple button with the existing Contributions tooltip", async ({
-    page,
+    foundryPage: page,
   }) => {
     const { actorId } = await resetFixtures(page);
     await updateActor(page, actorId, { "system.educations.engineering": ENGINEERING });
@@ -279,7 +273,7 @@ test.describe("Educations section", () => {
   });
 
   test("the record key is an Education's stable identity and is never duplicated inside the persisted Education object", async ({
-    page,
+    foundryPage: page,
   }) => {
     const { actorId } = await resetFixtures(page);
     await updateActor(page, actorId, { "system.educations.engineering": ENGINEERING });
@@ -293,7 +287,7 @@ test.describe("Educations section", () => {
   });
 
   test("an empty ActorEducations record still shows the summary, table structure, Add control, and an intentional empty state", async ({
-    page,
+    foundryPage: page,
   }) => {
     const { actorId } = await resetFixtures(page);
     const sheetId = await openPcSheet(page, actorId);
@@ -309,7 +303,7 @@ test.describe("Educations section", () => {
   });
 
   test("the combined Skills/Educations page remains usable, without whole-sheet overflow, at representative sheet widths", async ({
-    page,
+    foundryPage: page,
   }) => {
     const { actorId } = await resetFixtures(page);
     await updateActor(page, actorId, {

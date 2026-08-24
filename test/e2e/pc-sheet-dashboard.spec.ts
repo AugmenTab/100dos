@@ -1,6 +1,5 @@
 import { expect, test } from "./support/diagnostics.js";
 import { resetFixtures } from "./support/fixtures.js";
-import { ensureGameView } from "./support/foundry-session.js";
 import { openPcSheet, rerenderPcSheet, resizePcSheet } from "./support/pc-sheet.js";
 import { type Page } from "@playwright/test";
 
@@ -48,13 +47,8 @@ async function getSystemValue(page: Page, actorId: string, path: string): Promis
   );
 }
 
-test.beforeEach(async ({ page, baseURL }) => {
-  await page.goto(baseURL ?? "/");
-  await ensureGameView(page);
-});
-
 test("Dashboard renders identity, resources, Characteristics, DR, and dynamic collections from real schema-backed Actor data", async ({
-  page,
+  foundryPage: page,
 }) => {
   const { actorId } = await resetFixtures(page);
   await updateActor(page, actorId, { "system.dr": HUMANOID_DR });
@@ -105,7 +99,7 @@ test("Dashboard renders identity, resources, Characteristics, DR, and dynamic co
 });
 
 test("all ten Characteristics render in order with accessible names and editable, independent temporary modifiers", async ({
-  page,
+  foundryPage: page,
 }) => {
   const { actorId } = await resetFixtures(page);
   const sheetId = await openPcSheet(page, actorId);
@@ -137,7 +131,7 @@ test("all ten Characteristics render in order with accessible names and editable
 });
 
 test("the contribution tooltip presents stored Contributions in order with correctly signed values, and still appears (empty) when the collection is empty", async ({
-  page,
+  foundryPage: page,
 }) => {
   const { actorId } = await resetFixtures(page);
   await updateActor(page, actorId, {
@@ -193,7 +187,7 @@ test("the contribution tooltip presents stored Contributions in order with corre
 });
 
 test("Initiative, Luck, Wounds, Fatigue, and all six Damage Resistance locations render stored schema values", async ({
-  page,
+  foundryPage: page,
 }) => {
   const { actorId } = await resetFixtures(page);
   await updateActor(page, actorId, {
@@ -244,7 +238,7 @@ test("Initiative, Luck, Wounds, Fatigue, and all six Damage Resistance locations
 });
 
 test("Movement speeds accept decimal values, stored at full precision but displayed rounded to 2 places without padding whole numbers", async ({
-  page,
+  foundryPage: page,
 }) => {
   const { actorId } = await resetFixtures(page);
   await updateActor(page, actorId, {
@@ -274,7 +268,7 @@ test("Movement speeds accept decimal values, stored at full precision but displa
 });
 
 test("pinning an Ability surfaces it as a quick-use control that delegates to the existing Action-use path", async ({
-  page,
+  foundryPage: page,
 }) => {
   const { actorId, itemId } = await resetFixtures(page);
   const sheetId = await openPcSheet(page, actorId);
@@ -325,7 +319,7 @@ test("pinning an Ability surfaces it as a quick-use control that delegates to th
 });
 
 test("pinned Skills and pinned Educations render as two separate alphabetized clusters, not merged, in the Dashboard's Pinned Skills & Educations region", async ({
-  page,
+  foundryPage: page,
 }) => {
   const { actorId } = await resetFixtures(page);
   const sheet = page.locator(`#${await openPcSheet(page, actorId)}`);
@@ -385,7 +379,7 @@ test("pinned Skills and pinned Educations render as two separate alphabetized cl
   await expect(lists.nth(1).locator("li")).toHaveText(["Engineering"]);
 });
 
-test("only active Effects appear in the active-Effects Dashboard region", async ({ page }) => {
+test("only active Effects appear in the active-Effects Dashboard region", async ({ foundryPage: page }) => {
   const { actorId } = await resetFixtures(page);
   await page.evaluate(async (actorId) => {
     const actor = game.actors.get(actorId);
@@ -404,7 +398,7 @@ test("only active Effects appear in the active-Effects Dashboard region", async 
   await expect(effectsList).not.toContainText("[E2E] Inactive Effect");
 });
 
-test("Dashboard remains usable, without overlap or overflow, at representative sheet widths", async ({ page }) => {
+test("Dashboard remains usable, without overlap or overflow, at representative sheet widths", async ({ foundryPage: page }) => {
   const { actorId } = await resetFixtures(page);
   // DR is empty by default now — seed it so the DR/Movement row (whose
   // content, not just presence, matters for overflow testing) has

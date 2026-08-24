@@ -1,6 +1,5 @@
 import { expect, test } from "./support/diagnostics.js";
 import { deleteFixtureAbility, resetFixtures } from "./support/fixtures.js";
-import { ensureGameView } from "./support/foundry-session.js";
 import { getActorSnapshot, getItemSnapshot } from "./support/state.js";
 import { type Page } from "@playwright/test";
 
@@ -46,12 +45,7 @@ async function renderAbilitySheet(
   );
 }
 
-test.beforeEach(async ({ page, baseURL }) => {
-  await page.goto(baseURL ?? "/");
-  await ensureGameView(page);
-});
-
-test("PC name persists through the sheet", async ({ page }) => {
+test("PC name persists through the sheet", async ({ foundryPage: page }) => {
   const { actorId } = await resetFixtures(page);
 
   let sheetId = await openActorSheet(page, actorId);
@@ -76,7 +70,7 @@ test("PC name persists through the sheet", async ({ page }) => {
   await closeActorSheet(page, sheetId);
 });
 
-test("embedded Ability sheet persists and cleans up", async ({ page }) => {
+test("embedded Ability sheet persists and cleans up", async ({ foundryPage: page }) => {
   const { actorId, itemId } = await resetFixtures(page);
 
   let sheetId = await renderAbilitySheet(page, actorId, itemId);

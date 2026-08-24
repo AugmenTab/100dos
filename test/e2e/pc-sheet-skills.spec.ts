@@ -1,6 +1,5 @@
 import { expect, test } from "./support/diagnostics.js";
 import { resetFixtures } from "./support/fixtures.js";
-import { ensureGameView } from "./support/foundry-session.js";
 import { openPcSheet, resizePcSheet } from "./support/pc-sheet.js";
 import { type Locator, type Page } from "@playwright/test";
 
@@ -58,20 +57,15 @@ function skillsTable(panel: Locator): Locator {
   return panel.locator("table").first();
 }
 
-test.beforeEach(async ({ page, baseURL }) => {
-  await page.goto(baseURL ?? "/");
-  await ensureGameView(page);
-});
-
 test.describe("Skills page", () => {
-  test("a new PC has an empty ActorSkills record", async ({ page }) => {
+  test("a new PC has an empty ActorSkills record", async ({ foundryPage: page }) => {
     const { actorId } = await resetFixtures(page);
     const skills = await page.evaluate((actorId) => game.actors.get(actorId)?.system.skills, actorId);
     expect(skills).toEqual({});
   });
 
   test("a representative Skill renders its stored schema data, with Type shown as a comma-separated list", async ({
-    page,
+    foundryPage: page,
   }) => {
     const { actorId } = await resetFixtures(page);
     await updateActor(page, actorId, {
@@ -89,7 +83,7 @@ test.describe("Skills page", () => {
   });
 
   test("the header row has no textual label for Pinned, Name spans both columns, and the final column's header is the inert Add control", async ({
-    page,
+    foundryPage: page,
   }) => {
     const { actorId } = await resetFixtures(page);
     const sheetId = await openPcSheet(page, actorId);
@@ -106,7 +100,7 @@ test.describe("Skills page", () => {
   });
 
   test("the Characteristic selector offers only that Skill's own allowed Characteristics, in order, with the stored value selected", async ({
-    page,
+    foundryPage: page,
   }) => {
     const { actorId } = await resetFixtures(page);
     await updateActor(page, actorId, { "system.skills.pilotGround": PILOT_GROUND });
@@ -130,7 +124,7 @@ test.describe("Skills page", () => {
   });
 
   test("the Training selector offers the four fixed options with the stored value selected, and updates only training through normal binding", async ({
-    page,
+    foundryPage: page,
   }) => {
     const { actorId } = await resetFixtures(page);
     await updateActor(page, actorId, { "system.skills.pilotGround": PILOT_GROUND });
@@ -153,7 +147,7 @@ test.describe("Skills page", () => {
     expect(skill?.characteristic).toBe("int");
   });
 
-  test("the pin control reflects and toggles the persisted pinned state", async ({ page }) => {
+  test("the pin control reflects and toggles the persisted pinned state", async ({ foundryPage: page }) => {
     const { actorId } = await resetFixtures(page);
     await updateActor(page, actorId, {
       "system.skills.pilotGround": PILOT_GROUND,
@@ -179,7 +173,7 @@ test.describe("Skills page", () => {
   });
 
   test("Edit and description controls carry the Skill's stable identifier and an accessible name; the value control shows the stored value via a simple button with the existing Contributions tooltip", async ({
-    page,
+    foundryPage: page,
   }) => {
     const { actorId } = await resetFixtures(page);
     await updateActor(page, actorId, { "system.skills.pilotGround": PILOT_GROUND });
@@ -210,7 +204,7 @@ test.describe("Skills page", () => {
   });
 
   test("the record key is a Skill's stable identity and is never duplicated inside the persisted Skill object", async ({
-    page,
+    foundryPage: page,
   }) => {
     const { actorId } = await resetFixtures(page);
     await updateActor(page, actorId, { "system.skills.pilotGround": PILOT_GROUND });
@@ -224,7 +218,7 @@ test.describe("Skills page", () => {
   });
 
   test("an empty ActorSkills record still shows the table structure, the Add control, and an intentional empty state", async ({
-    page,
+    foundryPage: page,
   }) => {
     const { actorId } = await resetFixtures(page);
     const sheetId = await openPcSheet(page, actorId);
@@ -239,7 +233,7 @@ test.describe("Skills page", () => {
   });
 
   test("the Skills table remains usable, without whole-sheet overflow, at representative sheet widths", async ({
-    page,
+    foundryPage: page,
   }) => {
     const { actorId } = await resetFixtures(page);
     await updateActor(page, actorId, {

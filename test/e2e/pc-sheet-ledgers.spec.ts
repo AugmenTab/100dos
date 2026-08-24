@@ -1,6 +1,5 @@
 import { expect, test } from "./support/diagnostics.js";
 import { resetFixtures } from "./support/fixtures.js";
-import { ensureGameView } from "./support/foundry-session.js";
 import { openPcSheet, resizePcSheet } from "./support/pc-sheet.js";
 import { type Locator, type Page } from "@playwright/test";
 
@@ -22,20 +21,15 @@ async function openRecordTab(page: Page, sheetId: string, tabId: string): Promis
   return sheet.locator(`.tab[data-group="record"][data-tab="${tabId}"]`);
 }
 
-test.beforeEach(async ({ page, baseURL }) => {
-  await page.goto(baseURL ?? "/");
-  await ensureGameView(page);
-});
-
 test.describe("XP ledger page", () => {
-  test("a new PC has ExperienceLedger schema defaults", async ({ page }) => {
+  test("a new PC has ExperienceLedger schema defaults", async ({ foundryPage: page }) => {
     const { actorId } = await resetFixtures(page);
     const xp = await page.evaluate((actorId) => game.actors.get(actorId)?.system.xp, actorId);
     expect(xp).toEqual({ tier: 0, earned: 0, spent: 0, available: 0, ledger: [] });
   });
 
   test("summary fields and ledger rows render from schema data; an unresolved recorder falls back to a neutral label", async ({
-    page,
+    foundryPage: page,
   }) => {
     const { actorId } = await resetFixtures(page);
     await updateActor(page, actorId, {
@@ -75,7 +69,7 @@ test.describe("XP ledger page", () => {
     await expect(row).toContainText("Unknown");
   });
 
-  test("the action column has no textual header and carries labeled Add/Delete icon controls", async ({ page }) => {
+  test("the action column has no textual header and carries labeled Add/Delete icon controls", async ({ foundryPage: page }) => {
     const { actorId } = await resetFixtures(page);
     await updateActor(page, actorId, {
       "system.xp.ledger": [
@@ -93,7 +87,7 @@ test.describe("XP ledger page", () => {
     await expect(deleteControl).toHaveAttribute("aria-label", "Delete transaction: Strength Advancement");
   });
 
-  test("an empty ledger still shows the summary, headings, Add control, and an intentional empty state", async ({ page }) => {
+  test("an empty ledger still shows the summary, headings, Add control, and an intentional empty state", async ({ foundryPage: page }) => {
     const { actorId } = await resetFixtures(page);
     const sheetId = await openPcSheet(page, actorId);
     const panel = await openRecordTab(page, sheetId, "xp");
@@ -106,14 +100,14 @@ test.describe("XP ledger page", () => {
 });
 
 test.describe("Finances ledger page", () => {
-  test("a new PC has Finances schema defaults", async ({ page }) => {
+  test("a new PC has Finances schema defaults", async ({ foundryPage: page }) => {
     const { actorId } = await resetFixtures(page);
     const finances = await page.evaluate((actorId) => game.actors.get(actorId)?.system.finances, actorId);
     expect(finances).toEqual({ received: 0, spent: 0, available: 0, carried: 0, ledger: [] });
   });
 
   test("summary fields and ledger rows render from schema data; an unresolved recorder falls back to a neutral label", async ({
-    page,
+    foundryPage: page,
   }) => {
     const { actorId } = await resetFixtures(page);
     await updateActor(page, actorId, {
@@ -152,7 +146,7 @@ test.describe("Finances ledger page", () => {
     await expect(row).toContainText("Unknown");
   });
 
-  test("the action column has no textual header and carries labeled Add/Delete icon controls", async ({ page }) => {
+  test("the action column has no textual header and carries labeled Add/Delete icon controls", async ({ foundryPage: page }) => {
     const { actorId } = await resetFixtures(page);
     await updateActor(page, actorId, {
       "system.finances.ledger": [
@@ -170,7 +164,7 @@ test.describe("Finances ledger page", () => {
     await expect(deleteControl).toHaveAttribute("aria-label", "Delete transaction: Battle Rifle");
   });
 
-  test("an empty ledger still shows the summary, headings, Add control, and an intentional empty state", async ({ page }) => {
+  test("an empty ledger still shows the summary, headings, Add control, and an intentional empty state", async ({ foundryPage: page }) => {
     const { actorId } = await resetFixtures(page);
     const sheetId = await openPcSheet(page, actorId);
     const panel = await openRecordTab(page, sheetId, "finances");
@@ -181,7 +175,7 @@ test.describe("Finances ledger page", () => {
     await expect(panel.locator(".ledger-table-empty-state")).toHaveText("No finance transactions recorded yet.");
   });
 
-  test("values render as locale-formatted numbers with no currency symbol", async ({ page }) => {
+  test("values render as locale-formatted numbers with no currency symbol", async ({ foundryPage: page }) => {
     const { actorId } = await resetFixtures(page);
     await updateActor(page, actorId, {
       "system.finances.ledger": [
@@ -194,7 +188,7 @@ test.describe("Finances ledger page", () => {
   });
 });
 
-test("XP and Finances ledgers remain usable, without whole-sheet overflow, at representative sheet widths", async ({ page }) => {
+test("XP and Finances ledgers remain usable, without whole-sheet overflow, at representative sheet widths", async ({ foundryPage: page }) => {
   const { actorId } = await resetFixtures(page);
   await updateActor(page, actorId, {
     "system.xp.ledger": [
