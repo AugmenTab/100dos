@@ -1,0 +1,10 @@
+<section
+  class="tab{{#if tabs.primary.description.active}} active{{/if}}"
+  data-group="primary"
+  data-tab="description"
+  role="tabpanel"
+  id="{{sheetId}}-primary-panel-description"
+  aria-labelledby="{{sheetId}}-primary-tab-description"
+>
+  <prose-mirror name="system.description" value="{{item.system.description}}"></prose-mirror>
+</section>

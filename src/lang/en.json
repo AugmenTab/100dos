@@ -27,7 +27,18 @@
         "duplicate": "Duplicate {name}",
         "delete": "Delete {name}",
         "useActions": "Use Actions: {name}"
+      },
+      "tabs": {
+        "description": "Description",
+        "details": "Details",
+        "changes": "Changes"
       }
+    },
+    "ability": {
+      "disabled": "Disabled",
+      "pinned": "Pinned",
+      "combatTab": "Combat Tab",
+      "tags": "Tags"
     },
     "setting": {
       "debugMode": {

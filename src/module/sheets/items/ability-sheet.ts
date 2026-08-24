@@ -1,22 +1,22 @@
-const { HandlebarsApplicationMixin } = foundry.applications.api;
-const { ItemSheetV2 } = foundry.applications.sheets;
+import { AbstractItemSheet } from "./abstract-item-sheet.js";
 
-export class AbilityItemSheet extends HandlebarsApplicationMixin(ItemSheetV2) {
+export class AbilityItemSheet extends AbstractItemSheet {
   static override DEFAULT_OPTIONS = {
     classes: ["dos100", "sheet", "item", "ability"],
-    position: { width: 520, height: 480 },
-    window: { resizable: true },
-    form: { submitOnChange: true, closeOnSubmit: false },
   };
 
   static override PARTS = {
     body: { template: "systems/100dos/templates/items/ability.hbs" },
   };
 
-  override async _prepareContext(options: Record<string, unknown>): Promise<Record<string, unknown>> {
-    return {
-      ...await super._prepareContext(options),
-      item: this.item,
-    };
-  }
+  static override TABS = {
+    primary: {
+      initial: "description",
+      tabs: [
+        { id: "description", label: "DOS100.item.tabs.description" },
+        { id: "details", label: "DOS100.item.tabs.details" },
+        { id: "changes", label: "DOS100.item.tabs.changes" },
+      ],
+    },
+  };
 }
