@@ -27,8 +27,10 @@ export class Dos100Item extends Item {
   protected _prepareTraitData(): void {}
 
   get grantedItems(): Dos100Item[] {
-    const ids = this.getFlag(game.system.id, "grantedItemIds") as string[] | undefined;
-    if (!ids?.length || !this.actor) return [];
+    if (!this.actor) return [];
+    const childIds = this.getFlag(game.system.id, "childItemIds") as string[] | undefined;
+    const supplementIds = this.getFlag(game.system.id, "supplementItemIds") as string[] | undefined;
+    const ids = [...(childIds ?? []), ...(supplementIds ?? [])];
     return ids.flatMap(id => {
       const item = this.actor!.items.get(id);
       return item ? [item as Dos100Item] : [];
@@ -49,10 +51,24 @@ export class Dos100Item extends Item {
     void this._createGrants(grants);
   }
 
+  protected override _onUpdate(data: object, options: object, userId: string): void {
+    super._onUpdate(data, options, userId);
+    if (game.user?.id !== userId || !this.actor) return;
+    if (!foundry.utils.hasProperty(data, "system.active")) return;
+    const childIds = this.getFlag(game.system.id, "childItemIds") as string[] | undefined;
+    if (!childIds?.length) return;
+    const active = (this.system as { active?: boolean }).active;
+    const targets = childIds.flatMap(id => {
+      const item = this.actor!.items.get(id);
+      return item && ACTIONS_ITEM_TYPES.has(item.type) ? [{ _id: item.id, "system.active": active }] : [];
+    });
+    if (targets.length) void this.actor.updateEmbeddedDocuments("Item", targets);
+  }
+
   protected override _onDelete(options: object, userId: string): void {
     if (game.user?.id === userId && this.actor) {
-      const ids = this.getFlag(game.system.id, "grantedItemIds") as string[] | undefined;
-      if (ids?.length) void this.actor.deleteEmbeddedDocuments("Item", ids);
+      const childIds = this.getFlag(game.system.id, "childItemIds") as string[] | undefined;
+      if (childIds?.length) void this.actor.deleteEmbeddedDocuments("Item", childIds);
     }
     super._onDelete(options, userId);
   }
@@ -68,7 +84,16 @@ export class Dos100Item extends Item {
         flags: { [game.system.id]: { grantedBy: this.id } },
       })),
     );
-    await this.setFlag(game.system.id, "grantedItemIds", created.map(i => i.id));
+    const childIds: string[] = [];
+    const supplementIds: string[] = [];
+    grants.forEach((g, i) => {
+      const id = created[i]?.id;
+      if (!id) return;
+      if (g.kind === "child") childIds.push(id);
+      else supplementIds.push(id);
+    });
+    await this.setFlag(game.system.id, "childItemIds", childIds);
+    await this.setFlag(game.system.id, "supplementItemIds", supplementIds);
   }
 
   /**
