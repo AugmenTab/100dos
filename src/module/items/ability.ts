@@ -7,7 +7,7 @@ export type Tag = string;
 export type Identifier = string;
 
 export type AbilityData = {
-  disabled: boolean;
+  active: boolean;
   showInCombatTab: boolean;
   xpCost: number;
   prerequisites: string;
@@ -22,7 +22,7 @@ export type AbilityData = {
 export class AbilityDataModel extends foundry.abstract.TypeDataModel {
   static override defineSchema() {
     return {
-      disabled: new BooleanField({ required: true, initial: false }),
+      active: new BooleanField({ required: true, initial: true }),
       showInCombatTab: new BooleanField({ required: true, initial: false }),
       xpCost: new NumberField({ required: true, initial: 0, integer: true, min: 0 }),
       prerequisites: new StringField({ required: true, initial: "" }),

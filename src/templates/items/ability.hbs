@@ -13,7 +13,7 @@
       type="text"
       value="{{item.name}}"
       placeholder="{{localize 'DOS100.item.name'}}"
-      class="{{#if item.system.disabled}}depleted{{/if}}"
+      class="{{#if (eq item.system.active false)}}depleted{{/if}}"
     />
   </h1>
 </div>
@@ -24,8 +24,8 @@
 
     <div class="dos100-item-checkboxes">
       <label class="dos100-item-checkbox">
-        <input type="checkbox" name="system.disabled" {{#if item.system.disabled}}checked{{/if}} />
-        {{localize "DOS100.ability.disabled"}}
+        <input type="checkbox" name="system.active" {{#if item.system.active}}checked{{/if}} />
+        {{localize "DOS100.item.active"}}
       </label>
       <label class="dos100-item-checkbox">
         <input type="checkbox" name="system.actions.pinned" {{#if item.system.actions.pinned}}checked{{/if}} />

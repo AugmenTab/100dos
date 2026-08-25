@@ -9,7 +9,7 @@ export type AbilityItemFixture = {
   img?: string;
   name?: string;
   system?: {
-    disabled?: boolean;
+    active?: boolean;
     actions?: { pinned?: boolean };
     showInCombatTab?: boolean;
     tags?: string[];
@@ -38,7 +38,7 @@ export function buildAbilityContext(item: AbilityItemFixture, activeTab: "descri
       name: item.name ?? "[Browser] Ability",
       type: "ability",
       system: {
-        disabled: item.system?.disabled ?? false,
+        active: item.system?.active ?? true,
         actions: { pinned: item.system?.actions?.pinned ?? false },
         showInCombatTab: item.system?.showInCombatTab ?? false,
         tags: item.system?.tags ?? [],

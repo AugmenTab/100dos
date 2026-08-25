@@ -8,6 +8,19 @@
    overrides layered by the page that needs them — see skills.less and
    abstract-item.less — not a second component. */
 
+/* A row/field whose quantity has hit zero, or whose owning Item is
+   inactive, stays visible (never auto-removed) but reads as depleted —
+   struck through and dimmed, the same "still here but spent" treatment as
+   a destroyed DR location on the Dashboard. Unscoped — used both inside
+   dense-table rows (Inventory's zero-quantity rows, Features/Effects
+   rows) and outside one entirely (the Ability Item sheet's own name
+   field). Only ever wraps plain name text, never a nested interactive
+   control, so opacity (not color-mix) is safe here. */
+.depleted {
+  text-decoration: line-through;
+  opacity: 0.7;
+}
+
 .dense-table-wrap {
   /* Horizontal scroll containment for the table itself, not the whole
      sheet — stays usable at narrow widths rather than forcing the sheet
@@ -67,16 +80,6 @@
     font-style: italic;
     opacity: 0.7;
     white-space: normal;
-  }
-
-  /* A row whose quantity has hit zero stays visible (never auto-removed)
-     but reads as depleted — struck through and dimmed, the same "still
-     here but spent" treatment as a destroyed DR location on the
-     Dashboard. Only ever wraps plain name text, never a nested
-     interactive control, so opacity (not color-mix) is safe here. */
-  .depleted {
-    text-decoration: line-through;
-    opacity: 0.7;
   }
 
   /* A non-editable value preview (e.g. a Change's formula, a Conditional's

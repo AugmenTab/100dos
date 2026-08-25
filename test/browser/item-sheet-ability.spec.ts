@@ -1,6 +1,6 @@
 // Lightweight-tier counterparts of the 3 portable tests from
 // test/e2e/item-sheet-ability.spec.ts. The other 3 tests in that file
-// (checkbox toggle-and-persist, disabled/rerender, ProseMirror content)
+// (checkbox toggle-and-persist, active/rerender, ProseMirror content)
 // stay in real Foundry — their assertions are about Foundry's own form
 // persistence, Document rerender, and ProseMirror integration, not
 // 100DOS's own rendering. See

@@ -20,6 +20,7 @@
     },
     "item": {
       "name": "Name",
+      "active": "Active",
       "table": {
         "actions": "Actions",
         "uses": "Uses",
@@ -60,7 +61,6 @@
       }
     },
     "ability": {
-      "disabled": "Disabled",
       "pinned": "Pinned",
       "combatTab": "Combat Tab",
       "tags": "Tags"

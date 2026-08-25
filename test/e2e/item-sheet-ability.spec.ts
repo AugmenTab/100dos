@@ -32,10 +32,10 @@ async function openTab(sheet: Locator, tabId: string): Promise<void> {
   await sheet.locator(`[role="tab"][data-group="primary"][data-tab="${tabId}"]`).click();
 }
 
-test("sidebar checkboxes are ordered Disabled, Pinned, Combat Tab and bind to their schema fields", async ({ foundryPage: page, fixtureLane }) => {
+test("sidebar checkboxes are ordered Active, Pinned, Combat Tab and bind to their schema fields", async ({ foundryPage: page, fixtureLane }) => {
   const { actorId, itemId } = await resetFixtures(page, fixtureLane);
   await updateItem(page, actorId, itemId, {
-    "system.disabled": true,
+    "system.active": true,
     "system.actions.pinned": true,
     "system.showInCombatTab": true,
   });
@@ -44,7 +44,7 @@ test("sidebar checkboxes are ordered Disabled, Pinned, Combat Tab and bind to th
 
   const checkboxes = sheet.locator(".dos100-item-checkbox input[type=checkbox]");
   await expect(checkboxes).toHaveCount(3);
-  await expect(checkboxes.nth(0)).toHaveAttribute("name", "system.disabled");
+  await expect(checkboxes.nth(0)).toHaveAttribute("name", "system.active");
   await expect(checkboxes.nth(1)).toHaveAttribute("name", "system.actions.pinned");
   await expect(checkboxes.nth(2)).toHaveAttribute("name", "system.showInCombatTab");
   for (const checkbox of await checkboxes.all()) {
@@ -54,13 +54,13 @@ test("sidebar checkboxes are ordered Disabled, Pinned, Combat Tab and bind to th
   await checkboxes.nth(0).uncheck();
   await expect
     .poll(async () => (await page.evaluate(
-      ({ actorId, itemId }) => game.actors.get(actorId)?.items.get(itemId)?.system.disabled,
+      ({ actorId, itemId }) => game.actors.get(actorId)?.items.get(itemId)?.system.active,
       { actorId, itemId },
     )))
     .toBe(false);
 });
 
-test("the name field carries the shared depleted (gray/strikethrough) treatment when the Ability is disabled", async ({
+test("the name field carries the shared depleted (gray/strikethrough) treatment when the Ability is inactive", async ({
   foundryPage: page,
   fixtureLane,
 }) => {
@@ -71,7 +71,7 @@ test("the name field carries the shared depleted (gray/strikethrough) treatment 
 
   await expect(nameInput).not.toHaveClass(/depleted/);
 
-  await updateItem(page, actorId, itemId, { "system.disabled": true });
+  await updateItem(page, actorId, itemId, { "system.active": false });
   await page.evaluate(({ actorId, itemId }) => game.actors.get(actorId)?.items.get(itemId)?.sheet.render(true), {
     actorId,
     itemId,
