@@ -62,3 +62,42 @@ export async function deleteFixtureAbility(
     { actorId, itemId },
   );
 }
+
+/**
+ * Separate from resetFixtures (PC + Ability) rather than folded into it —
+ * resetFixtures is shared by nearly every e2e file in the suite, and most
+ * of those don't touch Trait at all, so adding a Trait Item to every one
+ * of those resets would be pure overhead. Only the Trait sheet's own tests
+ * call this. Mirrors resetFixtures' shape/behavior (own [E2E] PC, own
+ * lane-scoped stale-cleanup, own e2eFixture flag) rather than reusing the
+ * Ability fixture's Actor, so Trait tests stay isolated from Ability's.
+ */
+export async function resetTraitFixtures(page: Page, lane: number): Promise<FixtureIds> {
+  return page.evaluate(
+    async ({ systemId, lane }) => {
+      const staleActors = game.actors.filter(
+        (a) => Boolean(a.getFlag(systemId, "e2eFixture")) && a.getFlag(systemId, "e2eLane") === lane,
+      );
+      for (const actor of staleActors) await actor.delete();
+
+      const actor = await Actor.create({
+        name: "[E2E] PC",
+        type: "pc",
+        flags: { [systemId]: { e2eFixture: "pc", e2eLane: lane } },
+      });
+      if (!actor) throw new Error("Failed to create fixture PC.");
+
+      const [item] = await actor.createEmbeddedDocuments("Item", [
+        {
+          name: "[E2E] Trait",
+          type: "trait",
+          flags: { [systemId]: { e2eFixture: "trait", e2eLane: lane } },
+        },
+      ]);
+      if (!item) throw new Error("Failed to create fixture Trait.");
+
+      return { actorId: actor.id, itemId: item.id };
+    },
+    { systemId: SYSTEM_ID, lane },
+  );
+}

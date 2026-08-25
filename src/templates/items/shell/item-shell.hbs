@@ -29,16 +29,16 @@
       </label>
       <label class="dos100-item-checkbox">
         <input type="checkbox" name="system.actions.pinned" {{#if item.system.actions.pinned}}checked{{/if}} />
-        {{localize "DOS100.ability.pinned"}}
+        {{localize "DOS100.item.pinned"}}
       </label>
       <label class="dos100-item-checkbox">
         <input type="checkbox" name="system.showInCombatTab" {{#if item.system.showInCombatTab}}checked{{/if}} />
-        {{localize "DOS100.ability.combatTab"}}
+        {{localize "DOS100.item.combatTab"}}
       </label>
     </div>
 
     <div class="dos100-item-sidebar-tags">
-      <span class="eyebrow-label">{{localize "DOS100.ability.tags"}}</span>
+      <span class="eyebrow-label">{{localize "DOS100.item.tags"}}</span>
       <div class="dos100-item-tags">
         {{#each item.system.tags}}
           <span class="dos100-item-tag">{{this}}</span>

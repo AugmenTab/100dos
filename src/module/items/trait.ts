@@ -1,20 +1,9 @@
-import { type Changes, changesField } from "../change.js";
-import { type Actions, actionsField } from "./action.js";
+import { type AbstractItemData, abstractItemFields } from "./abstract-item.js";
 
-const { StringField } = foundry.data.fields;
-
-export type TraitData = {
-  description: string;
-  changes: Changes;
-  actions: Actions;
-};
+export type TraitData = AbstractItemData;
 
 export class TraitDataModel extends foundry.abstract.TypeDataModel {
   static override defineSchema() {
-    return {
-      description: new StringField({ required: true, initial: "" }),
-      changes: changesField(),
-      actions: actionsField(),
-    };
+    return abstractItemFields();
   }
 }

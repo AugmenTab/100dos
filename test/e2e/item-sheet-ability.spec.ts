@@ -1,36 +1,9 @@
 import { expect, test } from "./support/diagnostics.js";
 import { resetFixtures } from "./support/fixtures.js";
+import { openItemSheet, openTab, updateItem } from "./support/item-sheet.js";
 // Despite the name, this only calls setPosition on the given sheetId — no
 // Actor/PC-sheet assumptions — so it works for an Item sheet too.
 import { resizePcSheet as resizeSheet } from "./support/pc-sheet.js";
-import { type Locator, type Page } from "@playwright/test";
-
-async function updateItem(page: Page, actorId: string, itemId: string, data: Record<string, unknown>): Promise<void> {
-  await page.evaluate(
-    async ({ actorId, itemId, data }) => {
-      const item = game.actors.get(actorId)?.items.get(itemId);
-      if (!item) throw new Error(`Fixture Ability ${itemId} not found on actor ${actorId}.`);
-      await item.update(data);
-    },
-    { actorId, itemId, data },
-  );
-}
-
-async function openItemSheet(page: Page, actorId: string, itemId: string): Promise<string> {
-  return page.evaluate(
-    async ({ actorId, itemId }) => {
-      const item = game.actors.get(actorId)?.items.get(itemId);
-      if (!item) throw new Error(`Fixture Ability ${itemId} not found on actor ${actorId}.`);
-      await item.sheet.render(true);
-      return item.sheet.id;
-    },
-    { actorId, itemId },
-  );
-}
-
-async function openTab(sheet: Locator, tabId: string): Promise<void> {
-  await sheet.locator(`[role="tab"][data-group="primary"][data-tab="${tabId}"]`).click();
-}
 
 test("sidebar checkboxes are ordered Active, Pinned, Combat Tab and bind to their schema fields", async ({ foundryPage: page, fixtureLane }) => {
   const { actorId, itemId } = await resetFixtures(page, fixtureLane);

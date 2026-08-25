@@ -6,7 +6,7 @@ export class AbilityItemSheet extends AbstractItemSheet {
   };
 
   static override PARTS = {
-    body: { template: "systems/100dos/templates/items/ability.hbs" },
+    body: { template: "systems/100dos/templates/items/shell/item-shell.hbs" },
   };
 
   static override TABS = {

@@ -21,6 +21,9 @@
     "item": {
       "name": "Name",
       "active": "Active",
+      "pinned": "Pinned",
+      "combatTab": "Combat Tab",
+      "tags": "Tags",
       "table": {
         "actions": "Actions",
         "uses": "Uses",
@@ -59,11 +62,6 @@
       "changeTarget": {
         "strMod": "Strength Mod"
       }
-    },
-    "ability": {
-      "pinned": "Pinned",
-      "combatTab": "Combat Tab",
-      "tags": "Tags"
     },
     "setting": {
       "debugMode": {
