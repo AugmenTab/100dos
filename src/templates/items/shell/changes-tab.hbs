@@ -1,0 +1,144 @@
+<section
+  class="tab{{#if tabs.primary.changes.active}} active{{/if}}"
+  data-group="primary"
+  data-tab="changes"
+  role="tabpanel"
+  id="{{sheetId}}-primary-panel-changes"
+  aria-labelledby="{{sheetId}}-primary-tab-changes"
+>
+  <div class="dense-table-wrap">
+    <table class="dense-table">
+      <thead>
+        <tr>
+          <th scope="col" colspan="3">{{localize "DOS100.item.changes.label"}}</th>
+          <th scope="col">
+            {{!-- TODO: not wired up yet — no Add-Change modal exists. --}}
+            <a
+              role="button"
+              tabindex="0"
+              class="icon-button"
+              aria-label="{{localize "DOS100.item.changes.add"}}"
+            ><i class="fa-solid fa-plus" inert></i></a>
+          </th>
+        </tr>
+      </thead>
+      <tbody>
+        {{#if item.system.changes.computed.length}}
+          {{#each item.system.changes.computed}}
+            <tr>
+              <td>
+                <span aria-label="{{#if (eq this.mode "add")}}{{localize "DOS100.item.changes.mode.add"}}{{else}}{{localize "DOS100.item.changes.mode.set"}}{{/if}}">
+                  {{#if (eq this.mode "add")}}+{{else}}={{/if}}
+                </span>
+              </td>
+              <td class="dense-table-flexible">
+                <input
+                  type="text"
+                  value="{{this.formula}}"
+                  disabled
+                  aria-label="{{localize "DOS100.item.changes.formula"}}"
+                />
+              </td>
+              <td><code>{{localize (concat "DOS100.item.changeTarget." this.target)}}</code></td>
+              <td>
+                {{!-- TODO: not wired up yet — no Change edit modal exists. --}}
+                <a
+                  role="button"
+                  tabindex="0"
+                  class="icon-button"
+                  data-identifier="{{this.id}}"
+                  aria-label="{{localize "DOS100.item.changes.edit"}}"
+                ><i class="fa-solid fa-pen-to-square" inert></i></a>
+                {{!-- TODO: not wired up yet — no Change duplication exists. --}}
+                <a
+                  role="button"
+                  tabindex="0"
+                  class="icon-button"
+                  data-identifier="{{this.id}}"
+                  aria-label="{{localize "DOS100.item.changes.duplicate"}}"
+                ><i class="fa-solid fa-copy" inert></i></a>
+                {{!-- TODO: not wired up yet — no Change deletion exists. --}}
+                <a
+                  role="button"
+                  tabindex="0"
+                  class="icon-button"
+                  data-identifier="{{this.id}}"
+                  aria-label="{{localize "DOS100.item.changes.delete"}}"
+                ><i class="fa-solid fa-trash" inert></i></a>
+              </td>
+            </tr>
+          {{/each}}
+        {{else}}
+          <tr>
+            <td colspan="4" class="dense-table-empty-state">{{localize "DOS100.item.changes.empty"}}</td>
+          </tr>
+        {{/if}}
+      </tbody>
+    </table>
+  </div>
+
+  <div class="dense-table-wrap">
+    <table class="dense-table">
+      <thead>
+        <tr>
+          <th scope="col" colspan="2">{{localize "DOS100.item.conditionals.label"}}</th>
+          <th scope="col">
+            {{!-- TODO: not wired up yet — no Add-Conditional modal exists. --}}
+            <a
+              role="button"
+              tabindex="0"
+              class="icon-button"
+              aria-label="{{localize "DOS100.item.conditionals.add"}}"
+            ><i class="fa-solid fa-plus" inert></i></a>
+          </th>
+        </tr>
+      </thead>
+      <tbody>
+        {{#if item.system.changes.conditional.length}}
+          {{#each item.system.changes.conditional}}
+            <tr>
+              <td class="dense-table-flexible">
+                <textarea
+                  disabled
+                  rows="2"
+                  aria-label="{{localize "DOS100.item.conditionals.notes"}}"
+                >{{this.value}}</textarea>
+              </td>
+              <td><code>{{localize (concat "DOS100.item.changeTarget." this.target)}}</code></td>
+              <td>
+                {{!-- TODO: not wired up yet — no Conditional edit modal exists. --}}
+                <a
+                  role="button"
+                  tabindex="0"
+                  class="icon-button"
+                  data-identifier="{{this.id}}"
+                  aria-label="{{localize "DOS100.item.conditionals.edit"}}"
+                ><i class="fa-solid fa-pen-to-square" inert></i></a>
+                {{!-- TODO: not wired up yet — no Conditional duplication exists. --}}
+                <a
+                  role="button"
+                  tabindex="0"
+                  class="icon-button"
+                  data-identifier="{{this.id}}"
+                  aria-label="{{localize "DOS100.item.conditionals.duplicate"}}"
+                ><i class="fa-solid fa-copy" inert></i></a>
+                {{!-- TODO: not wired up yet — no Conditional deletion exists. --}}
+                <a
+                  role="button"
+                  tabindex="0"
+                  class="icon-button"
+                  data-identifier="{{this.id}}"
+                  aria-label="{{localize "DOS100.item.conditionals.delete"}}"
+                ><i class="fa-solid fa-trash" inert></i></a>
+              </td>
+            </tr>
+          {{/each}}
+        {{else}}
+          <tr>
+            <td colspan="3" class="dense-table-empty-state">{{localize "DOS100.item.conditionals.empty"}}</td>
+          </tr>
+        {{/if}}
+      </tbody>
+    </table>
+  </div>
+</section>

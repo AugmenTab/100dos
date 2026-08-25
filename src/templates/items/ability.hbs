@@ -85,18 +85,7 @@
       <p>This page doesn't have any content yet.</p>
     </section>
 
-    <section
-      class="tab{{#if tabs.primary.changes.active}} active{{/if}}"
-      data-group="primary"
-      data-tab="changes"
-      role="tabpanel"
-      id="{{sheetId}}-primary-panel-changes"
-      aria-labelledby="{{sheetId}}-primary-tab-changes"
-    >
-      <h2>{{localize "DOS100.item.tabs.changes"}}</h2>
-      {{!-- TODO: Replace with real Changes content. --}}
-      <p>This page doesn't have any content yet.</p>
-    </section>
+    {{> "systems/100dos/templates/items/shell/changes-tab.hbs"}}
   </div>
 </div>
 </div>

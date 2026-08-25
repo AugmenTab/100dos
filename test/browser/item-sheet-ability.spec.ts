@@ -15,7 +15,7 @@ test("the Ability sheet renders the abstract Item shell: editable header, sideba
   const html = renderPage(
     "items/ability.hbs",
     buildAbilityContext({ name: "[E2E] Ability" }),
-    { partials: ["items/shell/description-tab.hbs"] },
+    { partials: ["items/shell/description-tab.hbs", "items/shell/changes-tab.hbs"] },
   );
   await page.setContent(html);
 
@@ -33,7 +33,7 @@ test("sidebar Tags render from system.tags", async ({ page }) => {
   const html = renderPage(
     "items/ability.hbs",
     buildAbilityContext({ system: { tags: ["combat", "movement"] } }),
-    { partials: ["items/shell/description-tab.hbs"] },
+    { partials: ["items/shell/description-tab.hbs", "items/shell/changes-tab.hbs"] },
   );
   await page.setContent(html);
 
@@ -47,7 +47,7 @@ test("the shell remains usable, without overflow, at representative sheet widths
   const html = renderPage(
     "items/ability.hbs",
     buildAbilityContext({ system: { tags: ["combat"] } }),
-    { partials: ["items/shell/description-tab.hbs"] },
+    { partials: ["items/shell/description-tab.hbs", "items/shell/changes-tab.hbs"] },
   );
   await page.setContent(html);
 

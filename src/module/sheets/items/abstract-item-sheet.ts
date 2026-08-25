@@ -9,7 +9,7 @@ const { ItemSheetV2 } = foundry.applications.sheets;
 export abstract class AbstractItemSheet extends HandlebarsApplicationMixin(ItemSheetV2) {
   static override DEFAULT_OPTIONS: Record<string, unknown> = {
     classes: ["dos100", "sheet", "item"],
-    position: { width: 640, height: 560 },
+    position: { width: 800, height: 560 },
     window: { resizable: true },
     form: { submitOnChange: true, closeOnSubmit: false },
   };

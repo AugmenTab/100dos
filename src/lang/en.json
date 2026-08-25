@@ -32,6 +32,31 @@
         "description": "Description",
         "details": "Details",
         "changes": "Changes"
+      },
+      "changes": {
+        "label": "Changes",
+        "mode": {
+          "add": "Add",
+          "set": "Set"
+        },
+        "formula": "Formula",
+        "add": "Add Change",
+        "edit": "Edit Change",
+        "duplicate": "Duplicate Change",
+        "delete": "Delete Change",
+        "empty": "No Changes recorded yet."
+      },
+      "conditionals": {
+        "label": "Conditionals",
+        "notes": "Notes",
+        "add": "Add Conditional",
+        "edit": "Edit Conditional",
+        "duplicate": "Duplicate Conditional",
+        "delete": "Delete Conditional",
+        "empty": "No Conditionals recorded yet."
+      },
+      "changeTarget": {
+        "strMod": "Strength Mod"
       }
     },
     "ability": {

@@ -4,7 +4,7 @@ const { ItemSheetV2 } = foundry.applications.sheets;
 export class ArmorItemSheet extends HandlebarsApplicationMixin(ItemSheetV2) {
   static override DEFAULT_OPTIONS = {
     classes: ["dos100", "sheet", "item", "armor"],
-    position: { width: 520, height: 480 },
+    position: { width: 800, height: 480 },
     window: { resizable: true },
     form: { submitOnChange: true, closeOnSubmit: false },
   };

@@ -14,6 +14,10 @@ export type AbilityItemFixture = {
     showInCombatTab?: boolean;
     tags?: string[];
     description?: string;
+    changes?: {
+      computed?: { id: string; target: string; mode: string; formula: string }[];
+      conditional?: { id: string; target: string; value: string }[];
+    };
   };
 };
 
@@ -39,6 +43,10 @@ export function buildAbilityContext(item: AbilityItemFixture, activeTab: "descri
         showInCombatTab: item.system?.showInCombatTab ?? false,
         tags: item.system?.tags ?? [],
         description: item.system?.description ?? "",
+        changes: {
+          computed: item.system?.changes?.computed ?? [],
+          conditional: item.system?.changes?.conditional ?? [],
+        },
       },
     },
     sheetId: "browser-tier-sheet",

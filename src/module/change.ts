@@ -1,5 +1,16 @@
 export type ChangeMode = "add" | "set";
 
+// TODO: The fixed vocabulary of things a Change/Conditional can target, each
+// meant to localize to a short display label (DOS100.item.changeTarget.*)
+// rather than rendering a raw path — a flat identifier, not a dotted path,
+// so it drops directly into the project's usual
+// {{localize (concat "DOS100.x.y." this.z)}} idiom without forming an
+// unintended nested key. Only one member exists so far — there's no
+// complete picture of the full target domain yet — so this grows as real
+// targets are identified, the same way ChangeMode is a closed set rather
+// than a bare string.
+export type ChangeTarget = "strMod";
+
 export type ChangeSourceRef = {
   id: string;
   name: string;
@@ -8,7 +19,7 @@ export type ChangeSourceRef = {
 export type ChangeData = {
   readonly id: string;
   enabled: boolean;
-  target: string;
+  target: ChangeTarget;
   mode: ChangeMode;
   formula: string;
   source: ChangeSourceRef;
@@ -17,7 +28,7 @@ export type ChangeData = {
 export type ConditionalChangeData = {
   readonly id: string;
   enabled: boolean;
-  target: string;
+  target: ChangeTarget;
   value: string;
   source: ChangeSourceRef;
 };
