@@ -75,25 +75,31 @@ export class Dos100Item extends Item {
 
   private async _createGrants(grants: GrantData[]): Promise<void> {
     if (!this.actor) return;
+    const sysId = game.system.id;
+    // Embed a slot index in each item's flags so we can match the returned
+    // documents back to their source grants regardless of return order —
+    // createEmbeddedDocuments does not guarantee input-order output.
     const created = await this.actor.createEmbeddedDocuments(
       "Item",
-      grants.map(g => ({
+      grants.map((g, i) => ({
         name: g.name,
         type: g.type,
         system: g.system,
-        flags: { [game.system.id]: { grantedBy: this.id } },
+        flags: { [sysId]: { grantedBy: this.id, _grantSlot: i } },
       })),
     );
     const childIds: string[] = [];
     const supplementIds: string[] = [];
-    grants.forEach((g, i) => {
-      const id = created[i]?.id;
-      if (!id) return;
-      if (g.kind === "child") childIds.push(id);
-      else supplementIds.push(id);
-    });
-    await this.setFlag(game.system.id, "childItemIds", childIds);
-    await this.setFlag(game.system.id, "supplementItemIds", supplementIds);
+    for (const item of created) {
+      const slot = item.getFlag(sysId, "_grantSlot") as number | undefined;
+      if (slot === undefined) continue;
+      const g = grants[slot];
+      if (!g) continue;
+      if (g.kind === "child") childIds.push(item.id!);
+      else supplementIds.push(item.id!);
+    }
+    await this.setFlag(sysId, "childItemIds", childIds);
+    await this.setFlag(sysId, "supplementItemIds", supplementIds);
   }
 
   /**

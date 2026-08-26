@@ -9,6 +9,7 @@ import { renderPage } from "./support/render.js";
 
 const ITEM_SHELL_PARTIALS = [
   "items/shell/description-tab.hbs",
+  "items/shell/details-tab.hbs",
   "items/shell/changes-tab.hbs",
   "items/shell/links-tab.hbs",
 ];
@@ -86,7 +87,7 @@ test("sidebar Tags render from system.tags", async ({ page }) => {
   );
   await page.setContent(html);
 
-  const chips = page.locator(".dos100-item-tag");
+  const chips = page.locator(".dos100-item-sidebar .dos100-item-tag");
   await expect(chips).toHaveCount(2);
   await expect(chips.nth(0)).toHaveText("rage");
   await expect(chips.nth(1)).toHaveText("combat");

@@ -7,14 +7,26 @@
 // out of scope for this tier, so its RESULT shape is reproduced instead.
 export type LinkedItemFixture = { id: string; name: string; img: string };
 
+export type ActionItemFixture = {
+  id: string;
+  name: string;
+  uses: { per: string; value: number; max: number };
+};
+
 export type AbilityItemFixture = {
   img?: string;
   name?: string;
   system?: {
     active?: boolean;
-    actions?: { pinned?: boolean };
+    actions?: {
+      pinned?: boolean;
+      items?: Record<string, ActionItemFixture>;
+      uses?: { per: string; value: number; max: number; formula: { max: string } };
+      notes?: { effectNotes?: string[]; footnotes?: string[] };
+    };
     showInCombatTab?: boolean;
     tags?: string[];
+    identifier?: string;
     description?: string;
     changes?: {
       computed?: { id: string; target: string; mode: string; formula: string }[];
@@ -59,9 +71,18 @@ export function buildAbilityContext(
       type: "ability",
       system: {
         active: item.system?.active ?? true,
-        actions: { pinned: item.system?.actions?.pinned ?? false },
+        actions: {
+          pinned: item.system?.actions?.pinned ?? false,
+          items: item.system?.actions?.items ?? {},
+          uses: item.system?.actions?.uses ?? { per: "unlimited", value: 0, max: 0, formula: { max: "" } },
+          notes: {
+            effectNotes: item.system?.actions?.notes?.effectNotes ?? [],
+            footnotes: item.system?.actions?.notes?.footnotes ?? [],
+          },
+        },
         showInCombatTab: item.system?.showInCombatTab ?? false,
         tags: item.system?.tags ?? [],
+        identifier: item.system?.identifier ?? "",
         description: item.system?.description ?? "",
         changes: {
           computed: item.system?.changes?.computed ?? [],
@@ -74,6 +95,14 @@ export function buildAbilityContext(
     itemTypeLabel: "Ability",
     showCombatTab: true,
     grantSource: null,
+    usagePeriods: {
+      unlimited: "DOS100.action.uses.periods.unlimited",
+      encounter: "DOS100.action.uses.periods.encounter",
+      day: "DOS100.action.uses.periods.day",
+      minute: "DOS100.action.uses.periods.minute",
+      hour: "DOS100.action.uses.periods.hour",
+      charges: "DOS100.action.uses.periods.charges",
+    },
     childItems: item.childItems ?? [],
     supplementItems: item.supplementItems ?? [],
   };

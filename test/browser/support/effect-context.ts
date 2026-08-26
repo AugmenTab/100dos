@@ -2,7 +2,7 @@
 // type — same structure as ability-context.ts but with showCombatTab: false,
 // active defaulting to false (Effect's schema default), and a grantSource
 // field that may be null or { name, typeLabel }.
-import { type LinkedItemFixture } from "./ability-context.js";
+import { type ActionItemFixture, type LinkedItemFixture } from "./ability-context.js";
 
 export type GrantSourceFixture = { name: string; typeLabel: string };
 
@@ -11,8 +11,14 @@ export type EffectItemFixture = {
   name?: string;
   system?: {
     active?: boolean;
-    actions?: { pinned?: boolean };
+    actions?: {
+      pinned?: boolean;
+      items?: Record<string, ActionItemFixture>;
+      uses?: { per: string; value: number; max: number; formula: { max: string } };
+      notes?: { effectNotes?: string[]; footnotes?: string[] };
+    };
     tags?: string[];
+    identifier?: string;
     description?: string;
     changes?: {
       computed?: { id: string; target: string; mode: string; formula: string }[];
@@ -58,8 +64,17 @@ export function buildEffectContext(
       type: "effect",
       system: {
         active: item.system?.active ?? false,
-        actions: { pinned: item.system?.actions?.pinned ?? false },
+        actions: {
+          pinned: item.system?.actions?.pinned ?? false,
+          items: item.system?.actions?.items ?? {},
+          uses: item.system?.actions?.uses ?? { per: "unlimited", value: 0, max: 0, formula: { max: "" } },
+          notes: {
+            effectNotes: item.system?.actions?.notes?.effectNotes ?? [],
+            footnotes: item.system?.actions?.notes?.footnotes ?? [],
+          },
+        },
         tags: item.system?.tags ?? [],
+        identifier: item.system?.identifier ?? "",
         description: item.system?.description ?? "",
         changes: {
           computed: item.system?.changes?.computed ?? [],
@@ -72,6 +87,14 @@ export function buildEffectContext(
     itemTypeLabel: "Effect",
     showCombatTab: false,
     grantSource: item.grantSource ?? null,
+    usagePeriods: {
+      unlimited: "DOS100.action.uses.periods.unlimited",
+      encounter: "DOS100.action.uses.periods.encounter",
+      day: "DOS100.action.uses.periods.day",
+      minute: "DOS100.action.uses.periods.minute",
+      hour: "DOS100.action.uses.periods.hour",
+      charges: "DOS100.action.uses.periods.charges",
+    },
     childItems: item.childItems ?? [],
     supplementItems: item.supplementItems ?? [],
   };

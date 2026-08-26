@@ -60,6 +60,33 @@
         "delete": "Delete Conditional",
         "empty": "No Conditionals recorded yet."
       },
+      "actions": {
+        "label": "Actions",
+        "add": "Add Action",
+        "edit": "Edit action",
+        "duplicate": "Duplicate action",
+        "delete": "Delete action",
+        "empty": "No Actions recorded yet."
+      },
+      "uses": {
+        "label": "Limited Uses",
+        "formula": "Maximum Uses Formula"
+      },
+      "effectNotes": {
+        "label": "Effect Notes",
+        "add": "Add Effect Note",
+        "delete": "Delete Effect Note",
+        "empty": "No Effect Notes recorded yet."
+      },
+      "footnotes": {
+        "label": "Footnotes",
+        "add": "Add Footnote",
+        "delete": "Delete Footnote",
+        "empty": "No Footnotes recorded yet."
+      },
+      "advanced": "Advanced",
+      "identifier": "Identifier",
+      "tagsEdit": "Edit tags",
       "changeTarget": {
         "strMod": "Strength Mod"
       },

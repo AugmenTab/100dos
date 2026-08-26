@@ -1,0 +1,177 @@
+<section
+  class="tab{{#if tabs.primary.details.active}} active{{/if}}"
+  data-group="primary"
+  data-tab="details"
+  role="tabpanel"
+  id="{{sheetId}}-primary-panel-details"
+  aria-labelledby="{{sheetId}}-primary-tab-details"
+>
+
+  {{!-- Actions --}}
+  <div class="dense-table-wrap">
+    <table class="dense-table">
+      <thead>
+        <tr>
+          <th scope="col" colspan="2">{{localize "DOS100.item.actions.label"}}</th>
+          <th scope="col">
+            <a role="button" tabindex="0" class="icon-button" aria-label="{{localize 'DOS100.item.actions.add'}}">
+              <i class="fa-solid fa-plus" inert></i>
+            </a>
+          </th>
+        </tr>
+      </thead>
+      <tbody>
+        {{#each item.system.actions.items}}
+          <tr>
+            <td class="dense-table-flexible">
+              <span class="dense-table-name-inner">
+                <i class="fa-solid fa-bolt" aria-hidden="true"></i>
+                {{this.name}}
+              </span>
+            </td>
+            <td>
+              {{#if (eq this.uses.per "unlimited")}}
+                —
+              {{else}}
+                {{this.uses.value}} / {{this.uses.max}}
+              {{/if}}
+            </td>
+            <td>
+              <a role="button" tabindex="0" class="icon-button" data-identifier="{{this.id}}" aria-label="{{localize 'DOS100.item.actions.edit'}}"><i class="fa-solid fa-pen-to-square" inert></i></a>
+              <a role="button" tabindex="0" class="icon-button" data-identifier="{{this.id}}" aria-label="{{localize 'DOS100.item.actions.duplicate'}}"><i class="fa-solid fa-copy" inert></i></a>
+              <a role="button" tabindex="0" class="icon-button" data-identifier="{{this.id}}" aria-label="{{localize 'DOS100.item.actions.delete'}}"><i class="fa-solid fa-trash" inert></i></a>
+            </td>
+          </tr>
+        {{else}}
+          <tr>
+            <td colspan="3" class="dense-table-empty-state">{{localize "DOS100.item.actions.empty"}}</td>
+          </tr>
+        {{/each}}
+      </tbody>
+    </table>
+  </div>
+
+  {{!-- Shared Uses --}}
+  <div class="dos100-form-group">
+    <span>{{localize "DOS100.item.uses.label"}}</span>
+    <div>
+      {{#if (eq item.system.actions.uses.per "unlimited")}}
+        <select name="system.actions.uses.per">
+          {{#each usagePeriods}}
+            <option value="{{@key}}" {{#if (eq @key ../item.system.actions.uses.per)}}selected{{/if}}>{{localize this}}</option>
+          {{/each}}
+        </select>
+      {{else}}
+        <input type="number" name="system.actions.uses.value" value="{{item.system.actions.uses.value}}" class="dos100-uses-value" />
+        <span aria-hidden="true">/</span>
+        <span class="dos100-uses-max">{{item.system.actions.uses.max}}</span>
+        <select name="system.actions.uses.per">
+          {{#each usagePeriods}}
+            <option value="{{@key}}" {{#if (eq @key ../item.system.actions.uses.per)}}selected{{/if}}>{{localize this}}</option>
+          {{/each}}
+        </select>
+      {{/if}}
+    </div>
+  </div>
+  {{#unless (eq item.system.actions.uses.per "unlimited")}}
+    <div class="dos100-form-group">
+      <span>{{localize "DOS100.item.uses.formula"}}</span>
+      <div>
+        <input type="text" name="system.actions.uses.formula.max" value="{{item.system.actions.uses.formula.max}}" />
+      </div>
+    </div>
+  {{/unless}}
+
+  {{!-- Effect Notes --}}
+  <div class="dos100-item-notes">
+  <div class="dense-table-wrap">
+    <table class="dense-table">
+      <thead>
+        <tr>
+          <th scope="col" class="dense-table-flexible">{{localize "DOS100.item.effectNotes.label"}}</th>
+          <th scope="col">
+            <a role="button" tabindex="0" class="icon-button" aria-label="{{localize 'DOS100.item.effectNotes.add'}}">
+              <i class="fa-solid fa-plus" inert></i>
+            </a>
+          </th>
+        </tr>
+      </thead>
+      <tbody>
+        {{#each item.system.actions.notes.effectNotes}}
+          <tr>
+            <td class="dense-table-flexible">
+              <input type="text" name="system.actions.notes.effectNotes.{{@index}}" value="{{this}}" />
+            </td>
+            <td>
+              <a role="button" tabindex="0" class="icon-button" data-identifier="{{@index}}" aria-label="{{localize 'DOS100.item.effectNotes.delete'}}"><i class="fa-solid fa-trash" inert></i></a>
+            </td>
+          </tr>
+        {{else}}
+          <tr>
+            <td colspan="2" class="dense-table-empty-state">{{localize "DOS100.item.effectNotes.empty"}}</td>
+          </tr>
+        {{/each}}
+      </tbody>
+    </table>
+  </div>
+
+  {{!-- Footnotes --}}
+  <div class="dense-table-wrap">
+    <table class="dense-table">
+      <thead>
+        <tr>
+          <th scope="col" class="dense-table-flexible">{{localize "DOS100.item.footnotes.label"}}</th>
+          <th scope="col">
+            <a role="button" tabindex="0" class="icon-button" aria-label="{{localize 'DOS100.item.footnotes.add'}}">
+              <i class="fa-solid fa-plus" inert></i>
+            </a>
+          </th>
+        </tr>
+      </thead>
+      <tbody>
+        {{#each item.system.actions.notes.footnotes}}
+          <tr>
+            <td class="dense-table-flexible">
+              <input type="text" name="system.actions.notes.footnotes.{{@index}}" value="{{this}}" />
+            </td>
+            <td>
+              <a role="button" tabindex="0" class="icon-button" data-identifier="{{@index}}" aria-label="{{localize 'DOS100.item.footnotes.delete'}}"><i class="fa-solid fa-trash" inert></i></a>
+            </td>
+          </tr>
+        {{else}}
+          <tr>
+            <td colspan="2" class="dense-table-empty-state">{{localize "DOS100.item.footnotes.empty"}}</td>
+          </tr>
+        {{/each}}
+      </tbody>
+    </table>
+  </div>
+  </div>
+
+  <hr />
+
+  {{!-- Advanced --}}
+  <section class="dos100-item-advanced">
+    <h4 class="pc-section-heading">{{localize "DOS100.item.advanced"}}</h4>
+
+    <div class="dos100-form-group">
+      <span>{{localize "DOS100.item.tags"}}</span>
+      <div>
+        <div class="dos100-item-tags">
+          {{#each item.system.tags}}
+            <span class="dos100-item-tag">{{this}}</span>
+          {{/each}}
+        </div>
+        <a role="button" tabindex="0" class="icon-button" aria-label="{{localize 'DOS100.item.tagsEdit'}}">
+          <i class="fa-solid fa-pen-to-square" inert></i>
+        </a>
+      </div>
+    </div>
+
+    <div class="dos100-form-group">
+      <label for="{{sheetId}}-identifier">{{localize "DOS100.item.identifier"}}</label>
+      <input type="text" id="{{sheetId}}-identifier" name="system.identifier" value="{{item.system.identifier}}" />
+    </div>
+  </section>
+
+</section>

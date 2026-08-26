@@ -131,6 +131,72 @@
   padding-top: var(--spacer-8, 0.5rem);
 }
 
+/* Label/field rows on the Details tab — roughly 40/60 split.
+   Uses structural child selectors so no per-element helper classes needed. */
+.dos100-form-group {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.125rem 0;
+
+  > span,
+  > label {
+    flex: 0 0 40%;
+    font-size: var(--font-size-13, 0.8125rem);
+  }
+
+  > div {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    flex: 1 1 0;
+    min-width: 0;
+  }
+
+  > input,
+  > select {
+    flex: 1 1 0;
+    min-width: 0;
+  }
+}
+
+.dos100-form-group:has(.dos100-item-tags) {
+  align-items: flex-start;
+
+  > div {
+    align-items: flex-start;
+  }
+
+  .dos100-item-tags {
+    flex: 1 1 auto;
+  }
+}
+
+.dos100-uses-value {
+  width: 3rem;
+  text-align: center;
+}
+
+.dos100-uses-max {
+  width: 3rem;
+  text-align: center;
+  display: inline-block;
+}
+
+.dos100-item-notes {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  padding-top: 0.5rem;
+}
+
+.dos100-item-advanced {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  margin-top: 0.5rem;
+}
+
 /* Item-sheet dense tables (e.g. Ability's Changes/Conditionals) get the
    same center-align, vertical-middle spice PC-sheet dense tables get in
    skills.less — same reasoning, different root scope, since Item sheets

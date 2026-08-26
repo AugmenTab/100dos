@@ -1,4 +1,5 @@
 import { Dos100Item } from "../../documents/item.js";
+import { USAGE_PERIODS } from "../../items/action.js";
 
 const { HandlebarsApplicationMixin } = foundry.applications.api;
 const { ItemSheetV2 } = foundry.applications.sheets;
@@ -67,6 +68,7 @@ export abstract class AbstractItemSheet extends HandlebarsApplicationMixin(ItemS
       itemTypeLabel: game.i18n.localize(`TYPES.Item.${item.type}`),
       showCombatTab: this._showCombatTab,
       grantSource,
+      usagePeriods: USAGE_PERIODS,
       childItems: childIds.flatMap(id => { const r = toRow(id); return r ? [r] : []; }),
       supplementItems: supplementIds.flatMap(id => { const r = toRow(id); return r ? [r] : []; }),
     };

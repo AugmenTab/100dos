@@ -52,7 +52,7 @@ test("the name field carries the shared depleted (gray/strikethrough) treatment 
   await expect(nameInput).toHaveClass(/depleted/);
 });
 
-test("Description renders the rich-text editor bound to system.description; Details is a selectable placeholder", async ({
+test("Description renders the rich-text editor bound to system.description; Details tab is navigable and shows Actions, uses, notes, and Advanced sections", async ({
   foundryPage: page,
   fixtureLane,
 }) => {
@@ -68,8 +68,10 @@ test("Description renders the rich-text editor bound to system.description; Deta
   await expect(editor).toContainText("Sample description.");
 
   await openTab(sheet, "details");
-  await expect(sheet.locator('.tab[data-tab="details"].active')).toContainText("Details");
-  await expect(sheet.locator('.tab[data-tab="details"].active')).toContainText("This page doesn't have any content yet.");
+  const detailsPanel = sheet.locator('.tab[data-tab="details"].active');
+  await expect(detailsPanel.locator("table.dense-table")).toHaveCount(3);
+  await expect(detailsPanel.locator('select[name="system.actions.uses.per"]')).toBeVisible();
+  await expect(detailsPanel.locator(".dos100-item-advanced")).toBeVisible();
 });
 
 test("the Changes tab renders two dense tables, each with exactly one header row and no secondary column headers", async ({

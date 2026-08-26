@@ -55,13 +55,13 @@ test("sidebar Tags render from system.tags", async ({ foundryPage: page, fixture
   const sheetId = await openItemSheet(page, actorId, itemId);
   const sheet = page.locator(`#${sheetId}`);
 
-  const chips = sheet.locator(".dos100-item-tag");
+  const chips = sheet.locator(".dos100-item-sidebar .dos100-item-tag");
   await expect(chips).toHaveCount(2);
   await expect(chips.nth(0)).toHaveText("sensory");
   await expect(chips.nth(1)).toHaveText("innate");
 });
 
-test("Description reuses the shared rich-text template bound to system.description; Details remains a placeholder", async ({
+test("Description reuses the shared rich-text template bound to system.description; Details tab renders shared Actions, uses, notes, and Advanced sections", async ({
   foundryPage: page,
   fixtureLane,
 }) => {
@@ -77,8 +77,10 @@ test("Description reuses the shared rich-text template bound to system.descripti
   await expect(editor).toContainText("Sample Trait description.");
 
   await openTab(sheet, "details");
-  await expect(sheet.locator('.tab[data-tab="details"].active')).toContainText("Details");
-  await expect(sheet.locator('.tab[data-tab="details"].active')).toContainText("This page doesn't have any content yet.");
+  const detailsPanel = sheet.locator('.tab[data-tab="details"].active');
+  await expect(detailsPanel.locator("table.dense-table")).toHaveCount(3);
+  await expect(detailsPanel.locator('select[name="system.actions.uses.per"]')).toBeVisible();
+  await expect(detailsPanel.locator(".dos100-item-advanced")).toBeVisible();
 });
 
 test("the Changes tab reuses the shared implementation, rendering both tables against Trait's own system.changes data", async ({

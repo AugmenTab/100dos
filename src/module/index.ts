@@ -60,6 +60,7 @@ Hooks.once("init", (): void => {
     "systems/100dos/templates/actors/pc/effects/row.hbs",
     "systems/100dos/templates/actors/pc/settings.hbs",
     "systems/100dos/templates/items/shell/description-tab.hbs",
+    "systems/100dos/templates/items/shell/details-tab.hbs",
     "systems/100dos/templates/items/shell/changes-tab.hbs",
     "systems/100dos/templates/items/shell/links-tab.hbs",
   ]);
