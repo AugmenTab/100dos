@@ -6,6 +6,16 @@ import { type Actions, type UsagePeriod, shouldRecharge } from "../items/action.
 // has (or will have) one.
 export const ACTIONS_ITEM_TYPES = new Set(["ability", "trait", "effect", "armor", "gear"]);
 
+// Item types that carry system.identifier and receive automatic seeding
+// on creation.
+const ABSTRACT_ITEM_TYPES = new Set(["ability", "trait", "effect"]);
+
+function toCamelCase(str: string): string {
+  const words = str.split(/[^a-zA-Z0-9]+/).filter(w => w.length > 0);
+  if (words.length === 0) return "item";
+  return words[0].toLowerCase() + words.slice(1).map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()).join("");
+}
+
 export class Dos100Item extends Item {
   override prepareBaseData(): void {
     super.prepareBaseData();
@@ -45,10 +55,31 @@ export class Dos100Item extends Item {
 
   protected override _onCreate(data: object, options: object, userId: string): void {
     super._onCreate(data, options, userId);
-    if (game.user?.id !== userId || !this.actor) return;
+    if (game.user?.id !== userId) return;
+    if (ABSTRACT_ITEM_TYPES.has(this.type) && !(this.system as { identifier: string }).identifier) {
+      void this._seedIdentifier();
+    }
+    if (!this.actor) return;
     const grants = (this.system as { grants?: GrantData[] }).grants;
     if (!grants?.length) return;
     void this._createGrants(grants);
+  }
+
+  private async _seedIdentifier(): Promise<void> {
+    const base = toCamelCase(this.name ?? "");
+    const taken = new Set(
+      (this.actor?.items ?? ([] as Item[]))
+        .filter(i => i.id !== this.id && ABSTRACT_ITEM_TYPES.has(i.type))
+        .map(i => (i.system as { identifier?: string }).identifier)
+        .filter((id): id is string => typeof id === "string" && id.length > 0),
+    );
+    let slug = base;
+    let counter = 2;
+    while (taken.has(slug)) {
+      slug = `${base}${counter}`;
+      counter++;
+    }
+    await this.update({ "system.identifier": slug });
   }
 
   protected override _onUpdate(data: object, options: object, userId: string): void {
