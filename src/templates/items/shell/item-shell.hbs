@@ -21,6 +21,9 @@
 <div class="dos100-item-shell">
   <aside class="dos100-item-sidebar">
     <h3 class="pc-section-heading" aria-hidden="true">{{itemTypeLabel}}</h3>
+    {{#if grantSource}}
+      <p class="dos100-item-grant-source">{{grantSource.name}} ({{grantSource.typeLabel}})</p>
+    {{/if}}
 
     <div class="dos100-item-checkboxes">
       <label class="dos100-item-checkbox">
@@ -31,10 +34,12 @@
         <input type="checkbox" name="system.actions.pinned" {{#if item.system.actions.pinned}}checked{{/if}} />
         {{localize "DOS100.item.pinned"}}
       </label>
-      <label class="dos100-item-checkbox">
-        <input type="checkbox" name="system.showInCombatTab" {{#if item.system.showInCombatTab}}checked{{/if}} />
-        {{localize "DOS100.item.combatTab"}}
-      </label>
+      {{#if showCombatTab}}
+        <label class="dos100-item-checkbox">
+          <input type="checkbox" name="system.showInCombatTab" {{#if item.system.showInCombatTab}}checked{{/if}} />
+          {{localize "DOS100.item.combatTab"}}
+        </label>
+      {{/if}}
     </div>
 
     <div class="dos100-item-sidebar-tags">

@@ -1,19 +1,17 @@
-// Context shape mirrors AbstractItemSheet._prepareContext() (see
-// src/module/sheets/items/abstract-item-sheet.ts) closely enough to render
-// items/shell/item-shell.hbs faithfully: item/sheetId/itemTypeLabel are passed
-// straight through by the real method; tabs.primary/links are Foundry's own
-// _prepareTabs() output shape (id/label/active/cssClass per tab), hand-built
-// here rather than computed — that computation is ApplicationV2 machinery,
-// out of scope for this tier, so its RESULT shape is reproduced instead.
-export type LinkedItemFixture = { id: string; name: string; img: string };
+// Context shape mirrors AbstractItemSheet._prepareContext() for the effect
+// type — same structure as ability-context.ts but with showCombatTab: false,
+// active defaulting to false (Effect's schema default), and a grantSource
+// field that may be null or { name, typeLabel }.
+import { type LinkedItemFixture } from "./ability-context.js";
 
-export type AbilityItemFixture = {
+export type GrantSourceFixture = { name: string; typeLabel: string };
+
+export type EffectItemFixture = {
   img?: string;
   name?: string;
   system?: {
     active?: boolean;
     actions?: { pinned?: boolean };
-    showInCombatTab?: boolean;
     tags?: string[];
     description?: string;
     changes?: {
@@ -21,12 +19,13 @@ export type AbilityItemFixture = {
       conditional?: { id: string; target: string; value: string }[];
     };
   };
+  grantSource?: GrantSourceFixture | null;
   childItems?: LinkedItemFixture[];
   supplementItems?: LinkedItemFixture[];
 };
 
-export function buildAbilityContext(
-  item: AbilityItemFixture,
+export function buildEffectContext(
+  item: EffectItemFixture,
   activeTab: "description" | "details" | "changes" | "links" = "description",
   activeLinksTab: "children" | "supplements" = "children",
 ) {
@@ -54,13 +53,12 @@ export function buildAbilityContext(
 
   return {
     item: {
-      img: item.img ?? "systems/100dos/assets/icons/ability.svg",
-      name: item.name ?? "[Browser] Ability",
-      type: "ability",
+      img: item.img ?? "systems/100dos/assets/icons/effect.svg",
+      name: item.name ?? "[Browser] Effect",
+      type: "effect",
       system: {
-        active: item.system?.active ?? true,
+        active: item.system?.active ?? false,
         actions: { pinned: item.system?.actions?.pinned ?? false },
-        showInCombatTab: item.system?.showInCombatTab ?? false,
         tags: item.system?.tags ?? [],
         description: item.system?.description ?? "",
         changes: {
@@ -71,9 +69,9 @@ export function buildAbilityContext(
     },
     sheetId: "browser-tier-sheet",
     tabs: { primary: primaryTabs, links: linksTabs },
-    itemTypeLabel: "Ability",
-    showCombatTab: true,
-    grantSource: null,
+    itemTypeLabel: "Effect",
+    showCombatTab: false,
+    grantSource: item.grantSource ?? null,
     childItems: item.childItems ?? [],
     supplementItems: item.supplementItems ?? [],
   };

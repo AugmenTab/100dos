@@ -15,7 +15,6 @@ export type Identifier = string;
 // currently defaults to false, not true).
 export type AbstractItemData = {
   active: boolean;
-  showInCombatTab: boolean;
   description: string;
   tags: Tag[];
   identifier: Identifier;
@@ -28,7 +27,6 @@ export function abstractItemFields() {
   const { ArrayField, BooleanField, StringField } = foundry.data.fields;
   return {
     active: new BooleanField({ required: true, initial: true }),
-    showInCombatTab: new BooleanField({ required: true, initial: false }),
     description: new StringField({ required: true, initial: "" }),
     tags: new ArrayField(new StringField({ required: true, blank: false })),
     identifier: new StringField({ required: true, initial: "" }),

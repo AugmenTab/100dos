@@ -1,5 +1,4 @@
-import { type Changes, changesField } from "../change.js";
-import { type Actions, actionsField } from "./action.js";
+import { type AbstractItemData, abstractItemFields } from "./abstract-item.js";
 
 const { BooleanField, NumberField, SchemaField, StringField } = foundry.data.fields;
 
@@ -20,8 +19,7 @@ export type EffectDuration = {
   expiration: EffectExpiration | null;
 };
 
-export type EffectData = {
-  active: boolean;
+export type EffectData = AbstractItemData & {
   duration: EffectDuration;
   stackingRule: StackingRule;
   // Whether the Effect itself should be removed from the Actor once its
@@ -29,9 +27,6 @@ export type EffectData = {
   // not an EffectPersistence enum. TODO: automatic deletion-on-expiration
   // is not implemented here.
   deleteOnExpire: boolean;
-  changes: Changes;
-  actions: Actions;
-  description: string;
 };
 
 export const DURATION_UNITS: Record<DurationUnit, string> = {
@@ -53,6 +48,7 @@ export const STACKING_RULES: Record<StackingRule, string> = {
 export class EffectDataModel extends foundry.abstract.TypeDataModel {
   static override defineSchema() {
     return {
+      ...abstractItemFields(),
       active: new BooleanField({ required: true, initial: false }),
       duration: new SchemaField({
         formula: new StringField({ required: true, initial: "" }),
@@ -67,9 +63,6 @@ export class EffectDataModel extends foundry.abstract.TypeDataModel {
       }),
       stackingRule: new StringField({ required: true, initial: "replace" }),
       deleteOnExpire: new BooleanField({ required: true, initial: false }),
-      changes: changesField(),
-      actions: actionsField(),
-      description: new StringField({ required: true, initial: "" }),
     };
   }
 }

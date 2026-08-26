@@ -106,6 +106,54 @@ export async function resetLinksFixtures(page: Page, lane: number): Promise<{ ac
 }
 
 /**
+ * Creates a PC with an Ability that grants one child Effect. Returns both
+ * the Actor ID and the granting Ability's ID so the caller can locate the
+ * child Effect via the Ability's childItemIds flag once _onCreate has run.
+ */
+export async function resetEffectSourceFixtures(
+  page: Page,
+  lane: number,
+): Promise<{ actorId: string; grantingItemId: string }> {
+  return page.evaluate(
+    async ({ systemId, lane }) => {
+      const staleActors = game.actors.filter(
+        (a) => Boolean(a.getFlag(systemId, "e2eFixture")) && a.getFlag(systemId, "e2eLane") === lane,
+      );
+      for (const actor of staleActors) await actor.delete();
+
+      const actor = await Actor.create({
+        name: "[E2E] PC",
+        type: "pc",
+        flags: { [systemId]: { e2eFixture: "pc", e2eLane: lane } },
+      });
+      if (!actor) throw new Error("Failed to create fixture PC.");
+
+      const [item] = await actor.createEmbeddedDocuments("Item", [
+        {
+          name: "[E2E] Granting Ability",
+          type: "ability",
+          system: {
+            grants: [
+              {
+                kind: "child",
+                type: "effect",
+                name: "[E2E] Rage Effect",
+                system: { tags: ["rage"] },
+              },
+            ],
+          },
+          flags: { [systemId]: { e2eFixture: "ability", e2eLane: lane } },
+        },
+      ]);
+      if (!item) throw new Error("Failed to create fixture Granting Ability.");
+
+      return { actorId: actor.id, grantingItemId: item.id };
+    },
+    { systemId: SYSTEM_ID, lane },
+  );
+}
+
+/**
  * Separate from resetFixtures (PC + Ability) rather than folded into it —
  * resetFixtures is shared by nearly every e2e file in the suite, and most
  * of those don't touch Trait at all, so adding a Trait Item to every one

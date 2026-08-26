@@ -8,4 +8,8 @@ export class AbilityItemSheet extends AbstractItemSheet {
   static override PARTS = {
     body: { template: "systems/100dos/templates/items/shell/item-shell.hbs" },
   };
+
+  protected override get _showCombatTab(): boolean {
+    return true;
+  }
 }

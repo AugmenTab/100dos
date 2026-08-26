@@ -35,6 +35,10 @@ export abstract class AbstractItemSheet extends HandlebarsApplicationMixin(ItemS
     },
   };
 
+  protected get _showCombatTab(): boolean {
+    return false;
+  }
+
   override async _prepareContext(options: Record<string, unknown>): Promise<Record<string, unknown>> {
     const item = this.item as Dos100Item;
     const sysId = game.system.id;
@@ -44,6 +48,10 @@ export abstract class AbstractItemSheet extends HandlebarsApplicationMixin(ItemS
       const granted = item.actor?.items.get(id) as Dos100Item | undefined;
       return granted ? { id: granted.id, name: granted.name, img: granted.img } : null;
     };
+    const grantingItem = item.grantingItem;
+    const grantSource = grantingItem
+      ? { name: grantingItem.name, typeLabel: game.i18n.localize(`TYPES.Item.${grantingItem.type}`) }
+      : null;
     return {
       ...await super._prepareContext(options),
       item,
@@ -57,6 +65,8 @@ export abstract class AbstractItemSheet extends HandlebarsApplicationMixin(ItemS
       // documentTypes.Item and en.json's TYPES.Item block) rather than a
       // second, duplicate DOS100.<type>.name key.
       itemTypeLabel: game.i18n.localize(`TYPES.Item.${item.type}`),
+      showCombatTab: this._showCombatTab,
+      grantSource,
       childItems: childIds.flatMap(id => { const r = toRow(id); return r ? [r] : []; }),
       supplementItems: supplementIds.flatMap(id => { const r = toRow(id); return r ? [r] : []; }),
     };
