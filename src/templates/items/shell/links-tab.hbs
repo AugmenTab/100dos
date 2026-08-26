@@ -1,0 +1,142 @@
+<section
+  class="tab{{#if tabs.primary.links.active}} active{{/if}}"
+  data-group="primary"
+  data-tab="links"
+  role="tabpanel"
+  id="{{sheetId}}-primary-panel-links"
+  aria-labelledby="{{sheetId}}-primary-tab-links"
+>
+  <nav
+    class="tabs dos100-item-tabs"
+    data-group="links"
+    role="tablist"
+    aria-label="{{localize 'DOS100.item.tabs.links'}}"
+  >
+    {{#each tabs.links}}
+      <button
+        type="button"
+        class="dos100-item-tab-control {{cssClass}}"
+        data-action="tab"
+        data-group="links"
+        data-tab="{{id}}"
+        role="tab"
+        id="{{../sheetId}}-links-tab-{{id}}"
+        aria-selected="{{active}}"
+        aria-controls="{{../sheetId}}-links-panel-{{id}}"
+        tabindex="{{#if active}}0{{else}}-1{{/if}}"
+      >{{localize label}}</button>
+    {{/each}}
+  </nav>
+
+  <section
+    class="tab{{#if tabs.links.children.active}} active{{/if}}"
+    data-group="links"
+    data-tab="children"
+    role="tabpanel"
+    id="{{sheetId}}-links-panel-children"
+    aria-labelledby="{{sheetId}}-links-tab-children"
+  >
+    <p>{{localize "DOS100.item.links.children.notice"}}</p>
+    <div class="dense-table-wrap">
+      <table class="dense-table">
+        <thead>
+          <tr>
+            <th scope="col" colspan="2">{{localize "DOS100.item.links.children.item"}}</th>
+          </tr>
+        </thead>
+        <tbody>
+          {{#if childItems.length}}
+            {{#each childItems}}
+              <tr>
+                <td class="dense-table-flexible">
+                  <span class="dense-table-name-inner">
+                    <img class="dense-table-item-img" src="{{this.img}}" alt="" />
+                    {{this.name}}
+                  </span>
+                </td>
+                <td>
+                  {{!-- TODO: not wired up yet — no linked-item edit action exists. --}}
+                  <a
+                    role="button"
+                    tabindex="0"
+                    class="icon-button"
+                    data-identifier="{{this.id}}"
+                    aria-label="{{localize 'DOS100.item.links.children.edit'}}"
+                  ><i class="fa-solid fa-pen-to-square" inert></i></a>
+                  {{!-- TODO: not wired up yet — no linked-item delete action exists. --}}
+                  <a
+                    role="button"
+                    tabindex="0"
+                    class="icon-button"
+                    data-identifier="{{this.id}}"
+                    aria-label="{{localize 'DOS100.item.links.children.delete'}}"
+                  ><i class="fa-solid fa-trash" inert></i></a>
+                </td>
+              </tr>
+            {{/each}}
+          {{else}}
+            <tr>
+              <td colspan="2" class="dense-table-empty-state">{{localize "DOS100.item.links.children.empty"}}</td>
+            </tr>
+          {{/if}}
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section
+    class="tab{{#if tabs.links.supplements.active}} active{{/if}}"
+    data-group="links"
+    data-tab="supplements"
+    role="tabpanel"
+    id="{{sheetId}}-links-panel-supplements"
+    aria-labelledby="{{sheetId}}-links-tab-supplements"
+  >
+    <p>{{localize "DOS100.item.links.supplements.notice"}}</p>
+    <div class="dense-table-wrap">
+      <table class="dense-table">
+        <thead>
+          <tr>
+            <th scope="col" colspan="2">{{localize "DOS100.item.links.supplements.item"}}</th>
+          </tr>
+        </thead>
+        <tbody>
+          {{#if supplementItems.length}}
+            {{#each supplementItems}}
+              <tr>
+                <td class="dense-table-flexible">
+                  <span class="dense-table-name-inner">
+                    <img class="dense-table-item-img" src="{{this.img}}" alt="" />
+                    {{this.name}}
+                  </span>
+                </td>
+                <td>
+                  {{!-- TODO: not wired up yet — no linked-item edit action exists. --}}
+                  <a
+                    role="button"
+                    tabindex="0"
+                    class="icon-button"
+                    data-identifier="{{this.id}}"
+                    aria-label="{{localize 'DOS100.item.links.supplements.edit'}}"
+                  ><i class="fa-solid fa-pen-to-square" inert></i></a>
+                  {{!-- TODO: not wired up yet — no linked-item delete action exists. --}}
+                  <a
+                    role="button"
+                    tabindex="0"
+                    class="icon-button"
+                    data-identifier="{{this.id}}"
+                    aria-label="{{localize 'DOS100.item.links.supplements.delete'}}"
+                  ><i class="fa-solid fa-trash" inert></i></a>
+                </td>
+              </tr>
+            {{/each}}
+          {{else}}
+            <tr>
+              <td colspan="2" class="dense-table-empty-state">{{localize "DOS100.item.links.supplements.empty"}}</td>
+            </tr>
+          {{/if}}
+        </tbody>
+      </table>
+    </div>
+  </section>
+</section>

@@ -35,7 +35,8 @@
       "tabs": {
         "description": "Description",
         "details": "Details",
-        "changes": "Changes"
+        "changes": "Changes",
+        "links": "Links"
       },
       "changes": {
         "label": "Changes",
@@ -61,6 +62,24 @@
       },
       "changeTarget": {
         "strMod": "Strength Mod"
+      },
+      "links": {
+        "children": {
+          "label": "Children",
+          "notice": "Child items inherit this item's Active state and are deleted when this item is deleted.",
+          "item": "Item",
+          "edit": "Edit child item",
+          "delete": "Delete child item",
+          "empty": "No child items."
+        },
+        "supplements": {
+          "label": "Supplements",
+          "notice": "Supplement items are granted alongside this item and are independent once granted.",
+          "item": "Item",
+          "edit": "Edit supplement item",
+          "delete": "Delete supplement item",
+          "empty": "No supplement items."
+        }
       }
     },
     "setting": {

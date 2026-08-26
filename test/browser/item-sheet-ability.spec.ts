@@ -9,13 +9,19 @@ import { expect, test } from "@playwright/test";
 import { buildAbilityContext } from "./support/ability-context.js";
 import { renderPage } from "./support/render.js";
 
-test("the Ability sheet renders the abstract Item shell: editable header, sidebar heading, and Description/Details/Changes navigation", async ({
+const ITEM_SHELL_PARTIALS = [
+  "items/shell/description-tab.hbs",
+  "items/shell/changes-tab.hbs",
+  "items/shell/links-tab.hbs",
+];
+
+test("the Ability sheet renders the abstract Item shell: editable header, sidebar heading, and Description/Details/Changes/Links navigation", async ({
   page,
 }) => {
   const html = renderPage(
     "items/shell/item-shell.hbs",
     buildAbilityContext({ name: "[E2E] Ability" }),
-    { partials: ["items/shell/description-tab.hbs", "items/shell/changes-tab.hbs"] },
+    { partials: ITEM_SHELL_PARTIALS },
   );
   await page.setContent(html);
 
@@ -26,14 +32,14 @@ test("the Ability sheet renders the abstract Item shell: editable header, sideba
   await expect(sidebar).toContainText("Ability");
 
   const tabLabels = await page.locator('[role="tab"][data-group="primary"]').allTextContents();
-  expect(tabLabels).toEqual(["Description", "Details", "Changes"]);
+  expect(tabLabels).toEqual(["Description", "Details", "Changes", "Links"]);
 });
 
 test("sidebar Tags render from system.tags", async ({ page }) => {
   const html = renderPage(
     "items/shell/item-shell.hbs",
     buildAbilityContext({ system: { tags: ["combat", "movement"] } }),
-    { partials: ["items/shell/description-tab.hbs", "items/shell/changes-tab.hbs"] },
+    { partials: ITEM_SHELL_PARTIALS },
   );
   await page.setContent(html);
 
@@ -47,7 +53,7 @@ test("the shell remains usable, without overflow, at representative sheet widths
   const html = renderPage(
     "items/shell/item-shell.hbs",
     buildAbilityContext({ system: { tags: ["combat"] } }),
-    { partials: ["items/shell/description-tab.hbs", "items/shell/changes-tab.hbs"] },
+    { partials: ITEM_SHELL_PARTIALS },
   );
   await page.setContent(html);
 

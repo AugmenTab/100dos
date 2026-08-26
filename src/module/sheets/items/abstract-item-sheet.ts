@@ -1,3 +1,5 @@
+import { Dos100Item } from "../../documents/item.js";
+
 const { HandlebarsApplicationMixin } = foundry.applications.api;
 const { ItemSheetV2 } = foundry.applications.sheets;
 
@@ -14,17 +16,49 @@ export abstract class AbstractItemSheet extends HandlebarsApplicationMixin(ItemS
     form: { submitOnChange: true, closeOnSubmit: false },
   };
 
+  static override TABS = {
+    primary: {
+      initial: "description",
+      tabs: [
+        { id: "description", label: "DOS100.item.tabs.description" },
+        { id: "details", label: "DOS100.item.tabs.details" },
+        { id: "changes", label: "DOS100.item.tabs.changes" },
+        { id: "links", label: "DOS100.item.tabs.links" },
+      ],
+    },
+    links: {
+      initial: "children",
+      tabs: [
+        { id: "children", label: "DOS100.item.links.children.label" },
+        { id: "supplements", label: "DOS100.item.links.supplements.label" },
+      ],
+    },
+  };
+
   override async _prepareContext(options: Record<string, unknown>): Promise<Record<string, unknown>> {
+    const item = this.item as Dos100Item;
+    const sysId = game.system.id;
+    const childIds = (item.getFlag(sysId, "childItemIds") as string[] | undefined) ?? [];
+    const supplementIds = (item.getFlag(sysId, "supplementItemIds") as string[] | undefined) ?? [];
+    const toRow = (id: string) => {
+      const granted = item.actor?.items.get(id) as Dos100Item | undefined;
+      return granted ? { id: granted.id, name: granted.name, img: granted.img } : null;
+    };
     return {
       ...await super._prepareContext(options),
-      item: this.item,
+      item,
       sheetId: this.id,
-      tabs: { primary: this._prepareTabs("primary") },
+      tabs: {
+        primary: this._prepareTabs("primary"),
+        links: this._prepareTabs("links"),
+      },
       // Sourced from the Item's own type, not hard-coded — reuses Foundry's
       // own auto-registered TYPES.Item.<type> label (see system.json's
       // documentTypes.Item and en.json's TYPES.Item block) rather than a
       // second, duplicate DOS100.<type>.name key.
-      itemTypeLabel: game.i18n.localize(`TYPES.Item.${this.item.type}`),
+      itemTypeLabel: game.i18n.localize(`TYPES.Item.${item.type}`),
+      childItems: childIds.flatMap(id => { const r = toRow(id); return r ? [r] : []; }),
+      supplementItems: supplementIds.flatMap(id => { const r = toRow(id); return r ? [r] : []; }),
     };
   }
 }

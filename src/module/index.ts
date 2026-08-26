@@ -61,6 +61,7 @@ Hooks.once("init", (): void => {
     "systems/100dos/templates/actors/pc/settings.hbs",
     "systems/100dos/templates/items/shell/description-tab.hbs",
     "systems/100dos/templates/items/shell/changes-tab.hbs",
+    "systems/100dos/templates/items/shell/links-tab.hbs",
   ]);
 
   game.settings.register(game.system.id, "debugMode", {

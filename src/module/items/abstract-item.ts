@@ -1,5 +1,6 @@
 import { type Changes, changesField } from "../change.js";
 import { type Actions, actionsField } from "./action.js";
+import { type GrantData, grantsField } from "./grants.js";
 
 export type Tag = string;
 export type Identifier = string;
@@ -20,6 +21,7 @@ export type AbstractItemData = {
   identifier: Identifier;
   changes: Changes;
   actions: Actions;
+  grants: GrantData[];
 };
 
 export function abstractItemFields() {
@@ -32,5 +34,6 @@ export function abstractItemFields() {
     identifier: new StringField({ required: true, initial: "" }),
     changes: changesField(),
     actions: actionsField(),
+    grants: grantsField(),
   };
 }

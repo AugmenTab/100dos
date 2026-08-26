@@ -141,4 +141,19 @@
       text-align: left;
     }
   }
+
+  /* Same reasoning as skills.less: flex must live on an inner wrapper, not
+     the <td> itself, or the cell stops generating a table-cell box and
+     loses its own vertical-align. */
+  .dense-table-name-inner {
+    display: flex;
+    align-items: center;
+    gap: 0.375rem;
+  }
+
+  .dense-table-item-img {
+    width: 1.5rem;
+    height: 1.5rem;
+    object-fit: cover;
+  }
 }

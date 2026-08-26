@@ -1,10 +1,12 @@
 // Context shape mirrors AbstractItemSheet._prepareContext() (see
 // src/module/sheets/items/abstract-item-sheet.ts) closely enough to render
-// items/ability.hbs faithfully: item/sheetId/itemTypeLabel are passed
-// straight through by the real method; tabs.primary is Foundry's own
+// items/shell/item-shell.hbs faithfully: item/sheetId/itemTypeLabel are passed
+// straight through by the real method; tabs.primary/links are Foundry's own
 // _prepareTabs() output shape (id/label/active/cssClass per tab), hand-built
 // here rather than computed — that computation is ApplicationV2 machinery,
 // out of scope for this tier, so its RESULT shape is reproduced instead.
+export type LinkedItemFixture = { id: string; name: string; img: string };
+
 export type AbilityItemFixture = {
   img?: string;
   name?: string;
@@ -19,19 +21,37 @@ export type AbilityItemFixture = {
       conditional?: { id: string; target: string; value: string }[];
     };
   };
+  childItems?: LinkedItemFixture[];
+  supplementItems?: LinkedItemFixture[];
 };
 
-export function buildAbilityContext(item: AbilityItemFixture, activeTab: "description" | "details" | "changes" = "description") {
-  const tabDefs = [
+export function buildAbilityContext(
+  item: AbilityItemFixture,
+  activeTab: "description" | "details" | "changes" | "links" = "description",
+  activeLinksTab: "children" | "supplements" = "children",
+) {
+  const primaryTabDefs = [
     { id: "description", label: "DOS100.item.tabs.description" },
     { id: "details", label: "DOS100.item.tabs.details" },
     { id: "changes", label: "DOS100.item.tabs.changes" },
+    { id: "links", label: "DOS100.item.tabs.links" },
   ] as const;
-  const tabs: Record<string, { id: string; label: string; active: boolean; cssClass: string }> = {};
-  for (const def of tabDefs) {
+  const primaryTabs: Record<string, { id: string; label: string; active: boolean; cssClass: string }> = {};
+  for (const def of primaryTabDefs) {
     const active = def.id === activeTab;
-    tabs[def.id] = { ...def, active, cssClass: active ? "active" : "" };
+    primaryTabs[def.id] = { ...def, active, cssClass: active ? "active" : "" };
   }
+
+  const linksTabDefs = [
+    { id: "children", label: "DOS100.item.links.children.label" },
+    { id: "supplements", label: "DOS100.item.links.supplements.label" },
+  ] as const;
+  const linksTabs: Record<string, { id: string; label: string; active: boolean; cssClass: string }> = {};
+  for (const def of linksTabDefs) {
+    const active = def.id === activeLinksTab;
+    linksTabs[def.id] = { ...def, active, cssClass: active ? "active" : "" };
+  }
+
   return {
     item: {
       img: item.img ?? "systems/100dos/assets/icons/ability.svg",
@@ -50,7 +70,9 @@ export function buildAbilityContext(item: AbilityItemFixture, activeTab: "descri
       },
     },
     sheetId: "browser-tier-sheet",
-    tabs: { primary: tabs },
+    tabs: { primary: primaryTabs, links: linksTabs },
     itemTypeLabel: "Ability",
+    childItems: item.childItems ?? [],
+    supplementItems: item.supplementItems ?? [],
   };
 }

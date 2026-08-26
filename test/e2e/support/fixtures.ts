@@ -64,6 +64,48 @@ export async function deleteFixtureAbility(
 }
 
 /**
+ * Creates a PC with an Ability that has one child grant (Trait) and one
+ * supplement grant (Trait). _onCreate fires on item creation, so the grants
+ * are resolved and the childItemIds/supplementItemIds flags are set before
+ * this function returns — no extra wait needed in the test.
+ */
+export async function resetLinksFixtures(page: Page, lane: number): Promise<{ actorId: string; grantingItemId: string }> {
+  return page.evaluate(
+    async ({ systemId, lane }) => {
+      const staleActors = game.actors.filter(
+        (a) => Boolean(a.getFlag(systemId, "e2eFixture")) && a.getFlag(systemId, "e2eLane") === lane,
+      );
+      for (const actor of staleActors) await actor.delete();
+
+      const actor = await Actor.create({
+        name: "[E2E] PC",
+        type: "pc",
+        flags: { [systemId]: { e2eFixture: "pc", e2eLane: lane } },
+      });
+      if (!actor) throw new Error("Failed to create fixture PC.");
+
+      const [item] = await actor.createEmbeddedDocuments("Item", [
+        {
+          name: "[E2E] Granting Ability",
+          type: "ability",
+          system: {
+            grants: [
+              { kind: "child", type: "trait", name: "[E2E] Child Trait", system: {} },
+              { kind: "supplement", type: "trait", name: "[E2E] Supplement Trait", system: {} },
+            ],
+          },
+          flags: { [systemId]: { e2eFixture: "ability", e2eLane: lane } },
+        },
+      ]);
+      if (!item) throw new Error("Failed to create fixture Granting Ability.");
+
+      return { actorId: actor.id, grantingItemId: item.id };
+    },
+    { systemId: SYSTEM_ID, lane },
+  );
+}
+
+/**
  * Separate from resetFixtures (PC + Ability) rather than folded into it —
  * resetFixtures is shared by nearly every e2e file in the suite, and most
  * of those don't touch Trait at all, so adding a Trait Item to every one

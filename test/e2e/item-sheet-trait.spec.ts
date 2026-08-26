@@ -13,7 +13,7 @@ import { openItemSheet, openTab, updateItem } from "./support/item-sheet.js";
 // Actor/PC-sheet assumptions — so it works for an Item sheet too.
 import { resizePcSheet as resizeSheet } from "./support/pc-sheet.js";
 
-test("the Trait sheet opens using the reusable abstract Item shell: header, sidebar heading, and Description/Details/Changes navigation", async ({
+test("the Trait sheet opens using the reusable abstract Item shell: header, sidebar heading, and Description/Details/Changes/Links navigation", async ({
   foundryPage: page,
   fixtureLane,
 }) => {
@@ -26,7 +26,7 @@ test("the Trait sheet opens using the reusable abstract Item shell: header, side
   await expect(sheet.locator(".dos100-item-sidebar")).toContainText("Trait");
 
   const tabLabels = await sheet.locator('[role="tab"][data-group="primary"]').allTextContents();
-  expect(tabLabels).toEqual(["Description", "Details", "Changes"]);
+  expect(tabLabels).toEqual(["Description", "Details", "Changes", "Links"]);
 });
 
 test("sidebar checkboxes are ordered Active, Pinned, Combat Tab and bind to their schema fields", async ({ foundryPage: page, fixtureLane }) => {

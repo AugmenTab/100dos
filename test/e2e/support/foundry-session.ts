@@ -155,6 +155,19 @@ async function launchExistingWorld(page: Page): Promise<void> {
 
 async function joinAsUser(page: Page, userLabel: string): Promise<void> {
   const form = page.locator("#join-game-form");
+  // Foundry briefly disables user options in the join form while the world
+  // is still initializing after a fresh start. Wait for the specific option
+  // to become enabled before attempting to select it.
+  await page.waitForFunction(
+    (label) => {
+      const select = document.querySelector('#join-game-form select[name="userid"]') as HTMLSelectElement | null;
+      if (!select) return false;
+      const option = Array.from(select.options).find((o) => o.text === label);
+      return option !== undefined && !option.disabled;
+    },
+    userLabel,
+    { timeout: 30_000 },
+  );
   await form
     .locator('select[name="userid"]')
     .selectOption({ label: userLabel });

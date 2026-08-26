@@ -108,6 +108,7 @@ declare class Actor {
   prepareBaseData(): void;
   prepareDerivedData(): void;
   createEmbeddedDocuments(type: string, data: object[]): Promise<Item[]>;
+  updateEmbeddedDocuments(type: string, data: object[]): Promise<Item[]>;
   deleteEmbeddedDocuments(type: string, ids: string[]): Promise<Item[]>;
   update(data: Record<string, unknown>): Promise<unknown>;
   toggleStatusEffect(statusId: string, options?: { active?: boolean }): Promise<unknown>;
@@ -131,6 +132,7 @@ declare class Item {
   getFlag(scope: string, key: string): unknown;
   setFlag(scope: string, key: string, value: unknown): Promise<this>;
   protected _onCreate(data: object, options: object, userId: string): void;
+  protected _onUpdate(data: object, options: object, userId: string): void;
   protected _onDelete(options: object, userId: string): void;
 }
 
@@ -163,6 +165,7 @@ declare namespace foundry {
   namespace utils {
     function randomID(length?: number): string;
     function escapeHTML(value: unknown): string;
+    function hasProperty(object: object, key: string): boolean;
   }
   namespace abstract {
     class TypeDataModel {
