@@ -12,7 +12,7 @@
     <table class="dense-table">
       <thead>
         <tr>
-          <th scope="col" colspan="2">{{localize "DOS100.item.actions.label"}}</th>
+          <th scope="col" colspan="2" class="dense-table-flexible">{{localize "DOS100.item.actions.label"}}</th>
           <th scope="col">
             <a role="button" tabindex="0" class="icon-button" aria-label="{{localize 'DOS100.item.actions.add'}}">
               <i class="fa-solid fa-plus" inert></i>
@@ -147,6 +147,10 @@
     </table>
   </div>
   </div>
+
+  {{#if typeDetailsPartial}}
+    {{> (lookup . "typeDetailsPartial")}}
+  {{/if}}
 
   <hr />
 

@@ -19,6 +19,9 @@ export type EffectItemFixture = {
     };
     tags?: string[];
     identifier?: string;
+    deleteOnExpire?: boolean;
+    duration?: { formula?: string; unit?: string; expiration?: string | null };
+    stackingRule?: string;
     description?: string;
     changes?: {
       computed?: { id: string; target: string; mode: string; formula: string }[];
@@ -75,6 +78,13 @@ export function buildEffectContext(
         },
         tags: item.system?.tags ?? [],
         identifier: item.system?.identifier ?? "",
+        deleteOnExpire: item.system?.deleteOnExpire ?? false,
+        duration: {
+          formula: item.system?.duration?.formula ?? "",
+          unit: item.system?.duration?.unit ?? "round",
+          expiration: item.system?.duration?.expiration ?? null,
+        },
+        stackingRule: item.system?.stackingRule ?? "replace",
         description: item.system?.description ?? "",
         changes: {
           computed: item.system?.changes?.computed ?? [],
@@ -86,7 +96,21 @@ export function buildEffectContext(
     tabs: { primary: primaryTabs, links: linksTabs },
     itemTypeLabel: "Effect",
     showCombatTab: false,
+    typeDetailsPartial: "systems/100dos/templates/items/effect-details-fields.hbs",
     grantSource: item.grantSource ?? null,
+    durationUnits: {
+      round: "DOS100.effect.duration.units.round",
+      minute: "DOS100.effect.duration.units.minute",
+      hour: "DOS100.effect.duration.units.hour",
+    },
+    effectExpirations: {
+      startOfTurn: "DOS100.effect.duration.expiration.startOfTurn",
+      endOfTurn: "DOS100.effect.duration.expiration.endOfTurn",
+    },
+    stackingRules: {
+      replace: "DOS100.effect.stackingRule.replace",
+      extend: "DOS100.effect.stackingRule.extend",
+    },
     usagePeriods: {
       unlimited: "DOS100.action.uses.periods.unlimited",
       encounter: "DOS100.action.uses.periods.encounter",

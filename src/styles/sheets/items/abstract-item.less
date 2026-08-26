@@ -3,6 +3,14 @@
    than physical inventory objects (Ability, and later ones). Unscoped,
    like the other shared components. */
 
+/* Foundry renders our template inside section[data-application-part].
+   Without an explicit height here, height:100% on .dos100-item-sheet
+   resolves against auto (the section's content height), breaking every
+   overflow-y:auto scroll container below it. */
+.dos100.sheet.item section[data-application-part] {
+  height: 100%;
+}
+
 .dos100-item-sheet {
   display: flex;
   flex-direction: column;
@@ -16,7 +24,7 @@
 
 .dos100-item-shell {
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   gap: var(--spacer-8, 0.5rem);
   flex: 1 1 auto;
   min-height: 0;
@@ -122,13 +130,27 @@
   }
 }
 
-.dos100-item-content .tab.active {
+.dos100-item-tab-panels {
   display: flex;
   flex-direction: column;
   flex: 1 1 auto;
   min-height: 0;
   overflow-y: auto;
+
+  > .tab {
+    flex: 1 1 auto;
+  }
+}
+
+.dos100-item-content .tab.active {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
   padding-top: var(--spacer-8, 0.5rem);
+
+  > * {
+    flex-shrink: 0;
+  }
 }
 
 /* Label/field rows on the Details tab — roughly 40/60 split.
@@ -151,6 +173,12 @@
     gap: 0.25rem;
     flex: 1 1 0;
     min-width: 0;
+
+    > input,
+    > select {
+      flex: 1 1 0;
+      min-width: 0;
+    }
   }
 
   > input,
@@ -173,7 +201,7 @@
 }
 
 .dos100-uses-value {
-  width: 3rem;
+  flex: 0 0 3rem;
   text-align: center;
 }
 

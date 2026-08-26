@@ -84,6 +84,9 @@
         "delete": "Delete Footnote",
         "empty": "No Footnotes recorded yet."
       },
+      "xpCost": "XP Cost",
+      "prerequisites": "Prerequisites",
+      "summary": "Summary",
       "advanced": "Advanced",
       "identifier": "Identifier",
       "tagsEdit": "Edit tags",
@@ -116,7 +119,10 @@
       }
     },
     "effect": {
+      "deleteOnExpire": "Delete on Expire",
+      "endTiming": "End Timing",
       "duration": {
+        "label": "Duration",
         "units": {
           "round": "Round",
           "minute": "Minute",
@@ -133,6 +139,7 @@
         }
       },
       "stackingRule": {
+        "label": "Stacking",
         "replace": "Replace",
         "extend": "Extend"
       }

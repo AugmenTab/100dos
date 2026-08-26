@@ -12,4 +12,8 @@ export class AbilityItemSheet extends AbstractItemSheet {
   protected override get _showCombatTab(): boolean {
     return true;
   }
+
+  protected override get _typeDetailsPartial(): string | null {
+    return "systems/100dos/templates/items/ability-details-fields.hbs";
+  }
 }

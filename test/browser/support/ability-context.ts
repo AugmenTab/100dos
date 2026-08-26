@@ -27,6 +27,9 @@ export type AbilityItemFixture = {
     showInCombatTab?: boolean;
     tags?: string[];
     identifier?: string;
+    xpCost?: number;
+    prerequisites?: string;
+    summary?: string;
     description?: string;
     changes?: {
       computed?: { id: string; target: string; mode: string; formula: string }[];
@@ -83,6 +86,9 @@ export function buildAbilityContext(
         showInCombatTab: item.system?.showInCombatTab ?? false,
         tags: item.system?.tags ?? [],
         identifier: item.system?.identifier ?? "",
+        xpCost: item.system?.xpCost ?? 0,
+        prerequisites: item.system?.prerequisites ?? "",
+        summary: item.system?.summary ?? "",
         description: item.system?.description ?? "",
         changes: {
           computed: item.system?.changes?.computed ?? [],
@@ -94,6 +100,7 @@ export function buildAbilityContext(
     tabs: { primary: primaryTabs, links: linksTabs },
     itemTypeLabel: "Ability",
     showCombatTab: true,
+    typeDetailsPartial: "systems/100dos/templates/items/ability-details-fields.hbs",
     grantSource: null,
     usagePeriods: {
       unlimited: "DOS100.action.uses.periods.unlimited",

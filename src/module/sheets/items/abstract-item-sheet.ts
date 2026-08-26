@@ -40,6 +40,10 @@ export abstract class AbstractItemSheet extends HandlebarsApplicationMixin(ItemS
     return false;
   }
 
+  protected get _typeDetailsPartial(): string | null {
+    return null;
+  }
+
   override async _prepareContext(options: Record<string, unknown>): Promise<Record<string, unknown>> {
     const item = this.item as Dos100Item;
     const sysId = game.system.id;
@@ -67,6 +71,7 @@ export abstract class AbstractItemSheet extends HandlebarsApplicationMixin(ItemS
       // second, duplicate DOS100.<type>.name key.
       itemTypeLabel: game.i18n.localize(`TYPES.Item.${item.type}`),
       showCombatTab: this._showCombatTab,
+      typeDetailsPartial: this._typeDetailsPartial,
       grantSource,
       usagePeriods: USAGE_PERIODS,
       childItems: childIds.flatMap(id => { const r = toRow(id); return r ? [r] : []; }),

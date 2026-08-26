@@ -10,6 +10,7 @@ import { renderPage } from "./support/render.js";
 const ITEM_SHELL_PARTIALS = [
   "items/shell/description-tab.hbs",
   "items/shell/details-tab.hbs",
+  "items/effect-details-fields.hbs",
   "items/shell/changes-tab.hbs",
   "items/shell/links-tab.hbs",
 ];
