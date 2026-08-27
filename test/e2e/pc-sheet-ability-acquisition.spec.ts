@@ -70,6 +70,8 @@ test("dropping an Ability onto the PC sheet opens the acquisition dialog showing
     await expect(dialog).toBeVisible();
     await expect(dialog).toContainText("Gravity Pulse");
     await expect(dialog.locator("input[name='xpCost']")).toHaveValue("25");
+    await dialog.locator("button[data-action='cancelDialog']").click();
+    await expect(dialog).not.toBeVisible();
   } finally {
     await deleteWorldItem(page, uuid);
   }

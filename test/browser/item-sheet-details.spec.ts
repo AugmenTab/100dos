@@ -54,7 +54,9 @@ test("Action rows show name, Uses, and Edit/Copy/Delete controls", async ({ page
   await expect(controls.nth(0)).toHaveAttribute("aria-label", "Edit action");
   await expect(controls.nth(1)).toHaveAttribute("aria-label", "Duplicate action");
   await expect(controls.nth(2)).toHaveAttribute("aria-label", "Delete action");
-  for (const btn of await controls.all()) await expect(btn).not.toHaveAttribute("data-action");
+  await expect(controls.nth(0)).not.toHaveAttribute("data-action");
+  await expect(controls.nth(1)).toHaveAttribute("data-action", "duplicateAction");
+  await expect(controls.nth(2)).toHaveAttribute("data-action", "deleteAction");
 });
 
 test("empty Actions table renders empty state", async ({ page }) => {
@@ -121,7 +123,7 @@ test("Effect Notes rows render inline text inputs with Delete controls", async (
   const deleteBtn = rows.nth(0).locator(".icon-button");
   await expect(deleteBtn).toHaveCount(1);
   await expect(deleteBtn).toHaveAttribute("aria-label", "Delete Effect Note");
-  await expect(deleteBtn).not.toHaveAttribute("data-action");
+  await expect(deleteBtn).toHaveAttribute("data-action", "deleteEffectNote");
 });
 
 test("Footnotes table is present with Add button and empty state when empty", async ({ page }) => {
@@ -152,12 +154,12 @@ test("Advanced section renders Tags chips and Identifier input", async ({ page }
   await expect(identifierInput).toHaveValue("rage");
 });
 
-test("Tags Edit button is present with no data-action", async ({ page }) => {
+test("Tags Edit button has editTags data-action", async ({ page }) => {
   await page.setContent(renderDetails({ system: { tags: ["combat"] } }));
 
   const editBtn = page.locator('.dos100-item-advanced .icon-button[aria-label="Edit tags"]');
   await expect(editBtn).toBeVisible();
-  await expect(editBtn).not.toHaveAttribute("data-action");
+  await expect(editBtn).toHaveAttribute("data-action", "editTags");
 });
 
 test("Details tab remains usable, without overflow, at representative sheet widths", async ({

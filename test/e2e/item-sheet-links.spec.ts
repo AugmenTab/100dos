@@ -25,7 +25,8 @@ test("Links tab rows resolve from the grant system: child and supplement items a
   await expect(childButtons).toHaveCount(2);
   await expect(childButtons.nth(0)).toHaveAttribute("aria-label", "Edit child item");
   await expect(childButtons.nth(1)).toHaveAttribute("aria-label", "Delete child item");
-  for (const btn of await childButtons.all()) await expect(btn).not.toHaveAttribute("data-action");
+  await expect(childButtons.nth(0)).toHaveAttribute("data-action", "openLinkedItem");
+  await expect(childButtons.nth(1)).toHaveAttribute("data-action", "deleteLinkedItem");
 
   await sheet.locator('[role="tab"][data-group="links"][data-tab="supplements"]').click();
   const supplementsPanel = sheet.locator('.tab[data-group="links"][data-tab="supplements"].active');
@@ -36,5 +37,6 @@ test("Links tab rows resolve from the grant system: child and supplement items a
   await expect(supplementButtons).toHaveCount(2);
   await expect(supplementButtons.nth(0)).toHaveAttribute("aria-label", "Edit supplement item");
   await expect(supplementButtons.nth(1)).toHaveAttribute("aria-label", "Delete supplement item");
-  for (const btn of await supplementButtons.all()) await expect(btn).not.toHaveAttribute("data-action");
+  await expect(supplementButtons.nth(0)).toHaveAttribute("data-action", "openLinkedItem");
+  await expect(supplementButtons.nth(1)).toHaveAttribute("data-action", "deleteLinkedItem");
 });

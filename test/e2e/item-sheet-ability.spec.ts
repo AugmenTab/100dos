@@ -173,7 +173,9 @@ test("Change rows display mode (as a compact symbol), formula, target, and Edit/
   await expect(actionButtons.nth(0)).toHaveAttribute("aria-label", "Edit Change");
   await expect(actionButtons.nth(1)).toHaveAttribute("aria-label", "Duplicate Change");
   await expect(actionButtons.nth(2)).toHaveAttribute("aria-label", "Delete Change");
-  for (const button of await actionButtons.all()) await expect(button).not.toHaveAttribute("data-action");
+  await expect(actionButtons.nth(0)).not.toHaveAttribute("data-action");
+  await expect(actionButtons.nth(1)).toHaveAttribute("data-action", "duplicateChange");
+  await expect(actionButtons.nth(2)).toHaveAttribute("data-action", "deleteChange");
 });
 
 test("Conditional rows display notes as a non-editable textarea-style preview, target, and Edit/Copy/Delete controls", async ({
