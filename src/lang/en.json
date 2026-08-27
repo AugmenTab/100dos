@@ -504,6 +504,14 @@
         "maximumLoad": "Maximum Load"
       }
     },
+    "abilityAcquisition": {
+      "title": "Add Ability",
+      "question": "Do you want to record {name} as an XP purchase?",
+      "xpCost": "XP Cost",
+      "create": "Create",
+      "skip": "Skip",
+      "cancel": "Cancel"
+    },
     "pc": {
       "nav": {
         "primaryLabel": "Character navigation",

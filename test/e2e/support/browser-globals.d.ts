@@ -4,6 +4,7 @@
 
 interface E2EItemDocument {
   readonly id: string;
+  readonly uuid: string;
   readonly name: string;
   readonly type: string;
   readonly img: string;
@@ -12,6 +13,7 @@ interface E2EItemDocument {
   readonly sheet: { id: string; render(force?: boolean): Promise<unknown> };
   getFlag(scope: string, key: string): unknown;
   update(data: Record<string, unknown>): Promise<unknown>;
+  delete(): Promise<unknown>;
 }
 
 interface E2EActiveEffectDocument {
@@ -27,7 +29,11 @@ interface E2EActorDocument {
   readonly type: string;
   readonly img: string;
   readonly system: Record<string, unknown>;
-  readonly sheet: { id: string; render(force?: boolean): Promise<unknown> };
+  readonly sheet: {
+    id: string;
+    render(force?: boolean): Promise<unknown>;
+    _onDrop(event: object): unknown;
+  };
   readonly items: {
     get(id: string): E2EItemDocument | undefined;
     map<T>(fn: (item: E2EItemDocument) => T): T[];
@@ -52,6 +58,12 @@ interface E2EActorDocument {
 declare const Actor: {
   create(data: object): Promise<E2EActorDocument | undefined>;
 };
+
+declare const Item: {
+  create(data: object): Promise<E2EItemDocument | undefined>;
+};
+
+declare function fromUuid(uuid: string): Promise<{ delete(): Promise<unknown> } | null>;
 
 interface E2EUserDocument {
   readonly id: string;

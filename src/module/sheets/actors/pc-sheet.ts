@@ -1,5 +1,6 @@
 import { Dos100ActorSheet } from "../actor-sheet.js";
 import { Dos100Item, ACTIONS_ITEM_TYPES } from "../../documents/item.js";
+import { AbilityAcquisitionDialog } from "./ability-acquisition-dialog.js";
 import { type ActorMovement, type MovementMode } from "../../movement.js";
 import { type Encumbrance, type EncumbranceBand, encumbranceBands } from "../../encumbrance.js";
 import { type MythicCharacteristics } from "../../mythic-characteristic.js";
@@ -652,6 +653,49 @@ export class PcActorSheet extends Dos100ActorSheet {
     const itemId = target.dataset.itemId;
     const item = itemId ? this.actor.items.get(itemId) : undefined;
     await item?.delete();
+  }
+
+  // Read the drag-and-drop data synchronously before the event clears it,
+  // then handle ability drops ourselves. All other item types go through
+  // the base class's own createEmbeddedDocuments path; non-Item drops
+  // (e.g. actor drags) are fully delegated to super.
+  override _onDrop(event: DragEvent): void | Promise<void> {
+    const raw = event.dataTransfer?.getData("text/plain") ?? "";
+    let data: { type?: string; uuid?: string };
+    try {
+      data = JSON.parse(raw) as { type?: string; uuid?: string };
+    } catch {
+      return super._onDrop(event);
+    }
+    if (data.type !== "Item" || !data.uuid) return super._onDrop(event);
+    const { uuid } = data;
+    return (async () => {
+      const source = await fromUuid<Item>(uuid);
+      if (!source) return;
+      if (source.type === "ability") {
+        await this._onDropAbility(source as Dos100Item);
+      } else {
+        await this.actor.createEmbeddedDocuments("Item", [source.toObject()]);
+      }
+    })();
+  }
+
+  private async _onDropAbility(source: Dos100Item): Promise<void> {
+    const result = await AbilityAcquisitionDialog.prompt(source);
+    if (result.action === "cancel") return;
+    const [created] = await this.actor.createEmbeddedDocuments("Item", [source.toObject()]);
+    if (!created || result.action === "skip") return;
+    const system = this.actor.system as { xp: ExperienceLedger };
+    const entry: ExperienceLedgerItem = {
+      id: foundry.utils.randomID(),
+      type: "purchase",
+      description: `${source.name} (${game.i18n.localize(`TYPES.Item.${source.type}`)})`,
+      value: result.xpCost,
+      recordedBy: game.user?.id ?? null,
+      worldTime: null,
+      realTime: Date.now(),
+    };
+    await this.actor.update({ "system.xp.ledger": [...system.xp.ledger, entry] });
   }
 
   // Permanent/Temporary Effects each get their own manual Add control —

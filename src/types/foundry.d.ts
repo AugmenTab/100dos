@@ -293,6 +293,7 @@ declare namespace foundry {
         get actor(): Actor;
         get document(): Actor;
         _prepareContext(options: Record<string, unknown>): Promise<Record<string, unknown>>;
+        _onDrop(event: DragEvent): void | Promise<void>;
       }
       class ItemSheetV2 extends api.ApplicationV2 {
         get item(): Item;
