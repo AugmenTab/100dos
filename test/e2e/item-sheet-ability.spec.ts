@@ -120,11 +120,11 @@ test("the Changes and Conditionals headers carry Add affordances in their final 
 
   const addChange = tables.nth(0).locator("thead th").nth(1).locator("a.icon-button");
   await expect(addChange).toHaveAttribute("aria-label", "Add Change");
-  await expect(addChange).not.toHaveAttribute("data-action");
+  await expect(addChange).toHaveAttribute("data-action", "addChange");
 
   const addConditional = tables.nth(1).locator("thead th").nth(1).locator("a.icon-button");
   await expect(addConditional).toHaveAttribute("aria-label", "Add Conditional");
-  await expect(addConditional).not.toHaveAttribute("data-action");
+  await expect(addConditional).toHaveAttribute("data-action", "addConditional");
 });
 
 test("Change rows display mode (as a compact symbol), formula, target, and Edit/Copy/Delete controls", async ({

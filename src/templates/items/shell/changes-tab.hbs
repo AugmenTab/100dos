@@ -12,11 +12,11 @@
         <tr>
           <th scope="col" colspan="3" class="dense-table-flexible">{{localize "DOS100.item.changes.label"}}</th>
           <th scope="col">
-            {{!-- TODO: not wired up yet — no Add-Change modal exists. --}}
             <a
               role="button"
               tabindex="0"
               class="icon-button"
+              data-action="addChange"
               aria-label="{{localize "DOS100.item.changes.add"}}"
             ><i class="fa-solid fa-plus" inert></i></a>
           </th>
@@ -83,11 +83,11 @@
         <tr>
           <th scope="col" colspan="2" class="dense-table-flexible">{{localize "DOS100.item.conditionals.label"}}</th>
           <th scope="col">
-            {{!-- TODO: not wired up yet — no Add-Conditional modal exists. --}}
             <a
               role="button"
               tabindex="0"
               class="icon-button"
+              data-action="addConditional"
               aria-label="{{localize "DOS100.item.conditionals.add"}}"
             ><i class="fa-solid fa-plus" inert></i></a>
           </th>

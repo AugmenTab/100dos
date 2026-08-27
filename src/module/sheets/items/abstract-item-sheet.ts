@@ -21,8 +21,10 @@ export abstract class AbstractItemSheet extends HandlebarsApplicationMixin(ItemS
       addAction: AbstractItemSheet.prototype._onAddAction,
       duplicateAction: AbstractItemSheet.prototype._onDuplicateAction,
       deleteAction: AbstractItemSheet.prototype._onDeleteAction,
+      addChange: AbstractItemSheet.prototype._onAddChange,
       duplicateChange: AbstractItemSheet.prototype._onDuplicateChange,
       deleteChange: AbstractItemSheet.prototype._onDeleteChange,
+      addConditional: AbstractItemSheet.prototype._onAddConditional,
       duplicateConditional: AbstractItemSheet.prototype._onDuplicateConditional,
       deleteConditional: AbstractItemSheet.prototype._onDeleteConditional,
       addEffectNote: AbstractItemSheet.prototype._onAddEffectNote,
@@ -128,6 +130,33 @@ export abstract class AbstractItemSheet extends HandlebarsApplicationMixin(ItemS
     const id = target.dataset.identifier;
     if (!id) return;
     await item.update({ [`system.actions.items.-=${id}`]: null });
+  }
+
+  protected async _onAddChange(_event: PointerEvent, _target: HTMLElement): Promise<void> {
+    const item = this.item as Dos100Item;
+    const system = item.system as { changes: { computed: ChangeData[]; conditional: ConditionalChangeData[] } };
+    const entry: ChangeData = {
+      id: foundry.utils.randomID(),
+      enabled: true,
+      target: "strMod",
+      mode: "add",
+      formula: "",
+      source: { id: item.id, name: item.name ?? "" },
+    };
+    await item.update({ "system.changes.computed": [...system.changes.computed, entry] });
+  }
+
+  protected async _onAddConditional(_event: PointerEvent, _target: HTMLElement): Promise<void> {
+    const item = this.item as Dos100Item;
+    const system = item.system as { changes: { computed: ChangeData[]; conditional: ConditionalChangeData[] } };
+    const entry: ConditionalChangeData = {
+      id: foundry.utils.randomID(),
+      enabled: true,
+      target: "strMod",
+      value: "",
+      source: { id: item.id, name: item.name ?? "" },
+    };
+    await item.update({ "system.changes.conditional": [...system.changes.conditional, entry] });
   }
 
   protected async _onDuplicateChange(_event: PointerEvent, target: HTMLElement): Promise<void> {
