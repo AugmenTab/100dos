@@ -91,6 +91,15 @@
       "advanced": "Advanced",
       "identifier": "Identifier",
       "tagsEdit": "Edit tags",
+      "tagsEditor": {
+        "title": "Edit Tags",
+        "add": "Add Tag",
+        "delete": "Delete Tag",
+        "save": "Save",
+        "cancel": "Cancel",
+        "empty": "No tags yet.",
+        "tagLabel": "Tag"
+      },
       "changeTarget": {
         "strMod": "Strength Mod"
       },

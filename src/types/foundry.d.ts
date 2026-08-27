@@ -247,12 +247,18 @@ declare namespace foundry {
   namespace applications {
     namespace api {
       class ApplicationV2 {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        constructor(...args: any[]);
         static DEFAULT_OPTIONS: Record<string, unknown>;
         static PARTS: Record<string, { template: string }>;
         static TABS: Record<string, ApplicationTabsConfiguration>;
         get id(): string;
         get element(): HTMLElement;
         tabGroups: Record<string, string | null>;
+        render(force?: boolean, options?: Record<string, unknown>): Promise<this>;
+        close(options?: Record<string, unknown>): Promise<this>;
+        _prepareContext(options: Record<string, unknown>): Promise<Record<string, unknown>>;
+        _onRender(context: Record<string, unknown>, options: Record<string, unknown>): void;
         _prepareTabs(group: string): Record<string, ApplicationTab>;
         _getTabsConfig(group: string): ApplicationTabsConfiguration | null;
         changeTab(

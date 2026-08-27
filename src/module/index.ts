@@ -65,6 +65,7 @@ Hooks.once("init", (): void => {
     "systems/100dos/templates/items/effect-details-fields.hbs",
     "systems/100dos/templates/items/shell/changes-tab.hbs",
     "systems/100dos/templates/items/shell/links-tab.hbs",
+    "systems/100dos/templates/items/dialogs/tags-editor.hbs",
   ]);
 
   game.settings.register(game.system.id, "debugMode", {

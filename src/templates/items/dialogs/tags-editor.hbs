@@ -1,0 +1,37 @@
+<div class="tags-editor">
+  <ul>
+    {{#each tags}}
+      <li data-index="{{@index}}" draggable="true">
+        <i class="fa-solid fa-grip-lines" aria-hidden="true"></i>
+        <input
+          type="text"
+          data-index="{{@index}}"
+          value="{{this}}"
+          aria-label="{{localize "DOS100.item.tagsEditor.tagLabel"}}"
+        />
+        <a
+          role="button"
+          tabindex="0"
+          class="icon-button"
+          data-action="deleteTag"
+          data-index="{{@index}}"
+          aria-label="{{localize "DOS100.item.tagsEditor.delete"}}"
+        ><i class="fa-solid fa-trash" inert></i></a>
+      </li>
+    {{else}}
+      <li class="empty-state">{{localize "DOS100.item.tagsEditor.empty"}}</li>
+    {{/each}}
+  </ul>
+  <footer>
+    <a
+      role="button"
+      tabindex="0"
+      data-action="addTag"
+      aria-label="{{localize "DOS100.item.tagsEditor.add"}}"
+    >+ {{localize "DOS100.item.tagsEditor.add"}}</a>
+    <div>
+      <button type="button" data-action="saveAndClose">{{localize "DOS100.item.tagsEditor.save"}}</button>
+      <button type="button" data-action="cancelDialog">{{localize "DOS100.item.tagsEditor.cancel"}}</button>
+    </div>
+  </footer>
+</div>

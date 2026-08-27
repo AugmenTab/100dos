@@ -1,6 +1,7 @@
 import { Dos100Item } from "../../documents/item.js";
 import { type ActionData, USAGE_PERIODS } from "../../items/action.js";
 import { type ChangeData, type ConditionalChangeData } from "../../change.js";
+import { TagsEditorDialog } from "./tags-editor-dialog.js";
 
 const { HandlebarsApplicationMixin } = foundry.applications.api;
 const { ItemSheetV2 } = foundry.applications.sheets;
@@ -30,6 +31,7 @@ export abstract class AbstractItemSheet extends HandlebarsApplicationMixin(ItemS
       deleteFootnote: AbstractItemSheet.prototype._onDeleteFootnote,
       openLinkedItem: AbstractItemSheet.prototype._onOpenLinkedItem,
       deleteLinkedItem: AbstractItemSheet.prototype._onDeleteLinkedItem,
+      editTags: AbstractItemSheet.prototype._onEditTags,
     },
   };
 
@@ -194,6 +196,15 @@ export abstract class AbstractItemSheet extends HandlebarsApplicationMixin(ItemS
     if (!id || !item.actor) return;
     const linked = item.actor.items.get(id) as Dos100Item | undefined;
     linked?.sheet?.render(true);
+  }
+
+  protected async _onEditTags(_event: PointerEvent, _target: HTMLElement): Promise<void> {
+    try {
+      const dialog = new TagsEditorDialog(this.item as Dos100Item);
+      await dialog.render(true);
+    } catch (err) {
+      ui.notifications?.error(String(err));
+    }
   }
 
   protected async _onDeleteLinkedItem(_event: PointerEvent, target: HTMLElement): Promise<void> {
