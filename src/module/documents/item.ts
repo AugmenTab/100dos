@@ -8,7 +8,7 @@ export const ACTIONS_ITEM_TYPES = new Set(["ability", "trait", "effect", "armor"
 
 // Item types that carry system.identifier and receive automatic seeding
 // on creation.
-const ABSTRACT_ITEM_TYPES = new Set(["ability", "trait", "effect"]);
+export const ABSTRACT_ITEM_TYPES = new Set(["ability", "trait", "effect"]);
 
 function toCamelCase(str: string): string {
   const words = str.split(/[^a-zA-Z0-9]+/).filter(w => w.length > 0);

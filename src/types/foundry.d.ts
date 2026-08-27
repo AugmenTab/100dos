@@ -29,6 +29,8 @@ interface SettingConfig {
 
 declare const game: Game;
 
+declare function fromUuid<T = unknown>(uuid: string): Promise<T | null>;
+
 declare const ui: {
   notifications?: {
     warn(message: string): void;
@@ -91,6 +93,7 @@ declare class ActiveEffect {
 }
 
 declare class Actor {
+  readonly id: string;
   readonly type: string;
   readonly name: string;
   readonly img: string;

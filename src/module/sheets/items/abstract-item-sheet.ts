@@ -1,4 +1,4 @@
-import { Dos100Item } from "../../documents/item.js";
+import { Dos100Item, ABSTRACT_ITEM_TYPES } from "../../documents/item.js";
 import { type ActionData, USAGE_PERIODS } from "../../items/action.js";
 import { type ChangeData, type ConditionalChangeData } from "../../change.js";
 import { TagsEditorDialog } from "./tags-editor-dialog.js";
@@ -204,6 +204,73 @@ export abstract class AbstractItemSheet extends HandlebarsApplicationMixin(ItemS
       await dialog.render(true);
     } catch (err) {
       ui.notifications?.error(String(err));
+    }
+  }
+
+  override _onRender(context: Record<string, unknown>, options: Record<string, unknown>): void {
+    super._onRender(context, options);
+    this.element
+      .querySelectorAll<HTMLElement>("section[data-group='links'][data-tab]")
+      .forEach(section => {
+        section.addEventListener("dragenter", e => {
+          e.preventDefault();
+          section.classList.add("drop-target");
+        });
+        section.addEventListener("dragover", e => {
+          e.preventDefault();
+        });
+        section.addEventListener("dragleave", e => {
+          if (!section.contains(e.relatedTarget as Node)) {
+            section.classList.remove("drop-target");
+          }
+        });
+        section.addEventListener("drop", e => {
+          section.classList.remove("drop-target");
+          void this._onDropLink(e as DragEvent, section);
+        });
+      });
+  }
+
+  protected async _onDropLink(event: DragEvent, section: HTMLElement): Promise<void> {
+    const raw = event.dataTransfer?.getData("text/plain");
+    if (!raw) return;
+    let dropData: { type?: string; uuid?: string };
+    try {
+      dropData = JSON.parse(raw) as { type?: string; uuid?: string };
+    } catch {
+      return;
+    }
+    if (dropData.type !== "Item" || !dropData.uuid) return;
+
+    const item = this.item as Dos100Item;
+    if (!item.actor) return;
+
+    const source = await fromUuid<Item>(dropData.uuid);
+    if (!source || !ABSTRACT_ITEM_TYPES.has(source.type)) return;
+    if (source.id === item.id) return;
+
+    const sysId = game.system.id;
+    const tab = section.dataset.tab;
+    if (tab !== "children" && tab !== "supplements") return;
+
+    const isFromSameActor = source.actor?.id === item.actor.id;
+    let grantedId: string;
+
+    if (isFromSameActor) {
+      grantedId = source.id;
+      await source.setFlag(sysId, "grantedBy", item.id);
+    } else {
+      const [created] = await item.actor.createEmbeddedDocuments("Item", [
+        { ...source.toObject(), flags: { [sysId]: { grantedBy: item.id } } },
+      ]);
+      if (!created) return;
+      grantedId = created.id;
+    }
+
+    const flagKey = tab === "children" ? "childItemIds" : "supplementItemIds";
+    const current = (item.getFlag(sysId, flagKey) as string[] | undefined) ?? [];
+    if (!current.includes(grantedId)) {
+      await item.setFlag(sysId, flagKey, [...current, grantedId]);
     }
   }
 
