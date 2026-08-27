@@ -1,5 +1,6 @@
 import { Dos100Item } from "../../documents/item.js";
-import { USAGE_PERIODS } from "../../items/action.js";
+import { type ActionData, USAGE_PERIODS } from "../../items/action.js";
+import { type ChangeData, type ConditionalChangeData } from "../../change.js";
 
 const { HandlebarsApplicationMixin } = foundry.applications.api;
 const { ItemSheetV2 } = foundry.applications.sheets;
@@ -15,6 +16,21 @@ export abstract class AbstractItemSheet extends HandlebarsApplicationMixin(ItemS
     position: { width: 800, height: 560 },
     window: { resizable: true },
     form: { submitOnChange: true, closeOnSubmit: false },
+    actions: {
+      addAction: AbstractItemSheet.prototype._onAddAction,
+      duplicateAction: AbstractItemSheet.prototype._onDuplicateAction,
+      deleteAction: AbstractItemSheet.prototype._onDeleteAction,
+      duplicateChange: AbstractItemSheet.prototype._onDuplicateChange,
+      deleteChange: AbstractItemSheet.prototype._onDeleteChange,
+      duplicateConditional: AbstractItemSheet.prototype._onDuplicateConditional,
+      deleteConditional: AbstractItemSheet.prototype._onDeleteConditional,
+      addEffectNote: AbstractItemSheet.prototype._onAddEffectNote,
+      deleteEffectNote: AbstractItemSheet.prototype._onDeleteEffectNote,
+      addFootnote: AbstractItemSheet.prototype._onAddFootnote,
+      deleteFootnote: AbstractItemSheet.prototype._onDeleteFootnote,
+      openLinkedItem: AbstractItemSheet.prototype._onOpenLinkedItem,
+      deleteLinkedItem: AbstractItemSheet.prototype._onDeleteLinkedItem,
+    },
   };
 
   static override TABS = {
@@ -77,5 +93,120 @@ export abstract class AbstractItemSheet extends HandlebarsApplicationMixin(ItemS
       childItems: childIds.flatMap(id => { const r = toRow(id); return r ? [r] : []; }),
       supplementItems: supplementIds.flatMap(id => { const r = toRow(id); return r ? [r] : []; }),
     };
+  }
+
+  protected async _onAddAction(_event: PointerEvent, _target: HTMLElement): Promise<void> {
+    const item = this.item as Dos100Item;
+    const id = foundry.utils.randomID();
+    await item.update({
+      [`system.actions.items.${id}`]: {
+        id,
+        name: game.i18n.localize("DOS100.item.actions.new"),
+        activation: { type: "passive", cost: null },
+        uses: { per: "unlimited", value: 0, max: 0, cost: 1, formula: { max: "", cost: "" } },
+      },
+    });
+  }
+
+  protected async _onDuplicateAction(_event: PointerEvent, target: HTMLElement): Promise<void> {
+    const item = this.item as Dos100Item;
+    const system = item.system as { actions: { items: Record<string, ActionData> } };
+    const sourceId = target.dataset.identifier;
+    if (!sourceId) return;
+    const source = system.actions.items[sourceId];
+    if (!source) return;
+    const newId = foundry.utils.randomID();
+    await item.update({
+      [`system.actions.items.${newId}`]: { ...source, id: newId, name: `${source.name} (Copy)` },
+    });
+  }
+
+  protected async _onDeleteAction(_event: PointerEvent, target: HTMLElement): Promise<void> {
+    const item = this.item as Dos100Item;
+    const id = target.dataset.identifier;
+    if (!id) return;
+    await item.update({ [`system.actions.items.-=${id}`]: null });
+  }
+
+  protected async _onDuplicateChange(_event: PointerEvent, target: HTMLElement): Promise<void> {
+    const item = this.item as Dos100Item;
+    const system = item.system as { changes: { computed: ChangeData[]; conditional: ConditionalChangeData[] } };
+    const sourceId = target.dataset.identifier;
+    const source = system.changes.computed.find(c => c.id === sourceId);
+    if (!source) return;
+    const copy: ChangeData = { ...source, id: foundry.utils.randomID() };
+    await item.update({ "system.changes.computed": [...system.changes.computed, copy] });
+  }
+
+  protected async _onDeleteChange(_event: PointerEvent, target: HTMLElement): Promise<void> {
+    const item = this.item as Dos100Item;
+    const system = item.system as { changes: { computed: ChangeData[]; conditional: ConditionalChangeData[] } };
+    const id = target.dataset.identifier;
+    await item.update({ "system.changes.computed": system.changes.computed.filter(c => c.id !== id) });
+  }
+
+  protected async _onDuplicateConditional(_event: PointerEvent, target: HTMLElement): Promise<void> {
+    const item = this.item as Dos100Item;
+    const system = item.system as { changes: { computed: ChangeData[]; conditional: ConditionalChangeData[] } };
+    const sourceId = target.dataset.identifier;
+    const source = system.changes.conditional.find(c => c.id === sourceId);
+    if (!source) return;
+    const copy: ConditionalChangeData = { ...source, id: foundry.utils.randomID() };
+    await item.update({ "system.changes.conditional": [...system.changes.conditional, copy] });
+  }
+
+  protected async _onDeleteConditional(_event: PointerEvent, target: HTMLElement): Promise<void> {
+    const item = this.item as Dos100Item;
+    const system = item.system as { changes: { computed: ChangeData[]; conditional: ConditionalChangeData[] } };
+    const id = target.dataset.identifier;
+    await item.update({ "system.changes.conditional": system.changes.conditional.filter(c => c.id !== id) });
+  }
+
+  protected async _onAddEffectNote(_event: PointerEvent, _target: HTMLElement): Promise<void> {
+    const item = this.item as Dos100Item;
+    const system = item.system as { actions: { notes: { effectNotes: string[]; footnotes: string[] } } };
+    await item.update({ "system.actions.notes.effectNotes": [...system.actions.notes.effectNotes, ""] });
+  }
+
+  protected async _onDeleteEffectNote(_event: PointerEvent, target: HTMLElement): Promise<void> {
+    const item = this.item as Dos100Item;
+    const system = item.system as { actions: { notes: { effectNotes: string[]; footnotes: string[] } } };
+    const index = Number(target.dataset.identifier);
+    await item.update({ "system.actions.notes.effectNotes": system.actions.notes.effectNotes.filter((_, i) => i !== index) });
+  }
+
+  protected async _onAddFootnote(_event: PointerEvent, _target: HTMLElement): Promise<void> {
+    const item = this.item as Dos100Item;
+    const system = item.system as { actions: { notes: { effectNotes: string[]; footnotes: string[] } } };
+    await item.update({ "system.actions.notes.footnotes": [...system.actions.notes.footnotes, ""] });
+  }
+
+  protected async _onDeleteFootnote(_event: PointerEvent, target: HTMLElement): Promise<void> {
+    const item = this.item as Dos100Item;
+    const system = item.system as { actions: { notes: { effectNotes: string[]; footnotes: string[] } } };
+    const index = Number(target.dataset.identifier);
+    await item.update({ "system.actions.notes.footnotes": system.actions.notes.footnotes.filter((_, i) => i !== index) });
+  }
+
+  protected async _onOpenLinkedItem(_event: PointerEvent, target: HTMLElement): Promise<void> {
+    const item = this.item as Dos100Item;
+    const id = target.dataset.identifier;
+    if (!id || !item.actor) return;
+    const linked = item.actor.items.get(id) as Dos100Item | undefined;
+    linked?.sheet?.render(true);
+  }
+
+  protected async _onDeleteLinkedItem(_event: PointerEvent, target: HTMLElement): Promise<void> {
+    const item = this.item as Dos100Item;
+    const id = target.dataset.identifier;
+    if (!id || !item.actor) return;
+    const sysId = game.system.id;
+    const childIds = (item.getFlag(sysId, "childItemIds") as string[] | undefined) ?? [];
+    const supplementIds = (item.getFlag(sysId, "supplementItemIds") as string[] | undefined) ?? [];
+    await Promise.all([
+      item.setFlag(sysId, "childItemIds", childIds.filter(i => i !== id)),
+      item.setFlag(sysId, "supplementItemIds", supplementIds.filter(i => i !== id)),
+      item.actor.deleteEmbeddedDocuments("Item", [id]),
+    ]);
   }
 }

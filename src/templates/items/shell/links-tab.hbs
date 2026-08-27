@@ -55,19 +55,19 @@
                   </span>
                 </td>
                 <td>
-                  {{!-- TODO: not wired up yet — no linked-item edit action exists. --}}
                   <a
                     role="button"
                     tabindex="0"
                     class="icon-button"
+                    data-action="openLinkedItem"
                     data-identifier="{{this.id}}"
                     aria-label="{{localize 'DOS100.item.links.children.edit'}}"
                   ><i class="fa-solid fa-pen-to-square" inert></i></a>
-                  {{!-- TODO: not wired up yet — no linked-item delete action exists. --}}
                   <a
                     role="button"
                     tabindex="0"
                     class="icon-button"
+                    data-action="deleteLinkedItem"
                     data-identifier="{{this.id}}"
                     aria-label="{{localize 'DOS100.item.links.children.delete'}}"
                   ><i class="fa-solid fa-trash" inert></i></a>
@@ -111,19 +111,19 @@
                   </span>
                 </td>
                 <td>
-                  {{!-- TODO: not wired up yet — no linked-item edit action exists. --}}
                   <a
                     role="button"
                     tabindex="0"
                     class="icon-button"
+                    data-action="openLinkedItem"
                     data-identifier="{{this.id}}"
                     aria-label="{{localize 'DOS100.item.links.supplements.edit'}}"
                   ><i class="fa-solid fa-pen-to-square" inert></i></a>
-                  {{!-- TODO: not wired up yet — no linked-item delete action exists. --}}
                   <a
                     role="button"
                     tabindex="0"
                     class="icon-button"
+                    data-action="deleteLinkedItem"
                     data-identifier="{{this.id}}"
                     aria-label="{{localize 'DOS100.item.links.supplements.delete'}}"
                   ><i class="fa-solid fa-trash" inert></i></a>

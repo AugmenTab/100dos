@@ -132,8 +132,8 @@ export function actionsField(): foundry.data.fields.SchemaField {
     items: new ObjectField({ required: true, initial: {} }),
     pinned: new BooleanField({ required: true, initial: false }),
     notes: new SchemaField({
-      effectNotes: new ArrayField(new StringField({ required: true, blank: false })),
-      footnotes: new ArrayField(new StringField({ required: true, blank: false })),
+      effectNotes: new ArrayField(new StringField({ required: true })),
+      footnotes: new ArrayField(new StringField({ required: true })),
     }),
   });
 }

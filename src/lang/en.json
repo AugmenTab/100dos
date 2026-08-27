@@ -63,6 +63,7 @@
       "actions": {
         "label": "Actions",
         "add": "Add Action",
+        "new": "New Action",
         "edit": "Edit action",
         "duplicate": "Duplicate action",
         "delete": "Delete action",

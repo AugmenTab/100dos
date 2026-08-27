@@ -222,6 +222,171 @@ test("empty Changes and Conditionals tables remain visible with their Add afford
   await expect(tables.nth(1).locator("thead th").nth(1).locator("a.icon-button")).toBeVisible();
 });
 
+test("Add Action creates a new Action row with default values", async ({ foundryPage: page, fixtureLane }) => {
+  const { actorId, itemId } = await resetFixtures(page, fixtureLane);
+  const sheetId = await openItemSheet(page, actorId, itemId);
+  const sheet = page.locator(`#${sheetId}`);
+  await openTab(sheet, "details");
+  const panel = sheet.locator('.tab[data-tab="details"].active');
+  const addButton = panel.locator('thead a[data-action="addAction"]');
+  await addButton.click();
+  await expect.poll(async () =>
+    Object.keys(
+      (await page.evaluate(
+        ({ actorId, itemId }) => game.actors.get(actorId)?.items.get(itemId)?.system.actions.items,
+        { actorId, itemId },
+      )) ?? {},
+    ).length,
+  ).toBe(1);
+  const rows = panel.locator("table.dense-table").first().locator("tbody tr");
+  await expect(rows).toHaveCount(1);
+  await expect(rows.nth(0).locator("td").nth(0)).toContainText("New Action");
+});
+
+test("Duplicate Action creates a copy with (Copy) appended to the name", async ({ foundryPage: page, fixtureLane }) => {
+  const { actorId, itemId } = await resetFixtures(page, fixtureLane);
+  const actionId = await page.evaluate(() => foundry.utils.randomID());
+  await updateItem(page, actorId, itemId, {
+    [`system.actions.items.${actionId}`]: {
+      id: actionId,
+      name: "Slash",
+      activation: { type: "full", cost: null },
+      uses: { per: "unlimited", value: 0, max: 0, cost: 1, formula: { max: "", cost: "" } },
+    },
+  });
+  const sheetId = await openItemSheet(page, actorId, itemId);
+  const sheet = page.locator(`#${sheetId}`);
+  await openTab(sheet, "details");
+  const panel = sheet.locator('.tab[data-tab="details"].active');
+  const dupButton = panel.locator(`a[data-action="duplicateAction"][data-identifier="${actionId}"]`);
+  await dupButton.click();
+  await expect.poll(async () =>
+    Object.keys(
+      (await page.evaluate(
+        ({ actorId, itemId }) => game.actors.get(actorId)?.items.get(itemId)?.system.actions.items,
+        { actorId, itemId },
+      )) ?? {},
+    ).length,
+  ).toBe(2);
+  const names: string[] = await page.evaluate(
+    ({ actorId, itemId }) =>
+      Object.values(game.actors.get(actorId)?.items.get(itemId)?.system.actions.items ?? {}).map((a: unknown) => (a as { name: string }).name),
+    { actorId, itemId },
+  );
+  expect(names).toContain("Slash (Copy)");
+});
+
+test("Delete Action removes the row", async ({ foundryPage: page, fixtureLane }) => {
+  const { actorId, itemId } = await resetFixtures(page, fixtureLane);
+  const actionId = await page.evaluate(() => foundry.utils.randomID());
+  await updateItem(page, actorId, itemId, {
+    [`system.actions.items.${actionId}`]: {
+      id: actionId,
+      name: "Slash",
+      activation: { type: "full", cost: null },
+      uses: { per: "unlimited", value: 0, max: 0, cost: 1, formula: { max: "", cost: "" } },
+    },
+  });
+  const sheetId = await openItemSheet(page, actorId, itemId);
+  const sheet = page.locator(`#${sheetId}`);
+  await openTab(sheet, "details");
+  const panel = sheet.locator('.tab[data-tab="details"].active');
+  const delButton = panel.locator(`a[data-action="deleteAction"][data-identifier="${actionId}"]`);
+  await delButton.click();
+  await expect.poll(async () =>
+    Object.keys(
+      (await page.evaluate(
+        ({ actorId, itemId }) => game.actors.get(actorId)?.items.get(itemId)?.system.actions.items,
+        { actorId, itemId },
+      )) ?? {},
+    ).length,
+  ).toBe(0);
+});
+
+test("Duplicate Change appends a copy to the computed array", async ({ foundryPage: page, fixtureLane }) => {
+  const { actorId, itemId } = await resetFixtures(page, fixtureLane);
+  await updateItem(page, actorId, itemId, {
+    "system.changes.computed": [
+      { target: "strMod", mode: "add", formula: "5", source: { id: "src", name: "Src" } },
+    ],
+  });
+  const sheetId = await openItemSheet(page, actorId, itemId);
+  const sheet = page.locator(`#${sheetId}`);
+  await openTab(sheet, "changes");
+  const panel = sheet.locator('.tab[data-tab="changes"].active');
+  const dupButton = panel.locator('a[data-action="duplicateChange"]').first();
+  await dupButton.click();
+  await expect.poll(async () =>
+    (await page.evaluate(
+      ({ actorId, itemId }) => game.actors.get(actorId)?.items.get(itemId)?.system.changes.computed.length,
+      { actorId, itemId },
+    )),
+  ).toBe(2);
+});
+
+test("Delete Change removes the entry from the computed array", async ({ foundryPage: page, fixtureLane }) => {
+  const { actorId, itemId } = await resetFixtures(page, fixtureLane);
+  await updateItem(page, actorId, itemId, {
+    "system.changes.computed": [
+      { target: "strMod", mode: "add", formula: "5", source: { id: "src", name: "Src" } },
+    ],
+  });
+  const sheetId = await openItemSheet(page, actorId, itemId);
+  const sheet = page.locator(`#${sheetId}`);
+  await openTab(sheet, "changes");
+  const panel = sheet.locator('.tab[data-tab="changes"].active');
+  const delButton = panel.locator('a[data-action="deleteChange"]').first();
+  await delButton.click();
+  await expect.poll(async () =>
+    (await page.evaluate(
+      ({ actorId, itemId }) => game.actors.get(actorId)?.items.get(itemId)?.system.changes.computed.length,
+      { actorId, itemId },
+    )),
+  ).toBe(0);
+});
+
+test("Duplicate Conditional appends a copy to the conditional array", async ({ foundryPage: page, fixtureLane }) => {
+  const { actorId, itemId } = await resetFixtures(page, fixtureLane);
+  await updateItem(page, actorId, itemId, {
+    "system.changes.conditional": [
+      { target: "strMod", value: "Some note.", source: { id: "src", name: "Src" } },
+    ],
+  });
+  const sheetId = await openItemSheet(page, actorId, itemId);
+  const sheet = page.locator(`#${sheetId}`);
+  await openTab(sheet, "changes");
+  const panel = sheet.locator('.tab[data-tab="changes"].active');
+  const dupButton = panel.locator('a[data-action="duplicateConditional"]').first();
+  await dupButton.click();
+  await expect.poll(async () =>
+    (await page.evaluate(
+      ({ actorId, itemId }) => game.actors.get(actorId)?.items.get(itemId)?.system.changes.conditional.length,
+      { actorId, itemId },
+    )),
+  ).toBe(2);
+});
+
+test("Delete Conditional removes the entry from the conditional array", async ({ foundryPage: page, fixtureLane }) => {
+  const { actorId, itemId } = await resetFixtures(page, fixtureLane);
+  await updateItem(page, actorId, itemId, {
+    "system.changes.conditional": [
+      { target: "strMod", value: "Some note.", source: { id: "src", name: "Src" } },
+    ],
+  });
+  const sheetId = await openItemSheet(page, actorId, itemId);
+  const sheet = page.locator(`#${sheetId}`);
+  await openTab(sheet, "changes");
+  const panel = sheet.locator('.tab[data-tab="changes"].active');
+  const delButton = panel.locator('a[data-action="deleteConditional"]').first();
+  await delButton.click();
+  await expect.poll(async () =>
+    (await page.evaluate(
+      ({ actorId, itemId }) => game.actors.get(actorId)?.items.get(itemId)?.system.changes.conditional.length,
+      { actorId, itemId },
+    )),
+  ).toBe(0);
+});
+
 test("the Changes tab remains usable, without whole-sheet overflow, at representative Item-sheet widths", async ({
   foundryPage: page,
   fixtureLane,

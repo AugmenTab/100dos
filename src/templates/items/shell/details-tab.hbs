@@ -14,7 +14,7 @@
         <tr>
           <th scope="col" colspan="2" class="dense-table-flexible">{{localize "DOS100.item.actions.label"}}</th>
           <th scope="col">
-            <a role="button" tabindex="0" class="icon-button" aria-label="{{localize 'DOS100.item.actions.add'}}">
+            <a role="button" tabindex="0" class="icon-button" data-action="addAction" aria-label="{{localize 'DOS100.item.actions.add'}}">
               <i class="fa-solid fa-plus" inert></i>
             </a>
           </th>
@@ -38,8 +38,8 @@
             </td>
             <td>
               <a role="button" tabindex="0" class="icon-button" data-identifier="{{this.id}}" aria-label="{{localize 'DOS100.item.actions.edit'}}"><i class="fa-solid fa-pen-to-square" inert></i></a>
-              <a role="button" tabindex="0" class="icon-button" data-identifier="{{this.id}}" aria-label="{{localize 'DOS100.item.actions.duplicate'}}"><i class="fa-solid fa-copy" inert></i></a>
-              <a role="button" tabindex="0" class="icon-button" data-identifier="{{this.id}}" aria-label="{{localize 'DOS100.item.actions.delete'}}"><i class="fa-solid fa-trash" inert></i></a>
+              <a role="button" tabindex="0" class="icon-button" data-action="duplicateAction" data-identifier="{{this.id}}" aria-label="{{localize 'DOS100.item.actions.duplicate'}}"><i class="fa-solid fa-copy" inert></i></a>
+              <a role="button" tabindex="0" class="icon-button" data-action="deleteAction" data-identifier="{{this.id}}" aria-label="{{localize 'DOS100.item.actions.delete'}}"><i class="fa-solid fa-trash" inert></i></a>
             </td>
           </tr>
         {{else}}
@@ -90,7 +90,7 @@
         <tr>
           <th scope="col" class="dense-table-flexible">{{localize "DOS100.item.effectNotes.label"}}</th>
           <th scope="col">
-            <a role="button" tabindex="0" class="icon-button" aria-label="{{localize 'DOS100.item.effectNotes.add'}}">
+            <a role="button" tabindex="0" class="icon-button" data-action="addEffectNote" aria-label="{{localize 'DOS100.item.effectNotes.add'}}">
               <i class="fa-solid fa-plus" inert></i>
             </a>
           </th>
@@ -103,7 +103,7 @@
               <input type="text" name="system.actions.notes.effectNotes.{{@index}}" value="{{this}}" />
             </td>
             <td>
-              <a role="button" tabindex="0" class="icon-button" data-identifier="{{@index}}" aria-label="{{localize 'DOS100.item.effectNotes.delete'}}"><i class="fa-solid fa-trash" inert></i></a>
+              <a role="button" tabindex="0" class="icon-button" data-action="deleteEffectNote" data-identifier="{{@index}}" aria-label="{{localize 'DOS100.item.effectNotes.delete'}}"><i class="fa-solid fa-trash" inert></i></a>
             </td>
           </tr>
         {{else}}
@@ -122,7 +122,7 @@
         <tr>
           <th scope="col" class="dense-table-flexible">{{localize "DOS100.item.footnotes.label"}}</th>
           <th scope="col">
-            <a role="button" tabindex="0" class="icon-button" aria-label="{{localize 'DOS100.item.footnotes.add'}}">
+            <a role="button" tabindex="0" class="icon-button" data-action="addFootnote" aria-label="{{localize 'DOS100.item.footnotes.add'}}">
               <i class="fa-solid fa-plus" inert></i>
             </a>
           </th>
@@ -135,7 +135,7 @@
               <input type="text" name="system.actions.notes.footnotes.{{@index}}" value="{{this}}" />
             </td>
             <td>
-              <a role="button" tabindex="0" class="icon-button" data-identifier="{{@index}}" aria-label="{{localize 'DOS100.item.footnotes.delete'}}"><i class="fa-solid fa-trash" inert></i></a>
+              <a role="button" tabindex="0" class="icon-button" data-action="deleteFootnote" data-identifier="{{@index}}" aria-label="{{localize 'DOS100.item.footnotes.delete'}}"><i class="fa-solid fa-trash" inert></i></a>
             </td>
           </tr>
         {{else}}

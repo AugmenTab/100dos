@@ -10,7 +10,7 @@
     <table class="dense-table">
       <thead>
         <tr>
-          <th scope="col" colspan="3">{{localize "DOS100.item.changes.label"}}</th>
+          <th scope="col" colspan="3" class="dense-table-flexible">{{localize "DOS100.item.changes.label"}}</th>
           <th scope="col">
             {{!-- TODO: not wired up yet — no Add-Change modal exists. --}}
             <a
@@ -49,19 +49,19 @@
                   data-identifier="{{this.id}}"
                   aria-label="{{localize "DOS100.item.changes.edit"}}"
                 ><i class="fa-solid fa-pen-to-square" inert></i></a>
-                {{!-- TODO: not wired up yet — no Change duplication exists. --}}
                 <a
                   role="button"
                   tabindex="0"
                   class="icon-button"
+                  data-action="duplicateChange"
                   data-identifier="{{this.id}}"
                   aria-label="{{localize "DOS100.item.changes.duplicate"}}"
                 ><i class="fa-solid fa-copy" inert></i></a>
-                {{!-- TODO: not wired up yet — no Change deletion exists. --}}
                 <a
                   role="button"
                   tabindex="0"
                   class="icon-button"
+                  data-action="deleteChange"
                   data-identifier="{{this.id}}"
                   aria-label="{{localize "DOS100.item.changes.delete"}}"
                 ><i class="fa-solid fa-trash" inert></i></a>
@@ -81,7 +81,7 @@
     <table class="dense-table">
       <thead>
         <tr>
-          <th scope="col" colspan="2">{{localize "DOS100.item.conditionals.label"}}</th>
+          <th scope="col" colspan="2" class="dense-table-flexible">{{localize "DOS100.item.conditionals.label"}}</th>
           <th scope="col">
             {{!-- TODO: not wired up yet — no Add-Conditional modal exists. --}}
             <a
@@ -114,19 +114,19 @@
                   data-identifier="{{this.id}}"
                   aria-label="{{localize "DOS100.item.conditionals.edit"}}"
                 ><i class="fa-solid fa-pen-to-square" inert></i></a>
-                {{!-- TODO: not wired up yet — no Conditional duplication exists. --}}
                 <a
                   role="button"
                   tabindex="0"
                   class="icon-button"
+                  data-action="duplicateConditional"
                   data-identifier="{{this.id}}"
                   aria-label="{{localize "DOS100.item.conditionals.duplicate"}}"
                 ><i class="fa-solid fa-copy" inert></i></a>
-                {{!-- TODO: not wired up yet — no Conditional deletion exists. --}}
                 <a
                   role="button"
                   tabindex="0"
                   class="icon-button"
+                  data-action="deleteConditional"
                   data-identifier="{{this.id}}"
                   aria-label="{{localize "DOS100.item.conditionals.delete"}}"
                 ><i class="fa-solid fa-trash" inert></i></a>
