@@ -1,15 +1,163 @@
 export type ChangeMode = "add" | "set";
 
-// TODO: The fixed vocabulary of things a Change/Conditional can target, each
-// meant to localize to a short display label (DOS100.item.changeTarget.*)
-// rather than rendering a raw path — a flat identifier, not a dotted path,
-// so it drops directly into the project's usual
-// {{localize (concat "DOS100.x.y." this.z)}} idiom without forming an
-// unintended nested key. Only one member exists so far — there's no
-// complete picture of the full target domain yet — so this grows as real
-// targets are identified, the same way ChangeMode is a closed set rather
-// than a bare string.
-export type ChangeTarget = "strMod";
+export type StaticChangeTarget =
+  // Characteristic Tests
+  | "allCharacteristicTests"
+  | "strTests"
+  | "touTests"
+  | "agiTests"
+  | "wfrTests"
+  | "wfmTests"
+  | "intTests"
+  | "perTests"
+  | "crgTests"
+  | "chaTests"
+  | "ldrTests"
+
+  // Characteristics
+  | "str"
+  | "tou"
+  | "agi"
+  | "wfr"
+  | "wfm"
+  | "int"
+  | "per"
+  | "crg"
+  | "cha"
+  | "ldr"
+  | "strModifier"
+  | "touModifier"
+  | "agiModifier"
+  | "wfrModifier"
+  | "wfmModifier"
+  | "intModifier"
+  | "perModifier"
+  | "crgModifier"
+  | "chaModifier"
+  | "ldrModifier"
+
+  // Attack
+  | "allAttacks"
+  | "weaponAttacks"
+  | "meleeAttacks"
+  | "naturalAttacks"
+  | "rangedAttacks"
+  | "thrownAttacks"
+  | "allInboundAttacks"
+  | "inboundWeaponAttacks"
+  | "inboundMeleeAttacks"
+  | "inboundNaturalAttacks"
+  | "inboundRangedAttacks"
+  | "inboundThrownAttacks"
+
+  // Damage
+  | "allDamage"
+  | "weaponDamage"
+  | "meleeWeaponDamage"
+  | "naturalAttackDamage"
+  | "rangedWeaponDamage"
+  | "thrownWeaponDamage"
+  | "allMeleeDamage"
+  | "allRangedDamage"
+  | "allInboundDamage"
+  | "inboundWeaponDamage"
+  | "inboundMeleeWeaponDamage"
+  | "inboundNaturalAttackDamage"
+  | "inboundRangedWeaponDamage"
+  | "inboundThrownWeaponDamage"
+  | "allInboundMeleeDamage"
+  | "allInboundRangedDamage"
+
+  // Defense
+  | "allDamageResistance"
+  | "allHeadDamageResistance"
+  | "allTorsoDamageResistance"
+  | "allArmDamageResistance"
+  | "allLegDamageResistance"
+  | "allWingDamageResistance"
+  | "allTailDamageResistance"
+  | "energyShieldIntegrity"
+  | "energyShieldDelay"
+  | "energyShieldRechargeRate"
+
+  // Health
+  | "wounds"
+  | "fatigue"
+
+  // Miscellaneous
+  | "luck"
+  | "size"
+  | "reach"
+  | "initiative"
+  | "carryWeight"
+
+  // Skills
+  | "allSkills"
+  | "untrainedSkills"
+  | "basicSkills"
+  | "advancedSkills"
+  | "strSkills"
+  | "touSkills"
+  | "agiSkills"
+  | "wfrSkills"
+  | "wfmSkills"
+  | "intSkills"
+  | "perSkills"
+  | "crgSkills"
+  | "chaSkills"
+  | "ldrSkills"
+
+  // Speed
+  | "allSpeeds"
+  | "allLandSpeeds"
+  | "landHalf"
+  | "landFull"
+  | "landCharge"
+  | "landRun"
+  | "landSprint"
+  | "jump"
+  | "leap"
+  | "climb"
+  | "swim"
+  | "allClimbSpeeds"
+  | "climbHalf"
+  | "climbFull"
+  | "climbCharge"
+  | "climbRun"
+  | "climbSprint"
+  | "allSwimSpeeds"
+  | "swimHalf"
+  | "swimFull"
+  | "swimCharge"
+  | "swimRun"
+  | "swimSprint"
+  | "allFlightSpeeds"
+  | "flightHalf"
+  | "flightFull"
+  | "flightCharge"
+  | "flightRun"
+  | "flightSprint"
+  | "allBurrowSpeeds"
+  | "burrowHalf"
+  | "burrowFull"
+  | "burrowCharge"
+  | "burrowRun"
+  | "burrowSprint";
+
+export type SkillChangeTarget = `skill:${string}`;
+export type DrLocationChangeTarget = `drLocation:${string}`;
+
+export type DynamicChangeTarget =
+  | SkillChangeTarget
+  | DrLocationChangeTarget;
+
+// A Change target is a constrained identifier, not a dotted data path — each
+// value maps to a localization key (DOS100.item.changeTarget.*) for display.
+// Dynamic targets use a namespaced prefix (skill:, drLocation:) with the
+// stable keyed identity of the relevant Actor data as the suffix.
+export type ChangeTarget =
+  | StaticChangeTarget
+  | DynamicChangeTarget;
 
 export type ChangeSourceRef = {
   id: string;

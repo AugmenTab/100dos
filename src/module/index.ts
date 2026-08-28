@@ -66,6 +66,8 @@ Hooks.once("init", (): void => {
     "systems/100dos/templates/items/shell/changes-tab.hbs",
     "systems/100dos/templates/items/shell/links-tab.hbs",
     "systems/100dos/templates/items/dialogs/tags-editor.hbs",
+    "systems/100dos/templates/items/dialogs/change-editor.hbs",
+    "systems/100dos/templates/items/dialogs/change-target-picker.hbs",
     "systems/100dos/templates/actors/dialogs/ability-acquisition.hbs",
   ]);
 

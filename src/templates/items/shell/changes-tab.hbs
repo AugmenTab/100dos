@@ -23,8 +23,8 @@
         </tr>
       </thead>
       <tbody>
-        {{#if item.system.changes.computed.length}}
-          {{#each item.system.changes.computed}}
+        {{#if resolvedChanges.length}}
+          {{#each resolvedChanges}}
             <tr>
               <td>
                 <span aria-label="{{#if (eq this.mode "add")}}{{localize "DOS100.item.changes.mode.add"}}{{else}}{{localize "DOS100.item.changes.mode.set"}}{{/if}}">
@@ -39,13 +39,13 @@
                   aria-label="{{localize "DOS100.item.changes.formula"}}"
                 />
               </td>
-              <td><code>{{localize (concat "DOS100.item.changeTarget." this.target)}}</code></td>
+              <td><code>{{this.targetLabel}}</code></td>
               <td>
-                {{!-- TODO: not wired up yet — no Change edit modal exists. --}}
                 <a
                   role="button"
                   tabindex="0"
                   class="icon-button"
+                  data-action="editChange"
                   data-identifier="{{this.id}}"
                   aria-label="{{localize "DOS100.item.changes.edit"}}"
                 ><i class="fa-solid fa-pen-to-square" inert></i></a>
@@ -94,8 +94,8 @@
         </tr>
       </thead>
       <tbody>
-        {{#if item.system.changes.conditional.length}}
-          {{#each item.system.changes.conditional}}
+        {{#if resolvedConditionals.length}}
+          {{#each resolvedConditionals}}
             <tr>
               <td class="dense-table-flexible">
                 <textarea
@@ -104,13 +104,13 @@
                   aria-label="{{localize "DOS100.item.conditionals.notes"}}"
                 >{{this.value}}</textarea>
               </td>
-              <td><code>{{localize (concat "DOS100.item.changeTarget." this.target)}}</code></td>
+              <td><code>{{this.targetLabel}}</code></td>
               <td>
-                {{!-- TODO: not wired up yet — no Conditional edit modal exists. --}}
                 <a
                   role="button"
                   tabindex="0"
                   class="icon-button"
+                  data-action="editConditional"
                   data-identifier="{{this.id}}"
                   aria-label="{{localize "DOS100.item.conditionals.edit"}}"
                 ><i class="fa-solid fa-pen-to-square" inert></i></a>

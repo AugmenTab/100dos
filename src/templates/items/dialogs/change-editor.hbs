@@ -1,0 +1,31 @@
+<div class="change-editor">
+  {{#if (eq kind "change")}}
+    <div class="dos100-form-group">
+      <label for="change-editor-mode">{{localize "DOS100.item.changeEditor.mode"}}</label>
+      <select id="change-editor-mode" name="mode">
+        {{#each modes}}
+          <option value="{{this.value}}"{{#if (eq this.value ../mode)}} selected{{/if}}>{{this.label}}</option>
+        {{/each}}
+      </select>
+    </div>
+    <div class="dos100-form-group">
+      <label for="change-editor-formula">{{localize "DOS100.item.changeEditor.formula"}}</label>
+      <input type="text" id="change-editor-formula" name="formula" value="{{formula}}" />
+    </div>
+  {{else}}
+    <div class="dos100-form-group">
+      <label for="change-editor-value">{{localize "DOS100.item.changeEditor.notes"}}</label>
+      <textarea id="change-editor-value" name="value" rows="3">{{value}}</textarea>
+    </div>
+  {{/if}}
+  <div class="dos100-form-group">
+    <label>{{localize "DOS100.item.changeEditor.target"}}</label>
+    <button type="button" data-action="selectTarget">{{targetLabel}}</button>
+  </div>
+  <footer>
+    <div>
+      <button type="button" data-action="saveAndClose">{{localize "DOS100.item.changeEditor.save"}}</button>
+      <button type="button" data-action="cancelDialog">{{localize "DOS100.item.changeEditor.cancel"}}</button>
+    </div>
+  </footer>
+</div>

@@ -1,6 +1,8 @@
 import { Dos100Item, ABSTRACT_ITEM_TYPES } from "../../documents/item.js";
 import { type ActionData, USAGE_PERIODS } from "../../items/action.js";
-import { type ChangeData, type ConditionalChangeData } from "../../change.js";
+import { type ChangeData, type ConditionalChangeData, type ChangeTarget } from "../../change.js";
+import { resolveTargetLabel, type ActorContext } from "../../change-targets.js";
+import { ChangeEditorDialog } from "./change-editor-dialog.js";
 import { TagsEditorDialog } from "./tags-editor-dialog.js";
 
 const { HandlebarsApplicationMixin } = foundry.applications.api;
@@ -22,9 +24,11 @@ export abstract class AbstractItemSheet extends HandlebarsApplicationMixin(ItemS
       duplicateAction: AbstractItemSheet.prototype._onDuplicateAction,
       deleteAction: AbstractItemSheet.prototype._onDeleteAction,
       addChange: AbstractItemSheet.prototype._onAddChange,
+      editChange: AbstractItemSheet.prototype._onEditChange,
       duplicateChange: AbstractItemSheet.prototype._onDuplicateChange,
       deleteChange: AbstractItemSheet.prototype._onDeleteChange,
       addConditional: AbstractItemSheet.prototype._onAddConditional,
+      editConditional: AbstractItemSheet.prototype._onEditConditional,
       duplicateConditional: AbstractItemSheet.prototype._onDuplicateConditional,
       deleteConditional: AbstractItemSheet.prototype._onDeleteConditional,
       addEffectNote: AbstractItemSheet.prototype._onAddEffectNote,
@@ -77,6 +81,19 @@ export abstract class AbstractItemSheet extends HandlebarsApplicationMixin(ItemS
     const grantSource = grantingItem
       ? { name: grantingItem.name, typeLabel: game.i18n.localize(`TYPES.Item.${grantingItem.type}`) }
       : null;
+    const sysWithChanges = item.system as {
+      changes?: { computed: { id: string; enabled: boolean; target: string; mode: string; formula: string; source: { id: string; name: string } }[]; conditional: { id: string; enabled: boolean; target: string; value: string; source: { id: string; name: string } }[] };
+    };
+    const actor = item.actor as ActorContext;
+    const localize = (key: string) => game.i18n.localize(key);
+    const resolvedChanges = (sysWithChanges.changes?.computed ?? []).map(c => ({
+      ...c,
+      targetLabel: resolveTargetLabel(c.target, localize, actor),
+    }));
+    const resolvedConditionals = (sysWithChanges.changes?.conditional ?? []).map(c => ({
+      ...c,
+      targetLabel: resolveTargetLabel(c.target, localize, actor),
+    }));
     return {
       ...await super._prepareContext(options),
       item,
@@ -96,6 +113,8 @@ export abstract class AbstractItemSheet extends HandlebarsApplicationMixin(ItemS
       usagePeriods: USAGE_PERIODS,
       childItems: childIds.flatMap(id => { const r = toRow(id); return r ? [r] : []; }),
       supplementItems: supplementIds.flatMap(id => { const r = toRow(id); return r ? [r] : []; }),
+      resolvedChanges,
+      resolvedConditionals,
     };
   }
 
@@ -135,28 +154,74 @@ export abstract class AbstractItemSheet extends HandlebarsApplicationMixin(ItemS
   protected async _onAddChange(_event: PointerEvent, _target: HTMLElement): Promise<void> {
     const item = this.item as Dos100Item;
     const system = item.system as { changes: { computed: ChangeData[]; conditional: ConditionalChangeData[] } };
-    const entry: ChangeData = {
+    const defaultData: ChangeData = {
       id: foundry.utils.randomID(),
       enabled: true,
-      target: "strMod",
+      target: "" as ChangeTarget,
       mode: "add",
       formula: "",
       source: { id: item.id, name: item.name ?? "" },
     };
-    await item.update({ "system.changes.computed": [...system.changes.computed, entry] });
+    const result = await ChangeEditorDialog.promptChange(
+      defaultData,
+      "DOS100.item.changeEditor.title.addChange",
+      item.actor as ActorContext,
+    );
+    if (!result) return;
+    await item.update({ "system.changes.computed": [...system.changes.computed, result] });
+  }
+
+  protected async _onEditChange(_event: PointerEvent, target: HTMLElement): Promise<void> {
+    const item = this.item as Dos100Item;
+    const system = item.system as { changes: { computed: ChangeData[]; conditional: ConditionalChangeData[] } };
+    const id = target.dataset.identifier;
+    const existing = system.changes.computed.find(c => c.id === id);
+    if (!existing) return;
+    const result = await ChangeEditorDialog.promptChange(
+      existing,
+      "DOS100.item.changeEditor.title.editChange",
+      item.actor as ActorContext,
+    );
+    if (!result) return;
+    await item.update({
+      "system.changes.computed": system.changes.computed.map(c => (c.id === id ? result : c)),
+    });
   }
 
   protected async _onAddConditional(_event: PointerEvent, _target: HTMLElement): Promise<void> {
     const item = this.item as Dos100Item;
     const system = item.system as { changes: { computed: ChangeData[]; conditional: ConditionalChangeData[] } };
-    const entry: ConditionalChangeData = {
+    const defaultData: ConditionalChangeData = {
       id: foundry.utils.randomID(),
       enabled: true,
-      target: "strMod",
+      target: "" as ChangeTarget,
       value: "",
       source: { id: item.id, name: item.name ?? "" },
     };
-    await item.update({ "system.changes.conditional": [...system.changes.conditional, entry] });
+    const result = await ChangeEditorDialog.promptConditional(
+      defaultData,
+      "DOS100.item.changeEditor.title.addConditional",
+      item.actor as ActorContext,
+    );
+    if (!result) return;
+    await item.update({ "system.changes.conditional": [...system.changes.conditional, result] });
+  }
+
+  protected async _onEditConditional(_event: PointerEvent, target: HTMLElement): Promise<void> {
+    const item = this.item as Dos100Item;
+    const system = item.system as { changes: { computed: ChangeData[]; conditional: ConditionalChangeData[] } };
+    const id = target.dataset.identifier;
+    const existing = system.changes.conditional.find(c => c.id === id);
+    if (!existing) return;
+    const result = await ChangeEditorDialog.promptConditional(
+      existing,
+      "DOS100.item.changeEditor.title.editConditional",
+      item.actor as ActorContext,
+    );
+    if (!result) return;
+    await item.update({
+      "system.changes.conditional": system.changes.conditional.map(c => (c.id === id ? result : c)),
+    });
   }
 
   protected async _onDuplicateChange(_event: PointerEvent, target: HTMLElement): Promise<void> {

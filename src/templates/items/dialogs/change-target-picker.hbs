@@ -1,0 +1,25 @@
+<div class="change-target-picker">
+  <nav>
+    {{#each categories}}
+      <button
+        type="button"
+        data-action="switchCategory"
+        data-category="{{this.id}}"
+        class="{{#if this.active}}active{{/if}}"
+      >{{this.label}}</button>
+    {{/each}}
+  </nav>
+  <ul>
+    {{#each activeTargets}}
+      <li>
+        <a
+          role="button"
+          tabindex="0"
+          class="{{#if this.current}}current{{/if}}"
+          data-action="pickTarget"
+          data-target="{{this.target}}"
+        >{{this.label}}</a>
+      </li>
+    {{/each}}
+  </ul>
+</div>
