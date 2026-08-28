@@ -119,6 +119,11 @@
           "title": "Select Target"
         }
       },
+      "conditionalNoteEditor": {
+        "targetPicker": {
+          "title": "Select Conditional Note Target"
+        }
+      },
       "changeTargetCategory": {
         "characteristicTests": "Characteristic Tests",
         "characteristics": "Characteristics",
@@ -257,6 +262,39 @@
         "burrowCharge": "Burrow Charge",
         "burrowRun": "Burrow Run",
         "burrowSprint": "Burrow Sprint"
+      },
+      "conditionalNoteTarget": {
+        "allCharacteristicTests": "All Characteristic Tests",
+        "strTests": "Strength Tests",
+        "touTests": "Toughness Tests",
+        "agiTests": "Agility Tests",
+        "wfrTests": "Warfare Ranged Tests",
+        "wfmTests": "Warfare Melee Tests",
+        "intTests": "Intellect Tests",
+        "perTests": "Perception Tests",
+        "crgTests": "Courage Tests",
+        "chaTests": "Charisma Tests",
+        "ldrTests": "Leadership Tests",
+        "allAttacks": "All Attacks",
+        "weaponAttacks": "Weapon Attacks",
+        "meleeAttacks": "Melee Attacks",
+        "naturalAttacks": "Natural Attacks",
+        "rangedAttacks": "Ranged Attacks",
+        "thrownAttacks": "Thrown Attacks",
+        "allInboundAttacks": "Inbound Attacks",
+        "damageResistance": "Damage Resistance",
+        "energyShields": "Energy Shields",
+        "initiative": "Initiative",
+        "allSkills": "All Skills",
+        "untrainedSkills": "Untrained Skills",
+        "basicSkills": "Basic Skills",
+        "advancedSkills": "Advanced Skills",
+        "allSpeeds": "All Speeds",
+        "land": "Land",
+        "climb": "Climb",
+        "swim": "Swim",
+        "flight": "Flight",
+        "burrow": "Burrow"
       },
       "links": {
         "children": {

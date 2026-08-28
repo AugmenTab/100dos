@@ -186,7 +186,7 @@ test("Conditional rows display notes as a non-editable textarea-style preview, t
   await updateItem(page, actorId, itemId, {
     "system.changes.conditional": [
       {
-        target: "strModifier",
+        target: "allCharacteristicTests",
         value: "While Enraged, raise your Fly Encumbered threshold by 10 until the end of combat.",
         source: { id: "test", name: "Test" },
       },
@@ -201,7 +201,7 @@ test("Conditional rows display notes as a non-editable textarea-style preview, t
   const notes = row.locator("td").nth(0).locator("textarea");
   await expect(notes).toHaveValue("While Enraged, raise your Fly Encumbered threshold by 10 until the end of combat.");
   await expect(notes).toBeDisabled();
-  await expect(row.locator("td").nth(1).locator("code")).toHaveText("Strength Modifier");
+  await expect(row.locator("td").nth(1).locator("code")).toHaveText("All Characteristic Tests");
 
   const actionButtons = row.locator("td").nth(2).locator("a.icon-button");
   await expect(actionButtons).toHaveCount(3);
@@ -354,7 +354,7 @@ test("Duplicate Conditional appends a copy to the conditional array", async ({ f
   const { actorId, itemId } = await resetFixtures(page, fixtureLane);
   await updateItem(page, actorId, itemId, {
     "system.changes.conditional": [
-      { target: "strModifier", value: "Some note.", source: { id: "src", name: "Src" } },
+      { target: "allCharacteristicTests", value: "Some note.", source: { id: "src", name: "Src" } },
     ],
   });
   const sheetId = await openItemSheet(page, actorId, itemId);
@@ -375,7 +375,7 @@ test("Delete Conditional removes the entry from the conditional array", async ({
   const { actorId, itemId } = await resetFixtures(page, fixtureLane);
   await updateItem(page, actorId, itemId, {
     "system.changes.conditional": [
-      { target: "strModifier", value: "Some note.", source: { id: "src", name: "Src" } },
+      { target: "allCharacteristicTests", value: "Some note.", source: { id: "src", name: "Src" } },
     ],
   });
   const sheetId = await openItemSheet(page, actorId, itemId);
@@ -402,7 +402,7 @@ test("the Changes tab remains usable, without whole-sheet overflow, at represent
       { target: "strModifier", mode: "add", formula: "@characteristics.agi.value / 2 + 5", source: { id: "test", name: "Test" } },
     ],
     "system.changes.conditional": [
-      { target: "strModifier", value: "While Enraged, raise your Fly Encumbered threshold by 10 until the end of combat.", source: { id: "test", name: "Test" } },
+      { target: "allCharacteristicTests", value: "While Enraged, raise your Fly Encumbered threshold by 10 until the end of combat.", source: { id: "test", name: "Test" } },
     ],
   });
   const sheetId = await openItemSheet(page, actorId, itemId);
@@ -562,7 +562,7 @@ test("Add Conditional opens the editor dialog; saving appends a new row with the
 
   await dialog.locator('textarea[name="value"]').fill("Bonus applies while raging.");
   await dialog.locator("button[data-action='selectTarget']").click();
-  const picker = page.locator(".change-target-picker-dialog");
+  const picker = page.locator(".conditional-note-target-picker-dialog");
   await picker.locator('a[data-action="pickTarget"]').first().click();
   await expect(picker).not.toBeVisible();
   await dialog.locator("button[data-action='saveAndClose']").click();
@@ -591,7 +591,7 @@ test("Edit Conditional opens the editor pre-filled; saving replaces the row with
   const { actorId, itemId } = await resetFixtures(page, fixtureLane);
   await updateItem(page, actorId, itemId, {
     "system.changes.conditional": [
-      { target: "strModifier", value: "Original note.", source: { id: "src", name: "Src" } },
+      { target: "allCharacteristicTests", value: "Original note.", source: { id: "src", name: "Src" } },
     ],
   });
   const sheetId = await openItemSheet(page, actorId, itemId);
@@ -790,5 +790,111 @@ test("Target picker shows actor-specific DR locations and persists a dynamic DR 
       { actorId, itemId },
     ),
   ).toBe("drLocation:head1");
+});
+
+test("Conditional Note target picker opens; switching category and selecting a static target persists correctly", async ({
+  foundryPage: page,
+  fixtureLane,
+}) => {
+  const { actorId, itemId } = await resetFixtures(page, fixtureLane);
+  const sheetId = await openItemSheet(page, actorId, itemId);
+  const sheet = page.locator(`#${sheetId}`);
+  await openTab(sheet, "changes");
+
+  await sheet.locator('thead a[data-action="addConditional"]').click();
+  const editor = page.locator(".change-editor-dialog");
+  const picker = page.locator(".conditional-note-target-picker-dialog");
+
+  await editor.locator("button[data-action='selectTarget']").click();
+  await expect(picker).toBeVisible();
+
+  // Default category is active
+  const navButtons = picker.locator("nav button");
+  await expect(navButtons.filter({ hasText: "Characteristic Tests" })).toHaveClass(/active/);
+
+  // Switch to Defense
+  await navButtons.filter({ hasText: "Defense" }).click();
+  await expect(navButtons.filter({ hasText: "Defense" })).toHaveClass(/active/);
+
+  // Select "Energy Shields"
+  await picker.locator('a[data-action="pickTarget"][data-target="energyShields"]').click();
+  await expect(picker).not.toBeVisible();
+  await expect(editor.locator('button[data-action="selectTarget"]')).toHaveText("Energy Shields");
+
+  await editor.locator("button[data-action='saveAndClose']").click();
+  await expect(editor).not.toBeVisible();
+
+  await expect.poll(async () =>
+    page.evaluate(
+      ({ actorId, itemId }) => {
+        const conds = game.actors.get(actorId)?.items.get(itemId)?.system.changes.conditional as { target: string }[] | undefined;
+        return conds?.[0]?.target;
+      },
+      { actorId, itemId },
+    ),
+  ).toBe("energyShields");
+});
+
+test("Conditional Note target picker shows actor-specific skills and persists a dynamic skill target", async ({
+  foundryPage: page,
+  fixtureLane,
+}) => {
+  const { actorId, itemId } = await resetFixtures(page, fixtureLane);
+
+  await page.evaluate(
+    async ({ actorId }) => {
+      const actor = game.actors.get(actorId);
+      if (!actor) throw new Error("Actor not found");
+      await actor.update({
+        "system.skills.smallArms": {
+          name: "Small Arms",
+          difficulty: "basic",
+          type: [],
+          training: "untrained",
+          characteristic: "wfr",
+          characteristics: ["wfr"],
+          value: 0,
+          pinned: false,
+          description: "",
+          contributions: {},
+        },
+      });
+    },
+    { actorId },
+  );
+
+  const sheetId = await openItemSheet(page, actorId, itemId);
+  const sheet = page.locator(`#${sheetId}`);
+  await openTab(sheet, "changes");
+
+  await sheet.locator('thead a[data-action="addConditional"]').click();
+  const editor = page.locator(".change-editor-dialog");
+  const picker = page.locator(".conditional-note-target-picker-dialog");
+
+  await editor.locator("button[data-action='selectTarget']").click();
+  await expect(picker).toBeVisible();
+
+  await picker.locator("nav button").filter({ hasText: "Skills" }).click();
+
+  const skillTarget = picker.locator('a[data-action="pickTarget"][data-target="skill:smallArms"]');
+  await expect(skillTarget).toBeVisible();
+  await expect(skillTarget).toHaveText("Small Arms");
+  await skillTarget.click();
+
+  await expect(picker).not.toBeVisible();
+  await expect(editor.locator('button[data-action="selectTarget"]')).toHaveText("Small Arms");
+
+  await editor.locator("button[data-action='saveAndClose']").click();
+  await expect(editor).not.toBeVisible();
+
+  await expect.poll(async () =>
+    page.evaluate(
+      ({ actorId, itemId }) => {
+        const conds = game.actors.get(actorId)?.items.get(itemId)?.system.changes.conditional as { target: string }[] | undefined;
+        return conds?.[0]?.target;
+      },
+      { actorId, itemId },
+    ),
+  ).toBe("skill:smallArms");
 });
 

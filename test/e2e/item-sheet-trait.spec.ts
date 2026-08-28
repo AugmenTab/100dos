@@ -93,7 +93,7 @@ test("the Changes tab reuses the shared implementation, rendering both tables ag
       { target: "strModifier", mode: "add", formula: "3", source: { id: "test", name: "Test" } },
     ],
     "system.changes.conditional": [
-      { target: "strModifier", value: "When ambushed, roll Initiative twice and keep the higher result.", source: { id: "test", name: "Test" } },
+      { target: "allCharacteristicTests", value: "When ambushed, roll Initiative twice and keep the higher result.", source: { id: "test", name: "Test" } },
     ],
   });
   const sheetId = await openItemSheet(page, actorId, itemId);
@@ -112,7 +112,7 @@ test("the Changes tab reuses the shared implementation, rendering both tables ag
   await expect(conditionalRow.locator("td").nth(0).locator("textarea")).toHaveValue(
     "When ambushed, roll Initiative twice and keep the higher result.",
   );
-  await expect(conditionalRow.locator("td").nth(1).locator("code")).toHaveText("Strength Modifier");
+  await expect(conditionalRow.locator("td").nth(1).locator("code")).toHaveText("All Characteristic Tests");
 });
 
 test("the Trait sheet remains usable, without whole-sheet overflow, at representative Item-sheet widths", async ({

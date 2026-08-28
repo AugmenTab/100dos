@@ -159,6 +159,56 @@ export type ChangeTarget =
   | StaticChangeTarget
   | DynamicChangeTarget;
 
+export type StaticConditionalNoteTarget =
+  // Characteristic Tests
+  | "allCharacteristicTests"
+  | "strTests"
+  | "touTests"
+  | "agiTests"
+  | "wfrTests"
+  | "wfmTests"
+  | "intTests"
+  | "perTests"
+  | "crgTests"
+  | "chaTests"
+  | "ldrTests"
+
+  // Attack
+  | "allAttacks"
+  | "weaponAttacks"
+  | "meleeAttacks"
+  | "naturalAttacks"
+  | "rangedAttacks"
+  | "thrownAttacks"
+  | "allInboundAttacks"
+
+  // Defense
+  | "damageResistance"
+  | "energyShields"
+
+  // Miscellaneous
+  | "initiative"
+
+  // Skills
+  | "allSkills"
+  | "untrainedSkills"
+  | "basicSkills"
+  | "advancedSkills"
+
+  // Speed
+  | "allSpeeds"
+  | "land"
+  | "climb"
+  | "swim"
+  | "flight"
+  | "burrow";
+
+export type SkillConditionalNoteTarget = `skill:${string}`;
+
+export type ConditionalNoteTarget =
+  | StaticConditionalNoteTarget
+  | SkillConditionalNoteTarget;
+
 export type ChangeSourceRef = {
   id: string;
   name: string;
@@ -176,7 +226,7 @@ export type ChangeData = {
 export type ConditionalChangeData = {
   readonly id: string;
   enabled: boolean;
-  target: ChangeTarget;
+  target: ConditionalNoteTarget;
   value: string;
   source: ChangeSourceRef;
 };

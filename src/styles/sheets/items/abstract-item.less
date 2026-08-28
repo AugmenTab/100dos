@@ -375,6 +375,12 @@
       min-width: 0;
       text-align: left;
     }
+
+    > textarea {
+      box-sizing: border-box;
+      width: 100%;
+      resize: vertical;
+    }
   }
 
   footer {
@@ -391,7 +397,8 @@
   }
 }
 
-.change-target-picker-dialog {
+.change-target-picker-dialog,
+.conditional-note-target-picker-dialog {
   .window-content {
     padding: 0;
   }

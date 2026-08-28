@@ -12,16 +12,15 @@
       <label for="change-editor-formula">{{localize "DOS100.item.changeEditor.formula"}}</label>
       <input type="text" id="change-editor-formula" name="formula" value="{{formula}}" />
     </div>
-  {{else}}
-    <div class="dos100-form-group">
-      <label for="change-editor-value">{{localize "DOS100.item.changeEditor.notes"}}</label>
-      <textarea id="change-editor-value" name="value" rows="3">{{value}}</textarea>
-    </div>
   {{/if}}
   <div class="dos100-form-group">
     <label>{{localize "DOS100.item.changeEditor.target"}}</label>
     <button type="button" data-action="selectTarget">{{targetLabel}}</button>
   </div>
+  {{#unless (eq kind "change")}}
+    <label for="change-editor-value">{{localize "DOS100.item.changeEditor.notes"}}</label>
+    <textarea id="change-editor-value" name="value" rows="5">{{value}}</textarea>
+  {{/unless}}
   <footer>
     <div>
       <button type="button" data-action="saveAndClose">{{localize "DOS100.item.changeEditor.save"}}</button>

@@ -3,6 +3,7 @@ import {
   type ConditionalChangeData,
   type ChangeMode,
   type ChangeTarget,
+  type ConditionalNoteTarget,
 } from "../../change.js";
 import {
   buildChangeTargetCategories,
@@ -11,6 +12,12 @@ import {
   type ActorContext,
   type ChangeTargetCategoryId,
 } from "../../change-targets.js";
+import {
+  buildConditionalNoteTargetCategories,
+  findCategoryForConditionalNoteTarget,
+  resolveConditionalNoteTargetLabel,
+  type ConditionalNoteTargetCategoryId,
+} from "../../conditional-note-targets.js";
 
 const { HandlebarsApplicationMixin } = foundry.applications.api;
 
@@ -77,6 +84,87 @@ export class ChangeTargetPickerDialog extends HandlebarsApplicationMixin(
 
   protected async _onPickTarget(_event: PointerEvent, target: HTMLElement): Promise<void> {
     const value = target.dataset.target as ChangeTarget;
+    this.#resolve?.(value);
+    this.#resolve = null;
+    await this.close();
+  }
+
+  protected async _onCancelDialog(_event: PointerEvent, _target: HTMLElement): Promise<void> {
+    this.#resolve?.(null);
+    this.#resolve = null;
+    await this.close();
+  }
+
+  override async close(options?: Record<string, unknown>): Promise<this> {
+    this.#resolve?.(null);
+    this.#resolve = null;
+    return super.close(options);
+  }
+}
+
+export class ConditionalNoteTargetPickerDialog extends HandlebarsApplicationMixin(
+  foundry.applications.api.ApplicationV2,
+) {
+  #current: string;
+  #activeCategory: ConditionalNoteTargetCategoryId;
+  #actor: ActorContext;
+  #resolve: ((result: ConditionalNoteTarget | null) => void) | null;
+
+  static async prompt(current: string, actor: ActorContext = null): Promise<ConditionalNoteTarget | null> {
+    return new Promise(resolve => {
+      const dialog = new ConditionalNoteTargetPickerDialog(current, actor, resolve);
+      void dialog.render(true);
+    });
+  }
+
+  constructor(
+    current: string,
+    actor: ActorContext,
+    resolve: (result: ConditionalNoteTarget | null) => void,
+    options?: Partial<Record<string, unknown>>,
+  ) {
+    super(options);
+    this.#current = current;
+    this.#actor = actor;
+    this.#resolve = resolve;
+    const localize = (key: string) => game.i18n.localize(key);
+    const categories = buildConditionalNoteTargetCategories(localize, actor);
+    const found = current ? findCategoryForConditionalNoteTarget(current, categories) : null;
+    this.#activeCategory = found ?? categories[0].id;
+  }
+
+  static override DEFAULT_OPTIONS = {
+    classes: ["dos100", "conditional-note-target-picker-dialog"],
+    position: { width: 500, height: 400 },
+    window: { title: "DOS100.item.conditionalNoteEditor.targetPicker.title" },
+    actions: {
+      switchCategory: ConditionalNoteTargetPickerDialog.prototype._onSwitchCategory,
+      pickTarget: ConditionalNoteTargetPickerDialog.prototype._onPickTarget,
+      cancelDialog: ConditionalNoteTargetPickerDialog.prototype._onCancelDialog,
+    },
+  };
+
+  static override PARTS = {
+    form: { template: "systems/100dos/templates/items/dialogs/change-target-picker.hbs" },
+  };
+
+  override async _prepareContext(_options: Record<string, unknown>): Promise<Record<string, unknown>> {
+    const localize = (key: string) => game.i18n.localize(key);
+    const categories = buildConditionalNoteTargetCategories(localize, this.#actor);
+    const active = categories.find(c => c.id === this.#activeCategory) ?? categories[0];
+    return {
+      categories: categories.map(c => ({ ...c, active: c.id === active.id })),
+      activeTargets: active.targets.map(t => ({ ...t, current: t.target === this.#current })),
+    };
+  }
+
+  protected async _onSwitchCategory(_event: PointerEvent, target: HTMLElement): Promise<void> {
+    this.#activeCategory = target.dataset.category as ConditionalNoteTargetCategoryId;
+    await this.render();
+  }
+
+  protected async _onPickTarget(_event: PointerEvent, target: HTMLElement): Promise<void> {
+    const value = target.dataset.target as ConditionalNoteTarget;
     this.#resolve?.(value);
     this.#resolve = null;
     await this.close();
@@ -175,7 +263,9 @@ export class ChangeEditorDialog extends HandlebarsApplicationMixin(
     return {
       kind: this.#kind,
       target: this.#target,
-      targetLabel: resolveTargetLabel(this.#target, localize, this.#actor),
+      targetLabel: this.#kind === "conditional"
+        ? resolveConditionalNoteTargetLabel(this.#target, localize, this.#actor)
+        : resolveTargetLabel(this.#target, localize, this.#actor),
       modes: [
         { value: "add", label: localize("DOS100.item.changes.mode.add") },
         { value: "set", label: localize("DOS100.item.changes.mode.set") },
@@ -200,7 +290,12 @@ export class ChangeEditorDialog extends HandlebarsApplicationMixin(
 
   protected async _onSelectTarget(_event: PointerEvent, _target: HTMLElement): Promise<void> {
     this._captureFormValues();
-    const picked = await ChangeTargetPickerDialog.prompt(this.#target, this.#actor);
+    let picked: string | null;
+    if (this.#kind === "conditional") {
+      picked = await ConditionalNoteTargetPickerDialog.prompt(this.#target, this.#actor);
+    } else {
+      picked = await ChangeTargetPickerDialog.prompt(this.#target, this.#actor);
+    }
     if (picked !== null) {
       this.#target = picked;
       await this.render();
@@ -223,7 +318,7 @@ export class ChangeEditorDialog extends HandlebarsApplicationMixin(
         : {
             id: this.#id,
             enabled: this.#enabled,
-            target: this.#target as ChangeTarget,
+            target: this.#target as ConditionalNoteTarget,
             value: this.#value,
             source: this.#source,
           };

@@ -1,6 +1,6 @@
 import { Dos100Item, ABSTRACT_ITEM_TYPES } from "../../documents/item.js";
 import { type ActionData, USAGE_PERIODS } from "../../items/action.js";
-import { type ChangeData, type ConditionalChangeData, type ChangeTarget } from "../../change.js";
+import { type ChangeData, type ConditionalChangeData, type ChangeTarget, type ConditionalNoteTarget } from "../../change.js";
 import { resolveTargetLabel, type ActorContext } from "../../change-targets.js";
 import { ChangeEditorDialog } from "./change-editor-dialog.js";
 import { TagsEditorDialog } from "./tags-editor-dialog.js";
@@ -194,7 +194,7 @@ export abstract class AbstractItemSheet extends HandlebarsApplicationMixin(ItemS
     const defaultData: ConditionalChangeData = {
       id: foundry.utils.randomID(),
       enabled: true,
-      target: "" as ChangeTarget,
+      target: "" as ConditionalNoteTarget,
       value: "",
       source: { id: item.id, name: item.name ?? "" },
     };
