@@ -1,22 +1,5 @@
 <div class="dos100-item-sheet">
-<div class="dos100-item-header">
-  <img
-    class="dos100-item-portrait"
-    src="{{item.img}}"
-    alt="{{localize "DOS100.item.name"}}"
-    data-edit="img"
-    data-action="editImage"
-  />
-  <h1 class="dos100-item-name">
-    <input
-      name="name"
-      type="text"
-      value="{{item.name}}"
-      placeholder="{{localize 'DOS100.item.name'}}"
-      class="{{#if (eq item.system.active false)}}depleted{{/if}}"
-    />
-  </h1>
-</div>
+{{> "systems/100dos/templates/items/item-header.hbs" img=item.img name=item.name nameClass=nameClass}}
 
 <div class="dos100-item-shell">
   <aside class="dos100-item-sidebar">

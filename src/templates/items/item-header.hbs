@@ -1,0 +1,18 @@
+<div class="dos100-item-header">
+  <img
+    class="dos100-item-portrait"
+    src="{{img}}"
+    alt="{{name}}"
+    data-edit="img"
+    data-action="editImage"
+  />
+  <h1 class="dos100-item-name">
+    <input
+      name="name"
+      type="text"
+      value="{{name}}"
+      placeholder="{{localize 'DOS100.item.name'}}"
+      {{#if nameClass}}class="{{nameClass}}"{{/if}}
+    />
+  </h1>
+</div>

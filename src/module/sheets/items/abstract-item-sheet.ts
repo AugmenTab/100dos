@@ -1,5 +1,6 @@
 import { Dos100Item, ABSTRACT_ITEM_TYPES } from "../../documents/item.js";
 import { type ActionData, USAGE_PERIODS } from "../../items/action.js";
+import { ActionSheet } from "./action-sheet.js";
 import { type ChangeData, type ConditionalChangeData, type ChangeTarget, type ConditionalNoteTarget } from "../../change.js";
 import { resolveTargetLabel, type ActorContext } from "../../change-targets.js";
 import { ChangeEditorDialog } from "./change-editor-dialog.js";
@@ -21,6 +22,7 @@ export abstract class AbstractItemSheet extends HandlebarsApplicationMixin(ItemS
     form: { submitOnChange: true, closeOnSubmit: false },
     actions: {
       addAction: AbstractItemSheet.prototype._onAddAction,
+      editAction: AbstractItemSheet.prototype._onEditAction,
       duplicateAction: AbstractItemSheet.prototype._onDuplicateAction,
       deleteAction: AbstractItemSheet.prototype._onDeleteAction,
       addChange: AbstractItemSheet.prototype._onAddChange,
@@ -106,6 +108,7 @@ export abstract class AbstractItemSheet extends HandlebarsApplicationMixin(ItemS
       // own auto-registered TYPES.Item.<type> label (see system.json's
       // documentTypes.Item and en.json's TYPES.Item block) rather than a
       // second, duplicate DOS100.<type>.name key.
+      nameClass: (item.system as { active?: boolean }).active === false ? "depleted" : "",
       itemTypeLabel: game.i18n.localize(`TYPES.Item.${item.type}`),
       showCombatTab: this._showCombatTab,
       typeDetailsPartial: this._typeDetailsPartial,
@@ -118,12 +121,21 @@ export abstract class AbstractItemSheet extends HandlebarsApplicationMixin(ItemS
     };
   }
 
+  protected async _onEditAction(_event: PointerEvent, target: HTMLElement): Promise<void> {
+    const item = this.item as Dos100Item;
+    const id = target.dataset.identifier;
+    if (!id) return;
+    const sheet = new ActionSheet(item, id);
+    await sheet.render(true);
+  }
+
   protected async _onAddAction(_event: PointerEvent, _target: HTMLElement): Promise<void> {
     const item = this.item as Dos100Item;
     const id = foundry.utils.randomID();
     await item.update({
       [`system.actions.items.${id}`]: {
         id,
+        img: "icons/svg/item-bag.svg",
         name: game.i18n.localize("DOS100.item.actions.new"),
         activation: { type: "passive", cost: null },
         uses: { per: "unlimited", value: 0, max: 0, cost: 1, formula: { max: "", cost: "" } },

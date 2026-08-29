@@ -6,6 +6,7 @@ import { buildEffectContext } from "./support/effect-context.js";
 import { renderPage } from "./support/render.js";
 
 const ITEM_SHELL_PARTIALS = [
+  "items/item-header.hbs",
   "items/shell/description-tab.hbs",
   "items/shell/details-tab.hbs",
   "items/effect-details-fields.hbs",

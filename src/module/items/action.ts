@@ -40,6 +40,7 @@ export type ActionUses = {
 
 export type ActionData = {
   readonly id: string;
+  img: string;
   name: string;
   activation: {
     type: ActivationType;

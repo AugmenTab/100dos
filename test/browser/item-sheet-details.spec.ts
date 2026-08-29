@@ -6,6 +6,7 @@ import { buildAbilityContext } from "./support/ability-context.js";
 import { renderPage } from "./support/render.js";
 
 const ITEM_SHELL_PARTIALS = [
+  "items/item-header.hbs",
   "items/shell/description-tab.hbs",
   "items/shell/details-tab.hbs",
   "items/ability-details-fields.hbs",
@@ -54,7 +55,7 @@ test("Action rows show name, Uses, and Edit/Copy/Delete controls", async ({ page
   await expect(controls.nth(0)).toHaveAttribute("aria-label", "Edit action");
   await expect(controls.nth(1)).toHaveAttribute("aria-label", "Duplicate action");
   await expect(controls.nth(2)).toHaveAttribute("aria-label", "Delete action");
-  await expect(controls.nth(0)).not.toHaveAttribute("data-action");
+  await expect(controls.nth(0)).toHaveAttribute("data-action", "editAction");
   await expect(controls.nth(1)).toHaveAttribute("data-action", "duplicateAction");
   await expect(controls.nth(2)).toHaveAttribute("data-action", "deleteAction");
 });

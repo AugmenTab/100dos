@@ -100,6 +100,16 @@
         "empty": "No tags yet.",
         "tagLabel": "Tag"
       },
+      "actionSheet": {
+        "title": "Action",
+        "tabs": {
+          "description": "Description",
+          "usage": "Usage",
+          "action": "Action",
+          "miscellaneous": "Miscellaneous"
+        },
+        "placeholder": "This feature is not yet implemented."
+      },
       "changeEditor": {
         "title": {
           "addChange": "Add Change",

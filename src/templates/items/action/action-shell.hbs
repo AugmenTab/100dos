@@ -1,0 +1,75 @@
+<div class="dos100-action-sheet">
+  {{> "systems/100dos/templates/items/item-header.hbs" img=action.img name=action.name}}
+
+  <nav
+    class="tabs dos100-item-tabs"
+    data-group="primary"
+    role="tablist"
+    aria-label="{{localize 'DOS100.item.actionSheet.title'}}"
+  >
+    {{#each tabs.primary}}
+      <button
+        type="button"
+        class="dos100-item-tab-control {{cssClass}}"
+        data-action="tab"
+        data-group="primary"
+        data-tab="{{id}}"
+        role="tab"
+        id="{{../sheetId}}-primary-tab-{{id}}"
+        aria-selected="{{active}}"
+        aria-controls="{{../sheetId}}-primary-panel-{{id}}"
+        tabindex="{{#if active}}0{{else}}-1{{/if}}"
+      >{{localize label}}</button>
+    {{/each}}
+  </nav>
+
+  <div class="dos100-action-tab-panels">
+    <section
+      class="tab{{#if tabs.primary.description.active}} active{{/if}}"
+      data-group="primary"
+      data-tab="description"
+      role="tabpanel"
+      id="{{sheetId}}-primary-panel-description"
+      aria-labelledby="{{sheetId}}-primary-tab-description"
+    >
+      <h1>{{localize "DOS100.item.actionSheet.tabs.description"}}</h1>
+      <p>{{localize "DOS100.item.actionSheet.placeholder"}}</p>
+    </section>
+
+    <section
+      class="tab{{#if tabs.primary.usage.active}} active{{/if}}"
+      data-group="primary"
+      data-tab="usage"
+      role="tabpanel"
+      id="{{sheetId}}-primary-panel-usage"
+      aria-labelledby="{{sheetId}}-primary-tab-usage"
+    >
+      <h1>{{localize "DOS100.item.actionSheet.tabs.usage"}}</h1>
+      <p>{{localize "DOS100.item.actionSheet.placeholder"}}</p>
+    </section>
+
+    <section
+      class="tab{{#if tabs.primary.action.active}} active{{/if}}"
+      data-group="primary"
+      data-tab="action"
+      role="tabpanel"
+      id="{{sheetId}}-primary-panel-action"
+      aria-labelledby="{{sheetId}}-primary-tab-action"
+    >
+      <h1>{{localize "DOS100.item.actionSheet.tabs.action"}}</h1>
+      <p>{{localize "DOS100.item.actionSheet.placeholder"}}</p>
+    </section>
+
+    <section
+      class="tab{{#if tabs.primary.miscellaneous.active}} active{{/if}}"
+      data-group="primary"
+      data-tab="miscellaneous"
+      role="tabpanel"
+      id="{{sheetId}}-primary-panel-miscellaneous"
+      aria-labelledby="{{sheetId}}-primary-tab-miscellaneous"
+    >
+      <h1>{{localize "DOS100.item.actionSheet.tabs.miscellaneous"}}</h1>
+      <p>{{localize "DOS100.item.actionSheet.placeholder"}}</p>
+    </section>
+  </div>
+</div>
