@@ -10,7 +10,7 @@ export const ACTIONS_ITEM_TYPES = new Set(["ability", "trait", "effect", "armor"
 // on creation.
 export const ABSTRACT_ITEM_TYPES = new Set(["ability", "trait", "effect"]);
 
-function toCamelCase(str: string): string {
+export function toCamelCase(str: string): string {
   const words = str.split(/[^a-zA-Z0-9]+/).filter(w => w.length > 0);
   if (words.length === 0) return "item";
   return words[0].toLowerCase() + words.slice(1).map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()).join("");

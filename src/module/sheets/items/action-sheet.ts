@@ -9,8 +9,9 @@ export class ActionSheet extends HandlebarsApplicationMixin(foundry.applications
 
   static override DEFAULT_OPTIONS = {
     classes: ["dos100", "sheet", "action-sheet"],
-    position: { width: 600, height: 400 },
+    position: { width: 600, height: 480 },
     window: { resizable: true, title: "DOS100.item.actionSheet.title" },
+    form: { handler: ActionSheet.prototype._onSubmitForm, submitOnChange: true },
   };
 
   static override TABS = {
@@ -26,7 +27,7 @@ export class ActionSheet extends HandlebarsApplicationMixin(foundry.applications
   };
 
   static override PARTS = {
-    form: { template: "systems/100dos/templates/items/action/action-shell.hbs" },
+    form: { template: "systems/100dos/templates/items/action/action-shell.hbs", scrollable: [".tab.active"] },
   };
 
   constructor(item: Dos100Item, actionId: string, options?: Partial<Record<string, unknown>>) {
@@ -49,5 +50,18 @@ export class ActionSheet extends HandlebarsApplicationMixin(foundry.applications
       tabs: { primary: this._prepareTabs("primary") },
       action: system.actions.items[this.#actionId],
     };
+  }
+
+  protected async _onSubmitForm(
+    _event: Event,
+    _form: HTMLFormElement,
+    formData: { object: Record<string, unknown> },
+  ): Promise<void> {
+    const data = formData.object;
+    const updates: Record<string, unknown> = {};
+    for (const [key, value] of Object.entries(data)) {
+      updates[`system.actions.items.${this.#actionId}.${key}`] = value;
+    }
+    await this.#item.update(updates);
   }
 }

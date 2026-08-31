@@ -22,10 +22,61 @@
   gap: var(--spacer-16, 1rem);
 }
 
+/* Plain ApplicationV2 .window-content is a flex child with no explicit height,
+   so height:100% on descendants resolves against auto. Override it to be a flex
+   column so section[data-application-part] can grow into the available space. */
+.dos100.sheet.action-sheet {
+  .window-content {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  section[data-application-part] {
+    display: flex;
+    flex-direction: column;
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow: hidden;
+  }
+}
+
 .dos100-action-sheet {
   display: flex;
   flex-direction: column;
+  flex: 1 1 auto;
+  min-height: 0;
   gap: var(--spacer-16, 1rem);
+}
+
+.dos100-action-tab-panels {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+
+  > .tab {
+    flex: 1 1 auto;
+  }
+}
+
+.dos100-action-tab-panels .tab.active {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  min-height: 0;
+  gap: var(--spacer-8, 0.5rem);
+  padding-top: var(--spacer-8, 0.5rem);
+
+  > *:not(prose-mirror) {
+    flex-shrink: 0;
+  }
+
+  prose-mirror {
+    flex: 1 1 auto;
+    min-height: 0;
+  }
 }
 
 .dos100-item-shell {

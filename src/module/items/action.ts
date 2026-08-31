@@ -42,6 +42,8 @@ export type ActionData = {
   readonly id: string;
   img: string;
   name: string;
+  identifier: string;
+  description: string;
   activation: {
     type: ActivationType;
     cost: number | null;

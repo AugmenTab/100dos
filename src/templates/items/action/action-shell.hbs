@@ -1,4 +1,4 @@
-<div class="dos100-action-sheet">
+<form class="dos100-action-sheet" autocomplete="off">
   {{> "systems/100dos/templates/items/item-header.hbs" img=action.img name=action.name}}
 
   <nav
@@ -32,8 +32,11 @@
       id="{{sheetId}}-primary-panel-description"
       aria-labelledby="{{sheetId}}-primary-tab-description"
     >
-      <h1>{{localize "DOS100.item.actionSheet.tabs.description"}}</h1>
-      <p>{{localize "DOS100.item.actionSheet.placeholder"}}</p>
+      <div class="dos100-form-group">
+        <label for="{{sheetId}}-identifier">{{localize "DOS100.item.identifier"}}</label>
+        <input type="text" id="{{sheetId}}-identifier" name="identifier" value="{{action.identifier}}" />
+      </div>
+      <prose-mirror name="description" value="{{action.description}}"></prose-mirror>
     </section>
 
     <section
@@ -72,4 +75,4 @@
       <p>{{localize "DOS100.item.actionSheet.placeholder"}}</p>
     </section>
   </div>
-</div>
+</form>

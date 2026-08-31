@@ -1,4 +1,4 @@
-import { Dos100Item, ABSTRACT_ITEM_TYPES } from "../../documents/item.js";
+import { Dos100Item, ABSTRACT_ITEM_TYPES, toCamelCase } from "../../documents/item.js";
 import { type ActionData, USAGE_PERIODS } from "../../items/action.js";
 import { ActionSheet } from "./action-sheet.js";
 import { type ChangeData, type ConditionalChangeData, type ChangeTarget, type ConditionalNoteTarget } from "../../change.js";
@@ -132,11 +132,14 @@ export abstract class AbstractItemSheet extends HandlebarsApplicationMixin(ItemS
   protected async _onAddAction(_event: PointerEvent, _target: HTMLElement): Promise<void> {
     const item = this.item as Dos100Item;
     const id = foundry.utils.randomID();
+    const name = game.i18n.localize("DOS100.item.actions.new");
     await item.update({
       [`system.actions.items.${id}`]: {
         id,
         img: "icons/svg/item-bag.svg",
-        name: game.i18n.localize("DOS100.item.actions.new"),
+        name,
+        identifier: toCamelCase(name),
+        description: "",
         activation: { type: "passive", cost: null },
         uses: { per: "unlimited", value: 0, max: 0, cost: 1, formula: { max: "", cost: "" } },
       },
