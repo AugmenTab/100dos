@@ -14,6 +14,12 @@ export class ActionSheet extends HandlebarsApplicationMixin(foundry.applications
     position: { width: 600, height: 480 },
     window: { resizable: true, title: "DOS100.item.actionSheet.title" },
     form: { handler: ActionSheet.prototype._onSubmitForm, submitOnChange: true },
+    actions: {
+      addActionEffectNote: ActionSheet.prototype._onAddActionEffectNote,
+      deleteActionEffectNote: ActionSheet.prototype._onDeleteActionEffectNote,
+      addActionFootnote: ActionSheet.prototype._onAddActionFootnote,
+      deleteActionFootnote: ActionSheet.prototype._onDeleteActionFootnote,
+    },
   };
 
   static override TABS = {
@@ -132,6 +138,32 @@ export class ActionSheet extends HandlebarsApplicationMixin(foundry.applications
   override async close(options?: Record<string, unknown>): Promise<this> {
     if (this.#updateHookId !== undefined) Hooks.off("updateItem", this.#updateHookId);
     return super.close(options);
+  }
+
+  protected async _onAddActionEffectNote(_event: PointerEvent, _target: HTMLElement): Promise<void> {
+    const system = this.#item.system as { actions: { items: Record<string, ActionData> } };
+    const notes = system.actions.items[this.#actionId].notes?.effectNotes ?? [];
+    await this.#item.update({ [`system.actions.items.${this.#actionId}.notes.effectNotes`]: [...notes, ""] });
+  }
+
+  protected async _onDeleteActionEffectNote(_event: PointerEvent, target: HTMLElement): Promise<void> {
+    const system = this.#item.system as { actions: { items: Record<string, ActionData> } };
+    const notes = system.actions.items[this.#actionId].notes?.effectNotes ?? [];
+    const index = Number(target.dataset.identifier);
+    await this.#item.update({ [`system.actions.items.${this.#actionId}.notes.effectNotes`]: notes.filter((_: string, i: number) => i !== index) });
+  }
+
+  protected async _onAddActionFootnote(_event: PointerEvent, _target: HTMLElement): Promise<void> {
+    const system = this.#item.system as { actions: { items: Record<string, ActionData> } };
+    const notes = system.actions.items[this.#actionId].notes?.footnotes ?? [];
+    await this.#item.update({ [`system.actions.items.${this.#actionId}.notes.footnotes`]: [...notes, ""] });
+  }
+
+  protected async _onDeleteActionFootnote(_event: PointerEvent, target: HTMLElement): Promise<void> {
+    const system = this.#item.system as { actions: { items: Record<string, ActionData> } };
+    const notes = system.actions.items[this.#actionId].notes?.footnotes ?? [];
+    const index = Number(target.dataset.identifier);
+    await this.#item.update({ [`system.actions.items.${this.#actionId}.notes.footnotes`]: notes.filter((_: string, i: number) => i !== index) });
   }
 
   protected async _onSubmitForm(

@@ -104,4 +104,15 @@ describe("buildActionUpdates", () => {
     expect(`system.actions.items.${ACTION_ID}.activation.cost` in updates).toBe(false);
     expect(`system.actions.items.${ACTION_ID}.range.value` in updates).toBe(false);
   });
+
+  it("maps indexed effect note fields to the action path", () => {
+    const updates = buildActionUpdates(ACTION_ID, { "notes.effectNotes.0": "On hit", "notes.effectNotes.1": "On crit" });
+    expect(updates[`system.actions.items.${ACTION_ID}.notes.effectNotes.0`]).toBe("On hit");
+    expect(updates[`system.actions.items.${ACTION_ID}.notes.effectNotes.1`]).toBe("On crit");
+  });
+
+  it("maps indexed footnote fields to the action path", () => {
+    const updates = buildActionUpdates(ACTION_ID, { "notes.footnotes.0": "See page 42" });
+    expect(updates[`system.actions.items.${ACTION_ID}.notes.footnotes.0`]).toBe("See page 42");
+  });
 });

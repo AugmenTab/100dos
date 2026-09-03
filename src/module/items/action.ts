@@ -91,6 +91,7 @@ export type ActionData = {
   concentration: boolean;
   dismissible: boolean;
   uses: ActionUses;
+  notes: ActionNotes;
 };
 
 export type ActionNotes = {
