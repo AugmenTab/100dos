@@ -27,6 +27,10 @@ interface SettingConfig {
   default: unknown;
 }
 
+declare class FormDataExtended extends FormData {
+  object: Record<string, unknown>;
+}
+
 declare const game: Game;
 
 declare function fromUuid<T = unknown>(uuid: string): Promise<T | null>;

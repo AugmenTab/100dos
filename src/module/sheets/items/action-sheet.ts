@@ -14,7 +14,7 @@ export class ActionSheet extends HandlebarsApplicationMixin(foundry.applications
     classes: ["dos100", "sheet", "action-sheet"],
     position: { width: 600, height: 480 },
     window: { resizable: true, title: "DOS100.item.actionSheet.title" },
-    form: { handler: ActionSheet.prototype._onSubmitForm, submitOnChange: true },
+    form: { submitOnChange: true },
     actions: {
       addActionEffectNote: ActionSheet.prototype._onAddActionEffectNote,
       deleteActionEffectNote: ActionSheet.prototype._onDeleteActionEffectNote,
@@ -232,6 +232,14 @@ export class ActionSheet extends HandlebarsApplicationMixin(foundry.applications
     for (const slider of Array.from(this.element.querySelectorAll<HTMLInputElement>("input.dos100-slider"))) {
       updateSlider(slider);
       slider.addEventListener("input", () => updateSlider(slider));
+    }
+
+    const actionForm = this.element.querySelector<HTMLFormElement>("form");
+    if (actionForm !== null) {
+      actionForm.addEventListener("change", async (event: Event) => {
+        const fd = new FormDataExtended(actionForm);
+        await this._onSubmitForm(event, actionForm, fd);
+      });
     }
   }
 
