@@ -133,6 +133,8 @@ export abstract class AbstractItemSheet extends HandlebarsApplicationMixin(ItemS
     const item = this.item as Dos100Item;
     const id = foundry.utils.randomID();
     const name = game.i18n.localize("DOS100.item.actions.new");
+    const critSuccess = game.settings.get(game.system.id, "criticalSuccessThreshold") as number;
+    const critFailure = game.settings.get(game.system.id, "criticalFailureThreshold") as number;
     await item.update({
       [`system.actions.items.${id}`]: {
         id,
@@ -149,6 +151,7 @@ export abstract class AbstractItemSheet extends HandlebarsApplicationMixin(ItemS
         concentration: false,
         dismissible: false,
         uses: { per: "unlimited", value: 0, max: 0, formula: "", itemCost: { value: 0, formula: "", perAttack: false }, actionCost: { value: 0, formula: "", perAttack: false } },
+        attack: { name: "", held: "default", characteristic: "wfm", bonus: "", critical: { success: critSuccess, failure: critFailure } },
       },
     });
   }

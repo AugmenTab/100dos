@@ -468,6 +468,61 @@
   }
 }
 
+fieldset.dos100-attack-section {
+  border: none;
+  padding: 0;
+  margin: 0;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacer-8, 0.5rem);
+
+  &[hidden] {
+    display: none;
+  }
+}
+
+.dos100-slider-group {
+  display: flex;
+  align-items: center;
+  gap: var(--spacer-8, 0.5rem);
+  flex: 1 1 auto;
+
+  input[type="range"] {
+    flex: 1 1 auto;
+  }
+
+  .dos100-slider-bound {
+    flex: 0 0 auto;
+    font-size: var(--font-size-11, 0.7rem);
+    color: var(--color-text-light-6, currentColor);
+  }
+
+  .dos100-slider-value {
+    flex: 0 0 2rem;
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+input[type="range"].dos100-slider--fill-left {
+  background: linear-gradient(
+    to right,
+    var(--color-warm-2, #c45000) 0%,
+    var(--color-warm-2, #c45000) var(--dos100-fill-pct, 0%),
+    var(--color-border-light-2, #ccc) var(--dos100-fill-pct, 0%)
+  );
+}
+
+input[type="range"].dos100-slider--fill-right {
+  background: linear-gradient(
+    to right,
+    var(--color-border-light-2, #ccc) 0%,
+    var(--color-border-light-2, #ccc) var(--dos100-fill-pct, 100%),
+    var(--color-warm-2, #c45000) var(--dos100-fill-pct, 100%)
+  );
+}
+
 .change-target-picker-dialog,
 .conditional-note-target-picker-dialog {
   .window-content {

@@ -1,9 +1,24 @@
+import type { CharacteristicId } from "../characteristic.js";
+
 export type ActionType =
   | "meleeAttack"
   | "rangedAttack"
   | "thrownAttack"
   | "healing"
   | "other";
+
+export type AttackHeld = "default" | "oneHanded" | "twoHanded";
+
+export type ActionAttack = {
+  name: string;
+  held: AttackHeld;
+  characteristic: CharacteristicId;
+  bonus: string;
+  critical: {
+    success: number;
+    failure: number;
+  };
+};
 
 export const ACTION_TYPES: Record<ActionType, string> = {
   meleeAttack: "DOS100.action.type.meleeAttack",
@@ -110,6 +125,7 @@ export type ActionData = {
   dismissible: boolean;
   uses: ActionUses;
   notes: ActionNotes;
+  attack?: ActionAttack;
 };
 
 export type ActionNotes = {
@@ -123,6 +139,26 @@ export type Actions = {
   pinned: boolean;
   notes: ActionNotes;
 };
+
+// Action types that expose the Attack section.
+export const ATTACK_ACTION_TYPES = new Set<ActionType>(["meleeAttack", "rangedAttack", "thrownAttack"]);
+
+export const HELD_TYPES: Record<AttackHeld, string> = {
+  default: "DOS100.action.attack.held.default",
+  oneHanded: "DOS100.action.attack.held.oneHanded",
+  twoHanded: "DOS100.action.attack.held.twoHanded",
+};
+
+export const ATTACK_CHARACTERISTIC_DEFAULTS: Partial<Record<ActionType, CharacteristicId>> = {
+  meleeAttack: "wfm",
+  rangedAttack: "wfr",
+  thrownAttack: "wfm",
+};
+
+export const CRITICAL_SUCCESS_MIN = 1;
+export const CRITICAL_SUCCESS_MAX = 10;
+export const CRITICAL_FAILURE_MIN = 90;
+export const CRITICAL_FAILURE_MAX = 100;
 
 // Activation types for which the cost field is meaningless and hidden in the UI.
 export const COST_HIDDEN_TYPES = new Set<ActivationType>(["nonaction", "passive", "free", "half", "full", "reaction", "special"]);

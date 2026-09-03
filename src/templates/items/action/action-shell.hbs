@@ -234,6 +234,64 @@
           {{/each}}
         </select>
       </div>
+
+      <fieldset class="dos100-attack-section">
+        <hr />
+
+        <h4 class="pc-section-heading">{{localize "DOS100.action.attack.label"}}</h4>
+
+        <div class="dos100-form-group">
+          <label for="{{sheetId}}-attack-name">{{localize "DOS100.action.attack.name"}}</label>
+          <input type="text" id="{{sheetId}}-attack-name" name="attack.name" value="{{attackData.name}}" />
+        </div>
+
+        <div class="dos100-form-group">
+          <label for="{{sheetId}}-attack-held">{{localize "DOS100.action.attack.held.label"}}</label>
+          <select id="{{sheetId}}-attack-held" name="attack.held">
+            {{#each heldTypes}}
+              <option value="{{value}}" {{#if selected}}selected{{/if}}>{{localize label}}</option>
+            {{/each}}
+          </select>
+        </div>
+
+        <div class="dos100-form-group">
+          <label for="{{sheetId}}-attack-characteristic">{{localize "DOS100.action.attack.characteristic"}}</label>
+          <select id="{{sheetId}}-attack-characteristic" name="attack.characteristic">
+            {{#each characteristicTypes}}
+              <option value="{{value}}" {{#if selected}}selected{{/if}}>{{localize label}}</option>
+            {{/each}}
+          </select>
+        </div>
+
+        <div class="dos100-form-group">
+          <label for="{{sheetId}}-attack-bonus">{{localize "DOS100.action.attack.bonus"}}</label>
+          <input type="text" id="{{sheetId}}-attack-bonus" name="attack.bonus" value="{{attackData.bonus}}" />
+        </div>
+
+        <div class="dos100-form-group">
+          <label for="{{sheetId}}-attack-critical-success">{{localize "DOS100.action.attack.critical.success"}}</label>
+          <div class="dos100-slider-group">
+            <span class="dos100-slider-bound">1</span>
+            <input type="range" id="{{sheetId}}-attack-critical-success" name="attack.critical.success"
+                   value="{{attackData.critical.success}}" min="1" max="10" step="1"
+                   class="dos100-slider dos100-slider--fill-left" />
+            <span class="dos100-slider-bound">10</span>
+            <output class="dos100-slider-value">{{attackData.critical.success}}</output>
+          </div>
+        </div>
+
+        <div class="dos100-form-group">
+          <label for="{{sheetId}}-attack-critical-failure">{{localize "DOS100.action.attack.critical.failure"}}</label>
+          <div class="dos100-slider-group">
+            <span class="dos100-slider-bound">90</span>
+            <input type="range" id="{{sheetId}}-attack-critical-failure" name="attack.critical.failure"
+                   value="{{attackData.critical.failure}}" min="90" max="100" step="1"
+                   class="dos100-slider dos100-slider--fill-right" />
+            <span class="dos100-slider-bound">100</span>
+            <output class="dos100-slider-value">{{attackData.critical.failure}}</output>
+          </div>
+        </div>
+      </fieldset>
     </section>
 
     <section

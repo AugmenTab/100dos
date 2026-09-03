@@ -329,6 +329,14 @@
       "debugMode": {
         "name": "Debug Mode",
         "hint": "Enable debug logging for the 100DOS system."
+      },
+      "criticalSuccessThreshold": {
+        "name": "Critical Success Threshold",
+        "hint": "Maximum die result counted as a Critical Success (1–10)."
+      },
+      "criticalFailureThreshold": {
+        "name": "Critical Failure Threshold",
+        "hint": "Minimum die result counted as a Critical Failure (90–100)."
       }
     },
     "effect": {
@@ -837,6 +845,22 @@
           "minute": "Per Minute",
           "hour": "Per Hour",
           "charges": "Charges"
+        }
+      },
+      "attack": {
+        "label": "ATTACK",
+        "name": "Attack Name",
+        "characteristic": "Attack Characteristic",
+        "bonus": "Attack Bonus",
+        "held": {
+          "label": "Held",
+          "default": "Default",
+          "oneHanded": "One-Handed",
+          "twoHanded": "Two-Handed"
+        },
+        "critical": {
+          "success": "Critical Success",
+          "failure": "Critical Failure"
         }
       }
     }

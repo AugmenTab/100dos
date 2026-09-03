@@ -81,6 +81,28 @@ Hooks.once("init", (): void => {
     default: false,
   });
 
+  game.settings.register(game.system.id, "criticalSuccessThreshold", {
+    name: "DOS100.setting.criticalSuccessThreshold.name",
+    hint: "DOS100.setting.criticalSuccessThreshold.hint",
+    scope: "world",
+    config: true,
+    type: Number,
+    // @ts-expect-error SettingConfig types lack the range property
+    range: { min: 1, max: 10, step: 1 },
+    default: 1,
+  });
+
+  game.settings.register(game.system.id, "criticalFailureThreshold", {
+    name: "DOS100.setting.criticalFailureThreshold.name",
+    hint: "DOS100.setting.criticalFailureThreshold.hint",
+    scope: "world",
+    config: true,
+    type: Number,
+    // @ts-expect-error SettingConfig types lack the range property
+    range: { min: 90, max: 100, step: 1 },
+    default: 100,
+  });
+
   CONFIG.Actor.documentClass = Dos100Actor;
   CONFIG.Actor.dataModels["pc"] = PcDataModel;
   foundry.documents.collections.Actors.registerSheet(game.system.id, PcActorSheet, {

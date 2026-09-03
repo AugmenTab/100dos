@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { ACTION_TYPES, ACTIVATION_TYPES, COST_HIDDEN_TYPES, DURATION_TYPES, DURATION_VALUE_TYPES, RANGE_TYPES, RANGE_VALUE_TYPES, shouldRecharge, type ActionsPoolUses, type ActionUses } from "./action.js";
+import { ACTION_TYPES, ACTIVATION_TYPES, ATTACK_ACTION_TYPES, ATTACK_CHARACTERISTIC_DEFAULTS, COST_HIDDEN_TYPES, CRITICAL_FAILURE_MAX, CRITICAL_FAILURE_MIN, CRITICAL_SUCCESS_MAX, CRITICAL_SUCCESS_MIN, DURATION_TYPES, DURATION_VALUE_TYPES, HELD_TYPES, RANGE_TYPES, RANGE_VALUE_TYPES, shouldRecharge, type ActionsPoolUses, type ActionUses } from "./action.js";
 
 describe("ACTION_TYPES", () => {
   it("contains exactly the expected action types in order", () => {
@@ -141,6 +141,51 @@ describe("ActionUses", () => {
     expect(uses.itemCost.perAttack).toBe(true);
     expect(uses.actionCost.value).toBe(1);
     expect(uses.actionCost.perAttack).toBe(false);
+  });
+});
+
+describe("ATTACK_ACTION_TYPES", () => {
+  it("includes melee, ranged, and thrown attack types", () => {
+    expect(ATTACK_ACTION_TYPES.has("meleeAttack")).toBe(true);
+    expect(ATTACK_ACTION_TYPES.has("rangedAttack")).toBe(true);
+    expect(ATTACK_ACTION_TYPES.has("thrownAttack")).toBe(true);
+  });
+
+  it("excludes healing and other", () => {
+    expect(ATTACK_ACTION_TYPES.has("healing")).toBe(false);
+    expect(ATTACK_ACTION_TYPES.has("other")).toBe(false);
+  });
+});
+
+describe("HELD_TYPES", () => {
+  it("contains exactly Default, One-Handed, and Two-Handed", () => {
+    expect(Object.keys(HELD_TYPES)).toEqual(["default", "oneHanded", "twoHanded"]);
+  });
+});
+
+describe("ATTACK_CHARACTERISTIC_DEFAULTS", () => {
+  it("defaults Melee Attack to WFM", () => {
+    expect(ATTACK_CHARACTERISTIC_DEFAULTS["meleeAttack"]).toBe("wfm");
+  });
+
+  it("defaults Ranged Attack to WFR", () => {
+    expect(ATTACK_CHARACTERISTIC_DEFAULTS["rangedAttack"]).toBe("wfr");
+  });
+
+  it("defaults Thrown Attack to WFM", () => {
+    expect(ATTACK_CHARACTERISTIC_DEFAULTS["thrownAttack"]).toBe("wfm");
+  });
+});
+
+describe("Critical threshold ranges", () => {
+  it("Critical Success slider runs from 1 to 10", () => {
+    expect(CRITICAL_SUCCESS_MIN).toBe(1);
+    expect(CRITICAL_SUCCESS_MAX).toBe(10);
+  });
+
+  it("Critical Failure slider runs from 90 to 100", () => {
+    expect(CRITICAL_FAILURE_MIN).toBe(90);
+    expect(CRITICAL_FAILURE_MAX).toBe(100);
   });
 });
 
