@@ -23,20 +23,22 @@ export type ActionsPoolUses = {
   per: UsagePeriod;
   value: number;
   max: number;
-  formula: {
-    max: string;
-  };
+  formula: string;
+};
+
+export type ChargeCost = {
+  value: number;
+  formula: string;
+  perAttack: boolean;
 };
 
 export type ActionUses = {
   per: UsagePeriod;
   value: number;
   max: number;
-  cost: number;
-  formula: {
-    max: string;
-    cost: string;
-  };
+  formula: string;
+  itemCost: ChargeCost;
+  actionCost: ChargeCost;
 };
 
 export type ActionActivation = {
@@ -203,9 +205,7 @@ export function actionsField(): foundry.data.fields.SchemaField {
       per: new StringField({ required: true, initial: "unlimited" }),
       value: new NumberField({ required: true, initial: 0, integer: true, min: 0 }),
       max: new NumberField({ required: true, initial: 0, integer: true, min: 0 }),
-      formula: new SchemaField({
-        max: new StringField({ required: true, initial: "" }),
-      }),
+      formula: new StringField({ required: true, initial: "" }),
     }),
     items: new ObjectField({ required: true, initial: {} }),
     pinned: new BooleanField({ required: true, initial: false }),

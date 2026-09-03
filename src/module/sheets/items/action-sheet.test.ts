@@ -115,4 +115,61 @@ describe("buildActionUpdates", () => {
     const updates = buildActionUpdates(ACTION_ID, { "notes.footnotes.0": "See page 42" });
     expect(updates[`system.actions.items.${ACTION_ID}.notes.footnotes.0`]).toBe("See page 42");
   });
+
+  it("persists the action maximum-uses formula as a flat string", () => {
+    const updates = buildActionUpdates(ACTION_ID, { "uses.formula": "@item.level" });
+    expect(updates[`system.actions.items.${ACTION_ID}.uses.formula`]).toBe("@item.level");
+  });
+
+  it("persists item charge cost formula", () => {
+    const updates = buildActionUpdates(ACTION_ID, { "uses.itemCost.formula": "2" });
+    expect(updates[`system.actions.items.${ACTION_ID}.uses.itemCost.formula`]).toBe("2");
+  });
+
+  it("persists item Per Attack independently", () => {
+    const updates = buildActionUpdates(ACTION_ID, { "uses.itemCost.perAttack": true });
+    expect(updates[`system.actions.items.${ACTION_ID}.uses.itemCost.perAttack`]).toBe(true);
+    const updates2 = buildActionUpdates(ACTION_ID, { "uses.itemCost.perAttack": false });
+    expect(updates2[`system.actions.items.${ACTION_ID}.uses.itemCost.perAttack`]).toBe(false);
+  });
+
+  it("persists action charge cost formula", () => {
+    const updates = buildActionUpdates(ACTION_ID, { "uses.actionCost.formula": "1" });
+    expect(updates[`system.actions.items.${ACTION_ID}.uses.actionCost.formula`]).toBe("1");
+  });
+
+  it("persists action Per Attack independently", () => {
+    const updates = buildActionUpdates(ACTION_ID, { "uses.actionCost.perAttack": true });
+    expect(updates[`system.actions.items.${ACTION_ID}.uses.actionCost.perAttack`]).toBe(true);
+    const updates2 = buildActionUpdates(ACTION_ID, { "uses.actionCost.perAttack": false });
+    expect(updates2[`system.actions.items.${ACTION_ID}.uses.actionCost.perAttack`]).toBe(false);
+  });
+
+  it("persists action current uses and period", () => {
+    const updates = buildActionUpdates(ACTION_ID, { "uses.value": 2, "uses.per": "encounter" });
+    expect(updates[`system.actions.items.${ACTION_ID}.uses.value`]).toBe(2);
+    expect(updates[`system.actions.items.${ACTION_ID}.uses.per`]).toBe("encounter");
+  });
+
+  it("item and action Per Attack flags do not affect each other", () => {
+    const updates = buildActionUpdates(ACTION_ID, {
+      "uses.itemCost.perAttack": true,
+      "uses.actionCost.perAttack": false,
+    });
+    expect(updates[`system.actions.items.${ACTION_ID}.uses.itemCost.perAttack`]).toBe(true);
+    expect(updates[`system.actions.items.${ACTION_ID}.uses.actionCost.perAttack`]).toBe(false);
+  });
+
+  it("supports item and action costs simultaneously", () => {
+    const updates = buildActionUpdates(ACTION_ID, {
+      "uses.itemCost.formula": "2",
+      "uses.itemCost.perAttack": true,
+      "uses.actionCost.formula": "1",
+      "uses.actionCost.perAttack": false,
+    });
+    expect(updates[`system.actions.items.${ACTION_ID}.uses.itemCost.formula`]).toBe("2");
+    expect(updates[`system.actions.items.${ACTION_ID}.uses.itemCost.perAttack`]).toBe(true);
+    expect(updates[`system.actions.items.${ACTION_ID}.uses.actionCost.formula`]).toBe("1");
+    expect(updates[`system.actions.items.${ACTION_ID}.uses.actionCost.perAttack`]).toBe(false);
+  });
 });

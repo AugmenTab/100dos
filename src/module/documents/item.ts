@@ -144,7 +144,10 @@ export class Dos100Item extends Item {
     const action = system.actions.items[actionId];
     if (!action || action.activation.type === "passive") return;
 
-    if (action.uses.cost < 0) {
+    const itemCostValue = action.uses.itemCost?.value ?? 0;
+    const actionCostValue = action.uses.actionCost?.value ?? 0;
+
+    if (itemCostValue < 0 || actionCostValue < 0) {
       ui.notifications?.warn(
         game.i18n.format("DOS100.action.uses.invalidCost", {
           name: `${this.name}: ${action.name}`,
@@ -156,8 +159,8 @@ export class Dos100Item extends Item {
     const sharedPool = system.actions.uses;
     const actionPool = action.uses;
     const exhausted =
-      (sharedPool.per !== "unlimited" && sharedPool.value < action.uses.cost) ||
-      (actionPool.per !== "unlimited" && actionPool.value < action.uses.cost);
+      (sharedPool.per !== "unlimited" && sharedPool.value < itemCostValue) ||
+      (actionPool.per !== "unlimited" && actionPool.value < actionCostValue);
 
     if (exhausted) {
       ui.notifications?.warn(
@@ -171,11 +174,11 @@ export class Dos100Item extends Item {
     const updates: Record<string, number> = {};
 
     if (sharedPool.per !== "unlimited") {
-      updates["system.actions.uses.value"] = sharedPool.value - action.uses.cost;
+      updates["system.actions.uses.value"] = sharedPool.value - itemCostValue;
     }
 
     if (actionPool.per !== "unlimited") {
-      updates[`system.actions.items.${actionId}.uses.value`] = actionPool.value - action.uses.cost;
+      updates[`system.actions.items.${actionId}.uses.value`] = actionPool.value - actionCostValue;
     }
 
     if (Object.keys(updates).length > 0) {

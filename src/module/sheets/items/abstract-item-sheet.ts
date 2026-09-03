@@ -147,7 +147,7 @@ export abstract class AbstractItemSheet extends HandlebarsApplicationMixin(ItemS
         duration: { type: "na", value: "" },
         concentration: false,
         dismissible: false,
-        uses: { per: "unlimited", value: 0, max: 0, cost: 1, formula: { max: "", cost: "" } },
+        uses: { per: "unlimited", value: 0, max: 0, formula: "", itemCost: { value: 0, formula: "", perAttack: false }, actionCost: { value: 0, formula: "", perAttack: false } },
       },
     });
   }

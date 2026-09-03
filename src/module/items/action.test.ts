@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { ACTIVATION_TYPES, COST_HIDDEN_TYPES, DURATION_TYPES, DURATION_VALUE_TYPES, RANGE_TYPES, RANGE_VALUE_TYPES, shouldRecharge } from "./action.js";
+import { ACTIVATION_TYPES, COST_HIDDEN_TYPES, DURATION_TYPES, DURATION_VALUE_TYPES, RANGE_TYPES, RANGE_VALUE_TYPES, shouldRecharge, type ActionsPoolUses, type ActionUses } from "./action.js";
 
 describe("ACTIVATION_TYPES", () => {
   it("contains exactly the expected activation types", () => {
@@ -98,6 +98,37 @@ describe("DURATION_VALUE_TYPES", () => {
     for (const type of ["na", "instantaneous", "permanent", "seeText"] as const) {
       expect(DURATION_VALUE_TYPES.has(type), type).toBe(false);
     }
+  });
+});
+
+describe("ActionsPoolUses", () => {
+  it("formula is a flat string, not a nested object", () => {
+    const uses: ActionsPoolUses = { per: "unlimited", value: 0, max: 0, formula: "" };
+    expect(typeof uses.formula).toBe("string");
+  });
+});
+
+describe("ActionUses", () => {
+  it("formula is a flat string for maximum uses", () => {
+    const uses: ActionUses = {
+      per: "unlimited", value: 0, max: 0, formula: "",
+      itemCost: { value: 0, formula: "", perAttack: false },
+      actionCost: { value: 0, formula: "", perAttack: false },
+    };
+    expect(typeof uses.formula).toBe("string");
+  });
+
+  it("has independent itemCost and actionCost structures", () => {
+    const uses: ActionUses = {
+      per: "unlimited", value: 0, max: 0, formula: "",
+      itemCost: { value: 2, formula: "@str.mod", perAttack: true },
+      actionCost: { value: 1, formula: "", perAttack: false },
+    };
+    expect(uses.itemCost.value).toBe(2);
+    expect(uses.itemCost.formula).toBe("@str.mod");
+    expect(uses.itemCost.perAttack).toBe(true);
+    expect(uses.actionCost.value).toBe(1);
+    expect(uses.actionCost.perAttack).toBe(false);
   });
 });
 

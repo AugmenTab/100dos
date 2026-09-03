@@ -816,6 +816,12 @@
       "uses": {
         "exhausted": "{name}: No uses remaining.",
         "invalidCost": "{name}: Action has an invalid negative cost and cannot be used.",
+        "item": "ITEM",
+        "action": "ACTION",
+        "chargeCost": "Charge Cost",
+        "perAttack": "Per Attack",
+        "limitedUses": "Limited Uses",
+        "maximumUses": "Maximum Uses Formula",
         "periods": {
           "unlimited": "Unlimited",
           "encounter": "Per Encounter",

@@ -1,5 +1,5 @@
 import { type Dos100Item } from "../../documents/item.js";
-import { ACTIVATION_TYPES, COST_HIDDEN_TYPES, DURATION_TYPES, DURATION_VALUE_TYPES, RANGE_TYPES, RANGE_VALUE_TYPES, type ActionData, type ActionDurationType, type ActionRangeType, type ActivationType } from "../../items/action.js";
+import { ACTIVATION_TYPES, COST_HIDDEN_TYPES, DURATION_TYPES, DURATION_VALUE_TYPES, RANGE_TYPES, RANGE_VALUE_TYPES, USAGE_PERIODS, type ActionDurationType, type ActionRangeType, type Actions, type ActivationType } from "../../items/action.js";
 import { buildActionUpdates } from "./action-updates.js";
 
 const { HandlebarsApplicationMixin } = foundry.applications.api;
@@ -45,13 +45,13 @@ export class ActionSheet extends HandlebarsApplicationMixin(foundry.applications
   }
 
   get title(): string {
-    const system = this.#item.system as { actions: { items: Record<string, ActionData> } };
+    const system = this.#item.system as { actions: Actions };
     const action = system.actions.items[this.#actionId];
     return action?.name ?? game.i18n.localize("DOS100.item.actionSheet.title");
   }
 
   override async _prepareContext(options: Record<string, unknown>): Promise<Record<string, unknown>> {
-    const system = this.#item.system as { actions: { items: Record<string, ActionData> } };
+    const system = this.#item.system as { actions: Actions };
     const action = system.actions.items[this.#actionId];
     const activationTypes = Object.entries(ACTIVATION_TYPES).map(([value, label]) => ({
       value,
@@ -70,6 +70,12 @@ export class ActionSheet extends HandlebarsApplicationMixin(foundry.applications
       label,
       selected: value === durationType,
     }));
+    const usagePeriods = Object.entries(USAGE_PERIODS).map(([value, label]) => ({
+      value,
+      label,
+      selected: value === action.uses?.per,
+    }));
+    const parentPoolUnlimited = system.actions.uses.per === "unlimited";
     return {
       ...await super._prepareContext(options),
       sheetId: this.id,
@@ -78,6 +84,8 @@ export class ActionSheet extends HandlebarsApplicationMixin(foundry.applications
       activationTypes,
       rangeTypes,
       durationTypes,
+      usagePeriods,
+      parentPoolUnlimited,
     };
   }
 
@@ -133,6 +141,35 @@ export class ActionSheet extends HandlebarsApplicationMixin(foundry.applications
       syncDurationValue(durationSelect.value);
       durationSelect.addEventListener("change", () => syncDurationValue(durationSelect.value));
     }
+
+    const itemCostFormula = this.element.querySelector<HTMLInputElement>('[name="uses.itemCost.formula"]');
+    const itemCostPerAttack = this.element.querySelector<HTMLInputElement>('[name="uses.itemCost.perAttack"]');
+
+    const syncItemCost = (unlimited: boolean): void => {
+      for (const el of [itemCostFormula, itemCostPerAttack]) {
+        if (el === null) continue;
+        el.hidden = unlimited;
+        el.disabled = unlimited;
+      }
+    };
+
+    const parentPoolUnlimited = (context["parentPoolUnlimited"] as boolean) === true;
+    syncItemCost(parentPoolUnlimited);
+
+    const usesSelect = this.element.querySelector<HTMLSelectElement>('[name="uses.per"]');
+    const usesCurrent = this.element.querySelector<HTMLInputElement>('[name="uses.value"]');
+    const usesMax = this.element.querySelector<HTMLElement>('.dos100-uses-max');
+
+    const syncActionUses = (per: string): void => {
+      const unlimited = per === "unlimited";
+      if (usesCurrent !== null) { usesCurrent.hidden = unlimited; usesCurrent.disabled = unlimited; }
+      if (usesMax !== null) usesMax.hidden = unlimited;
+    };
+
+    if (usesSelect !== null) {
+      syncActionUses(usesSelect.value);
+      usesSelect.addEventListener("change", () => syncActionUses(usesSelect.value));
+    }
   }
 
   override async close(options?: Record<string, unknown>): Promise<this> {
@@ -141,26 +178,26 @@ export class ActionSheet extends HandlebarsApplicationMixin(foundry.applications
   }
 
   protected async _onAddActionEffectNote(_event: PointerEvent, _target: HTMLElement): Promise<void> {
-    const system = this.#item.system as { actions: { items: Record<string, ActionData> } };
+    const system = this.#item.system as { actions: Actions };
     const notes = system.actions.items[this.#actionId].notes?.effectNotes ?? [];
     await this.#item.update({ [`system.actions.items.${this.#actionId}.notes.effectNotes`]: [...notes, ""] });
   }
 
   protected async _onDeleteActionEffectNote(_event: PointerEvent, target: HTMLElement): Promise<void> {
-    const system = this.#item.system as { actions: { items: Record<string, ActionData> } };
+    const system = this.#item.system as { actions: Actions };
     const notes = system.actions.items[this.#actionId].notes?.effectNotes ?? [];
     const index = Number(target.dataset.identifier);
     await this.#item.update({ [`system.actions.items.${this.#actionId}.notes.effectNotes`]: notes.filter((_: string, i: number) => i !== index) });
   }
 
   protected async _onAddActionFootnote(_event: PointerEvent, _target: HTMLElement): Promise<void> {
-    const system = this.#item.system as { actions: { items: Record<string, ActionData> } };
+    const system = this.#item.system as { actions: Actions };
     const notes = system.actions.items[this.#actionId].notes?.footnotes ?? [];
     await this.#item.update({ [`system.actions.items.${this.#actionId}.notes.footnotes`]: [...notes, ""] });
   }
 
   protected async _onDeleteActionFootnote(_event: PointerEvent, target: HTMLElement): Promise<void> {
-    const system = this.#item.system as { actions: { items: Record<string, ActionData> } };
+    const system = this.#item.system as { actions: Actions };
     const notes = system.actions.items[this.#actionId].notes?.footnotes ?? [];
     const index = Number(target.dataset.identifier);
     await this.#item.update({ [`system.actions.items.${this.#actionId}.notes.footnotes`]: notes.filter((_: string, i: number) => i !== index) });
