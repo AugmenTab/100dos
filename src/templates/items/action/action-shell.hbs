@@ -226,8 +226,14 @@
       id="{{sheetId}}-primary-panel-action"
       aria-labelledby="{{sheetId}}-primary-tab-action"
     >
-      <h1>{{localize "DOS100.item.actionSheet.tabs.action"}}</h1>
-      <p>{{localize "DOS100.item.actionSheet.placeholder"}}</p>
+      <div class="dos100-form-group">
+        <label for="{{sheetId}}-action-type">{{localize "DOS100.action.type.label"}}</label>
+        <select id="{{sheetId}}-action-type" name="type">
+          {{#each actionTypes}}
+            <option value="{{value}}" {{#if selected}}selected{{/if}}>{{localize label}}</option>
+          {{/each}}
+        </select>
+      </div>
     </section>
 
     <section

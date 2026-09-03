@@ -1,5 +1,5 @@
 import { type Dos100Item } from "../../documents/item.js";
-import { ACTIVATION_TYPES, COST_HIDDEN_TYPES, DURATION_TYPES, DURATION_VALUE_TYPES, RANGE_TYPES, RANGE_VALUE_TYPES, USAGE_PERIODS, type ActionDurationType, type ActionRangeType, type Actions, type ActivationType } from "../../items/action.js";
+import { ACTION_TYPES, ACTIVATION_TYPES, COST_HIDDEN_TYPES, DURATION_TYPES, DURATION_VALUE_TYPES, RANGE_TYPES, RANGE_VALUE_TYPES, USAGE_PERIODS, type ActionDurationType, type ActionRangeType, type Actions, type ActivationType } from "../../items/action.js";
 import { buildActionUpdates } from "./action-updates.js";
 
 const { HandlebarsApplicationMixin } = foundry.applications.api;
@@ -75,6 +75,11 @@ export class ActionSheet extends HandlebarsApplicationMixin(foundry.applications
       label,
       selected: value === action.uses?.per,
     }));
+    const actionTypes = Object.entries(ACTION_TYPES).map(([value, label]) => ({
+      value,
+      label,
+      selected: value === (action.type ?? "other"),
+    }));
     const parentPoolUnlimited = system.actions.uses.per === "unlimited";
     return {
       ...await super._prepareContext(options),
@@ -84,6 +89,7 @@ export class ActionSheet extends HandlebarsApplicationMixin(foundry.applications
       activationTypes,
       rangeTypes,
       durationTypes,
+      actionTypes,
       usagePeriods,
       parentPoolUnlimited,
     };

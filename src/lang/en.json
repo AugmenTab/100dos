@@ -764,6 +764,14 @@
       }
     },
     "action": {
+      "type": {
+        "label": "Action Type",
+        "meleeAttack": "Melee Attack",
+        "rangedAttack": "Ranged Attack",
+        "thrownAttack": "Thrown Attack",
+        "healing": "Healing",
+        "other": "Other"
+      },
       "activation": {
         "cost": "Activation Cost",
         "types": {

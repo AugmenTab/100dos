@@ -1,3 +1,18 @@
+export type ActionType =
+  | "meleeAttack"
+  | "rangedAttack"
+  | "thrownAttack"
+  | "healing"
+  | "other";
+
+export const ACTION_TYPES: Record<ActionType, string> = {
+  meleeAttack: "DOS100.action.type.meleeAttack",
+  rangedAttack: "DOS100.action.type.rangedAttack",
+  thrownAttack: "DOS100.action.type.thrownAttack",
+  healing: "DOS100.action.type.healing",
+  other: "DOS100.action.type.other",
+};
+
 export type ActivationType =
   | "nonaction"
   | "passive"
@@ -84,6 +99,7 @@ export type ActionData = {
   img: string;
   name: string;
   identifier: string;
+  type: ActionType;
   description: string;
   activation: ActionActivation;
   target: string;

@@ -1,5 +1,17 @@
 import { describe, expect, it } from "vitest";
-import { ACTIVATION_TYPES, COST_HIDDEN_TYPES, DURATION_TYPES, DURATION_VALUE_TYPES, RANGE_TYPES, RANGE_VALUE_TYPES, shouldRecharge, type ActionsPoolUses, type ActionUses } from "./action.js";
+import { ACTION_TYPES, ACTIVATION_TYPES, COST_HIDDEN_TYPES, DURATION_TYPES, DURATION_VALUE_TYPES, RANGE_TYPES, RANGE_VALUE_TYPES, shouldRecharge, type ActionsPoolUses, type ActionUses } from "./action.js";
+
+describe("ACTION_TYPES", () => {
+  it("contains exactly the expected action types in order", () => {
+    expect(Object.keys(ACTION_TYPES)).toEqual([
+      "meleeAttack",
+      "rangedAttack",
+      "thrownAttack",
+      "healing",
+      "other",
+    ]);
+  });
+});
 
 describe("ACTIVATION_TYPES", () => {
   it("contains exactly the expected activation types", () => {
