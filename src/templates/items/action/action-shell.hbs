@@ -58,6 +58,56 @@
           </select>
         </div>
       </div>
+
+      <hr />
+
+      <div class="dos100-form-group">
+        <label for="{{sheetId}}-target">{{localize "DOS100.action.target"}}</label>
+        <input type="text" id="{{sheetId}}-target" name="target" value="{{action.target}}" />
+      </div>
+
+      <div class="dos100-form-group">
+        <label for="{{sheetId}}-range-type">{{localize "DOS100.action.range.label"}}</label>
+        <div>
+          <input type="text" id="{{sheetId}}-range-value" name="range.value" value="{{action.range.value}}" />
+          <select id="{{sheetId}}-range-type" name="range.type">
+            {{#each rangeTypes}}
+              <option value="{{value}}" {{#if selected}}selected{{/if}}>{{localize label}}</option>
+            {{/each}}
+          </select>
+        </div>
+      </div>
+
+      <div class="dos100-form-group">
+        <label for="{{sheetId}}-area">{{localize "DOS100.action.area"}}</label>
+        <input type="text" id="{{sheetId}}-area" name="area" value="{{action.area}}" />
+      </div>
+
+      <div class="dos100-form-group">
+        <label for="{{sheetId}}-duration-type">{{localize "DOS100.action.duration.label"}}</label>
+        <div>
+          <input type="text" id="{{sheetId}}-duration-value" name="duration.value" value="{{action.duration.value}}" />
+          <select id="{{sheetId}}-duration-type" name="duration.type">
+            {{#each durationTypes}}
+              <option value="{{value}}" {{#if selected}}selected{{/if}}>{{localize label}}</option>
+            {{/each}}
+          </select>
+        </div>
+      </div>
+
+      <div class="dos100-form-group">
+        <label></label>
+        <div>
+          <label>
+            <input type="checkbox" name="concentration" {{#if action.concentration}}checked{{/if}} />
+            {{localize "DOS100.action.concentration"}}
+          </label>
+          <label>
+            <input type="checkbox" name="dismissible" {{#if action.dismissible}}checked{{/if}} />
+            {{localize "DOS100.action.dismissible"}}
+          </label>
+        </div>
+      </div>
     </section>
 
     <section

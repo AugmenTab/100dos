@@ -141,6 +141,12 @@ export abstract class AbstractItemSheet extends HandlebarsApplicationMixin(ItemS
         identifier: toCamelCase(name),
         description: "",
         activation: { type: "passive", cost: null },
+        target: "",
+        range: { type: "none", value: "" },
+        area: "",
+        duration: { type: "na", value: "" },
+        concentration: false,
+        dismissible: false,
         uses: { per: "unlimited", value: 0, max: 0, cost: 1, formula: { max: "", cost: "" } },
       },
     });

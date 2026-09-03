@@ -780,6 +780,39 @@
           "special": "Special"
         }
       },
+      "target": "Target",
+      "area": "Area",
+      "concentration": "Concentration",
+      "dismissible": "Dismissible",
+      "range": {
+        "label": "Range",
+        "types": {
+          "none": "None",
+          "personal": "Personal",
+          "touch": "Touch",
+          "melee": "Melee",
+          "meters": "Meters",
+          "special": "Special",
+          "seeText": "See Text",
+          "unlimited": "Unlimited"
+        }
+      },
+      "duration": {
+        "label": "Duration",
+        "types": {
+          "na": "N/A",
+          "instantaneous": "Instantaneous",
+          "round": "Round",
+          "minute": "Minute",
+          "hour": "Hour",
+          "day": "Day",
+          "month": "Month",
+          "year": "Year",
+          "permanent": "Permanent",
+          "seeText": "See Text",
+          "special": "Special"
+        }
+      },
       "uses": {
         "exhausted": "{name}: No uses remaining.",
         "invalidCost": "{name}: Action has an invalid negative cost and cannot be used.",

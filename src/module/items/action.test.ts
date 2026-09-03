@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { ACTIVATION_TYPES, COST_HIDDEN_TYPES, shouldRecharge } from "./action.js";
+import { ACTIVATION_TYPES, COST_HIDDEN_TYPES, DURATION_TYPES, DURATION_VALUE_TYPES, RANGE_TYPES, RANGE_VALUE_TYPES, shouldRecharge } from "./action.js";
 
 describe("ACTIVATION_TYPES", () => {
   it("contains exactly the expected activation types", () => {
@@ -33,6 +33,70 @@ describe("COST_HIDDEN_TYPES", () => {
   it("shows the numeric cost field for quantified types", () => {
     for (const type of numericCost) {
       expect(COST_HIDDEN_TYPES.has(type), type).toBe(false);
+    }
+  });
+});
+
+describe("RANGE_TYPES", () => {
+  it("contains exactly the expected range types in order", () => {
+    expect(Object.keys(RANGE_TYPES)).toEqual([
+      "none",
+      "personal",
+      "touch",
+      "melee",
+      "meters",
+      "special",
+      "seeText",
+      "unlimited",
+    ]);
+  });
+});
+
+describe("RANGE_VALUE_TYPES", () => {
+  it("exposes a value field for meters and special", () => {
+    expect(RANGE_VALUE_TYPES.has("meters")).toBe(true);
+    expect(RANGE_VALUE_TYPES.has("special")).toBe(true);
+  });
+
+  it("does not expose a value field for non-value range types", () => {
+    for (const type of ["none", "personal", "touch", "melee", "seeText", "unlimited"] as const) {
+      expect(RANGE_VALUE_TYPES.has(type), type).toBe(false);
+    }
+  });
+});
+
+describe("DURATION_TYPES", () => {
+  it("contains exactly the expected duration types in order", () => {
+    expect(Object.keys(DURATION_TYPES)).toEqual([
+      "na",
+      "instantaneous",
+      "round",
+      "minute",
+      "hour",
+      "day",
+      "month",
+      "year",
+      "permanent",
+      "seeText",
+      "special",
+    ]);
+  });
+
+  it("does not contain a turn type", () => {
+    expect(Object.keys(DURATION_TYPES)).not.toContain("turn");
+  });
+});
+
+describe("DURATION_VALUE_TYPES", () => {
+  it("exposes a value field for timed and special durations", () => {
+    for (const type of ["round", "minute", "hour", "day", "month", "year", "special"] as const) {
+      expect(DURATION_VALUE_TYPES.has(type), type).toBe(true);
+    }
+  });
+
+  it("does not expose a value field for non-timed durations", () => {
+    for (const type of ["na", "instantaneous", "permanent", "seeText"] as const) {
+      expect(DURATION_VALUE_TYPES.has(type), type).toBe(false);
     }
   });
 });

@@ -246,6 +246,18 @@
   }
 }
 
+.dos100-action-sheet .dos100-form-group > div:has(input[type="checkbox"]) {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  column-gap: 1rem;
+
+  > label {
+    display: flex;
+    align-items: center;
+    gap: 0.375rem;
+  }
+}
+
 .dos100-form-group:has(.dos100-item-tags) {
   align-items: flex-start;
 

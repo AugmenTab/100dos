@@ -44,6 +44,39 @@ export type ActionActivation = {
   cost: number | null;
 };
 
+export type ActionRangeType =
+  | "none"
+  | "personal"
+  | "touch"
+  | "melee"
+  | "meters"
+  | "special"
+  | "seeText"
+  | "unlimited";
+
+export type ActionRange = {
+  type: ActionRangeType;
+  value: string;
+};
+
+export type ActionDurationType =
+  | "na"
+  | "instantaneous"
+  | "round"
+  | "minute"
+  | "hour"
+  | "day"
+  | "month"
+  | "year"
+  | "permanent"
+  | "seeText"
+  | "special";
+
+export type ActionDuration = {
+  type: ActionDurationType;
+  value: string;
+};
+
 export type ActionData = {
   readonly id: string;
   img: string;
@@ -51,6 +84,12 @@ export type ActionData = {
   identifier: string;
   description: string;
   activation: ActionActivation;
+  target: string;
+  range: ActionRange;
+  area: string;
+  duration: ActionDuration;
+  concentration: boolean;
+  dismissible: boolean;
   uses: ActionUses;
 };
 
@@ -68,6 +107,37 @@ export type Actions = {
 
 // Activation types for which the cost field is meaningless and hidden in the UI.
 export const COST_HIDDEN_TYPES = new Set<ActivationType>(["nonaction", "passive", "free", "half", "full", "reaction", "special"]);
+
+// Range types that expose a value/formula field.
+export const RANGE_VALUE_TYPES = new Set<ActionRangeType>(["meters", "special"]);
+
+// Duration types that expose a value/formula field.
+export const DURATION_VALUE_TYPES = new Set<ActionDurationType>(["round", "minute", "hour", "day", "month", "year", "special"]);
+
+export const RANGE_TYPES: Record<ActionRangeType, string> = {
+  none: "DOS100.action.range.types.none",
+  personal: "DOS100.action.range.types.personal",
+  touch: "DOS100.action.range.types.touch",
+  melee: "DOS100.action.range.types.melee",
+  meters: "DOS100.action.range.types.meters",
+  special: "DOS100.action.range.types.special",
+  seeText: "DOS100.action.range.types.seeText",
+  unlimited: "DOS100.action.range.types.unlimited",
+};
+
+export const DURATION_TYPES: Record<ActionDurationType, string> = {
+  na: "DOS100.action.duration.types.na",
+  instantaneous: "DOS100.action.duration.types.instantaneous",
+  round: "DOS100.action.duration.types.round",
+  minute: "DOS100.action.duration.types.minute",
+  hour: "DOS100.action.duration.types.hour",
+  day: "DOS100.action.duration.types.day",
+  month: "DOS100.action.duration.types.month",
+  year: "DOS100.action.duration.types.year",
+  permanent: "DOS100.action.duration.types.permanent",
+  seeText: "DOS100.action.duration.types.seeText",
+  special: "DOS100.action.duration.types.special",
+};
 
 // Numeric rank for time-based usage periods. Higher rank = longer period.
 // "encounter" and "charges" are outside this ordering and handled explicitly.

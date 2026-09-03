@@ -1,5 +1,5 @@
 import { type Dos100Item } from "../../documents/item.js";
-import { ACTIVATION_TYPES, COST_HIDDEN_TYPES, type ActionData, type ActivationType } from "../../items/action.js";
+import { ACTIVATION_TYPES, COST_HIDDEN_TYPES, DURATION_TYPES, DURATION_VALUE_TYPES, RANGE_TYPES, RANGE_VALUE_TYPES, type ActionData, type ActionDurationType, type ActionRangeType, type ActivationType } from "../../items/action.js";
 import { buildActionUpdates } from "./action-updates.js";
 
 const { HandlebarsApplicationMixin } = foundry.applications.api;
@@ -52,12 +52,26 @@ export class ActionSheet extends HandlebarsApplicationMixin(foundry.applications
       label,
       selected: value === action.activation.type,
     }));
+    const rangeType = action.range?.type ?? "none";
+    const rangeTypes = Object.entries(RANGE_TYPES).map(([value, label]) => ({
+      value,
+      label,
+      selected: value === rangeType,
+    }));
+    const durationType = action.duration?.type ?? "na";
+    const durationTypes = Object.entries(DURATION_TYPES).map(([value, label]) => ({
+      value,
+      label,
+      selected: value === durationType,
+    }));
     return {
       ...await super._prepareContext(options),
       sheetId: this.id,
       tabs: { primary: this._prepareTabs("primary") },
       action,
       activationTypes,
+      rangeTypes,
+      durationTypes,
     };
   }
 
@@ -69,7 +83,7 @@ export class ActionSheet extends HandlebarsApplicationMixin(foundry.applications
       if ((doc as { id: string }).id === this.#item.id) void this.render(true);
     });
 
-    const select = this.element.querySelector<HTMLSelectElement>('[name="activation.type"]');
+    const activationSelect = this.element.querySelector<HTMLSelectElement>('[name="activation.type"]');
     const costInput = this.element.querySelector<HTMLInputElement>('[name="activation.cost"]');
 
     const syncCostInput = (type: string): void => {
@@ -79,9 +93,39 @@ export class ActionSheet extends HandlebarsApplicationMixin(foundry.applications
       costInput.disabled = hide;
     };
 
-    if (select !== null) {
-      syncCostInput(select.value);
-      select.addEventListener("change", () => syncCostInput(select.value));
+    if (activationSelect !== null) {
+      syncCostInput(activationSelect.value);
+      activationSelect.addEventListener("change", () => syncCostInput(activationSelect.value));
+    }
+
+    const rangeSelect = this.element.querySelector<HTMLSelectElement>('[name="range.type"]');
+    const rangeValue = this.element.querySelector<HTMLInputElement>('[name="range.value"]');
+
+    const syncRangeValue = (type: string): void => {
+      if (rangeValue === null) return;
+      const hide = !RANGE_VALUE_TYPES.has(type as ActionRangeType);
+      rangeValue.hidden = hide;
+      rangeValue.disabled = hide;
+    };
+
+    if (rangeSelect !== null) {
+      syncRangeValue(rangeSelect.value);
+      rangeSelect.addEventListener("change", () => syncRangeValue(rangeSelect.value));
+    }
+
+    const durationSelect = this.element.querySelector<HTMLSelectElement>('[name="duration.type"]');
+    const durationValue = this.element.querySelector<HTMLInputElement>('[name="duration.value"]');
+
+    const syncDurationValue = (type: string): void => {
+      if (durationValue === null) return;
+      const hide = !DURATION_VALUE_TYPES.has(type as ActionDurationType);
+      durationValue.hidden = hide;
+      durationValue.disabled = hide;
+    };
+
+    if (durationSelect !== null) {
+      syncDurationValue(durationSelect.value);
+      durationSelect.addEventListener("change", () => syncDurationValue(durationSelect.value));
     }
   }
 
