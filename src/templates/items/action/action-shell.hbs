@@ -47,8 +47,17 @@
       id="{{sheetId}}-primary-panel-usage"
       aria-labelledby="{{sheetId}}-primary-tab-usage"
     >
-      <h1>{{localize "DOS100.item.actionSheet.tabs.usage"}}</h1>
-      <p>{{localize "DOS100.item.actionSheet.placeholder"}}</p>
+      <div class="dos100-form-group">
+        <label for="{{sheetId}}-activation-type">{{localize "DOS100.action.activation.cost"}}</label>
+        <div>
+          <input type="number" id="{{sheetId}}-activation-cost" name="activation.cost" value="{{action.activation.cost}}" min="1" step="1" />
+          <select id="{{sheetId}}-activation-type" name="activation.type">
+            {{#each activationTypes}}
+              <option value="{{value}}" {{#if selected}}selected{{/if}}>{{localize label}}</option>
+            {{/each}}
+          </select>
+        </div>
+      </div>
     </section>
 
     <section

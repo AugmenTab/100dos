@@ -765,14 +765,16 @@
     },
     "action": {
       "activation": {
+        "cost": "Activation Cost",
         "types": {
+          "nonaction": "Nonaction",
           "passive": "Passive",
-          "free": "Free Action",
-          "half": "Half Action",
-          "full": "Full Action",
+          "free": "Free",
+          "half": "Half",
+          "full": "Full",
           "reaction": "Reaction",
           "attack": "Attack",
-          "turn": "Turn",
+          "round": "Round",
           "minute": "Minute",
           "hour": "Hour",
           "special": "Special"

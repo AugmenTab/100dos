@@ -1,5 +1,41 @@
 import { describe, expect, it } from "vitest";
-import { shouldRecharge } from "./action.js";
+import { ACTIVATION_TYPES, COST_HIDDEN_TYPES, shouldRecharge } from "./action.js";
+
+describe("ACTIVATION_TYPES", () => {
+  it("contains exactly the expected activation types", () => {
+    expect(Object.keys(ACTIVATION_TYPES)).toEqual([
+      "nonaction",
+      "passive",
+      "free",
+      "half",
+      "full",
+      "reaction",
+      "attack",
+      "round",
+      "minute",
+      "hour",
+      "special",
+    ]);
+  });
+
+});
+
+describe("COST_HIDDEN_TYPES", () => {
+  const noNumericCost = ["nonaction", "passive", "free", "half", "full", "reaction", "special"] as const;
+  const numericCost = ["attack", "round", "minute", "hour"] as const;
+
+  it("hides the numeric cost field for non-quantified types", () => {
+    for (const type of noNumericCost) {
+      expect(COST_HIDDEN_TYPES.has(type), type).toBe(true);
+    }
+  });
+
+  it("shows the numeric cost field for quantified types", () => {
+    for (const type of numericCost) {
+      expect(COST_HIDDEN_TYPES.has(type), type).toBe(false);
+    }
+  });
+});
 
 describe("shouldRecharge", () => {
   it("never recharges unlimited or charges periods", () => {

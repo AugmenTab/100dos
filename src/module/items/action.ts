@@ -1,11 +1,12 @@
 export type ActivationType =
+  | "nonaction"
   | "passive"
   | "free"
   | "half"
   | "full"
   | "reaction"
   | "attack"
-  | "turn"
+  | "round"
   | "minute"
   | "hour"
   | "special";
@@ -38,16 +39,18 @@ export type ActionUses = {
   };
 };
 
+export type ActionActivation = {
+  type: ActivationType;
+  cost: number | null;
+};
+
 export type ActionData = {
   readonly id: string;
   img: string;
   name: string;
   identifier: string;
   description: string;
-  activation: {
-    type: ActivationType;
-    cost: number | null;
-  };
+  activation: ActionActivation;
   uses: ActionUses;
 };
 
@@ -64,7 +67,7 @@ export type Actions = {
 };
 
 // Activation types for which the cost field is meaningless and hidden in the UI.
-export const COST_HIDDEN_TYPES = new Set<ActivationType>(["passive", "free", "reaction"]);
+export const COST_HIDDEN_TYPES = new Set<ActivationType>(["nonaction", "passive", "free", "half", "full", "reaction", "special"]);
 
 // Numeric rank for time-based usage periods. Higher rank = longer period.
 // "encounter" and "charges" are outside this ordering and handled explicitly.
@@ -75,13 +78,14 @@ const USAGE_PERIOD_RANK: Partial<Record<UsagePeriod, number>> = {
 };
 
 export const ACTIVATION_TYPES: Record<ActivationType, string> = {
+  nonaction: "DOS100.action.activation.types.nonaction",
   passive: "DOS100.action.activation.types.passive",
   free: "DOS100.action.activation.types.free",
   half: "DOS100.action.activation.types.half",
   full: "DOS100.action.activation.types.full",
   reaction: "DOS100.action.activation.types.reaction",
   attack: "DOS100.action.activation.types.attack",
-  turn: "DOS100.action.activation.types.turn",
+  round: "DOS100.action.activation.types.round",
   minute: "DOS100.action.activation.types.minute",
   hour: "DOS100.action.activation.types.hour",
   special: "DOS100.action.activation.types.special",

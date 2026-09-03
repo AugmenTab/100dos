@@ -1,11 +1,13 @@
 import { type Dos100Item } from "../../documents/item.js";
-import { type ActionData } from "../../items/action.js";
+import { ACTIVATION_TYPES, COST_HIDDEN_TYPES, type ActionData, type ActivationType } from "../../items/action.js";
+import { buildActionUpdates } from "./action-updates.js";
 
 const { HandlebarsApplicationMixin } = foundry.applications.api;
 
 export class ActionSheet extends HandlebarsApplicationMixin(foundry.applications.api.ApplicationV2) {
   #item: Dos100Item;
   #actionId: string;
+  #updateHookId: number | undefined;
 
   static override DEFAULT_OPTIONS = {
     classes: ["dos100", "sheet", "action-sheet"],
@@ -44,12 +46,48 @@ export class ActionSheet extends HandlebarsApplicationMixin(foundry.applications
 
   override async _prepareContext(options: Record<string, unknown>): Promise<Record<string, unknown>> {
     const system = this.#item.system as { actions: { items: Record<string, ActionData> } };
+    const action = system.actions.items[this.#actionId];
+    const activationTypes = Object.entries(ACTIVATION_TYPES).map(([value, label]) => ({
+      value,
+      label,
+      selected: value === action.activation.type,
+    }));
     return {
       ...await super._prepareContext(options),
       sheetId: this.id,
       tabs: { primary: this._prepareTabs("primary") },
-      action: system.actions.items[this.#actionId],
+      action,
+      activationTypes,
     };
+  }
+
+  override _onRender(context: Record<string, unknown>, options: Record<string, unknown>): void {
+    super._onRender(context, options);
+
+    if (this.#updateHookId !== undefined) Hooks.off("updateItem", this.#updateHookId);
+    this.#updateHookId = Hooks.on("updateItem", (doc: unknown) => {
+      if ((doc as { id: string }).id === this.#item.id) void this.render(true);
+    });
+
+    const select = this.element.querySelector<HTMLSelectElement>('[name="activation.type"]');
+    const costInput = this.element.querySelector<HTMLInputElement>('[name="activation.cost"]');
+
+    const syncCostInput = (type: string): void => {
+      if (costInput === null) return;
+      const hide = COST_HIDDEN_TYPES.has(type as ActivationType);
+      costInput.hidden = hide;
+      costInput.disabled = hide;
+    };
+
+    if (select !== null) {
+      syncCostInput(select.value);
+      select.addEventListener("change", () => syncCostInput(select.value));
+    }
+  }
+
+  override async close(options?: Record<string, unknown>): Promise<this> {
+    if (this.#updateHookId !== undefined) Hooks.off("updateItem", this.#updateHookId);
+    return super.close(options);
   }
 
   protected async _onSubmitForm(
@@ -57,11 +95,6 @@ export class ActionSheet extends HandlebarsApplicationMixin(foundry.applications
     _form: HTMLFormElement,
     formData: { object: Record<string, unknown> },
   ): Promise<void> {
-    const data = formData.object;
-    const updates: Record<string, unknown> = {};
-    for (const [key, value] of Object.entries(data)) {
-      updates[`system.actions.items.${this.#actionId}.${key}`] = value;
-    }
-    await this.#item.update(updates);
+    await this.#item.update(buildActionUpdates(this.#actionId, formData.object));
   }
 }
