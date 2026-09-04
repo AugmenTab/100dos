@@ -152,6 +152,7 @@ export abstract class AbstractItemSheet extends HandlebarsApplicationMixin(ItemS
         dismissible: false,
         uses: { per: "unlimited", value: 0, max: 0, formula: "", itemCost: { value: 0, formula: "", perAttack: false }, actionCost: { value: 0, formula: "", perAttack: false } },
         attack: { name: "", held: "default", characteristic: "wfm", bonus: "", critical: { success: critSuccess, failure: critFailure } },
+        damage: { dice: { count: 0, die: "d10" }, base: "", pierce: "", types: ["universal"] },
       },
     });
   }

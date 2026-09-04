@@ -7,6 +7,54 @@ export type ActionType =
   | "healing"
   | "other";
 
+export type DamageDie = "d5" | "d10";
+
+export type DamageType =
+  | "universal"
+  | "piercing"
+  | "bludgeoning"
+  | "slashing";
+
+export type ActionDamage = {
+  dice: {
+    count: number;
+    die: DamageDie;
+  };
+  base: string;
+  pierce: string;
+  types: DamageType[];
+};
+
+export const DAMAGE_DICE: Record<DamageDie, string> = {
+  d5: "DOS100.action.damage.dice.d5",
+  d10: "DOS100.action.damage.dice.d10",
+};
+
+export const DAMAGE_TYPES: Record<DamageType, string> = {
+  universal: "DOS100.action.damage.type.universal",
+  piercing: "DOS100.action.damage.type.piercing",
+  bludgeoning: "DOS100.action.damage.type.bludgeoning",
+  slashing: "DOS100.action.damage.type.slashing",
+};
+
+export const DAMAGE_TYPE_TAGS: Record<DamageType, string> = {
+  universal: "[UD]",
+  piercing: "[PD]",
+  bludgeoning: "[BD]",
+  slashing: "[SD]",
+};
+
+export function normalizeDamageTypes(types: DamageType[]): DamageType[] {
+  if (types.length === 0) return ["universal"];
+  if (types.includes("universal")) return ["universal"];
+  if (
+    types.includes("piercing") &&
+    types.includes("bludgeoning") &&
+    types.includes("slashing")
+  ) return ["universal"];
+  return types;
+}
+
 export type AttackHeld = "default" | "oneHanded" | "twoHanded";
 
 export type ActionAttack = {
@@ -126,6 +174,7 @@ export type ActionData = {
   uses: ActionUses;
   notes: ActionNotes;
   attack?: ActionAttack;
+  damage?: ActionDamage;
 };
 
 export type ActionNotes = {

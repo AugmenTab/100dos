@@ -1,7 +1,8 @@
 import { type Dos100Item } from "../../documents/item.js";
-import { ACTION_TYPES, ATTACK_ACTION_TYPES, ATTACK_CHARACTERISTIC_DEFAULTS, ACTIVATION_TYPES, COST_HIDDEN_TYPES, DURATION_TYPES, DURATION_VALUE_TYPES, HELD_TYPES, RANGE_TYPES, RANGE_VALUE_TYPES, USAGE_PERIODS, type ActionAttack, type ActionDurationType, type ActionRangeType, type ActionType, type Actions, type ActivationType } from "../../items/action.js";
+import { ACTION_TYPES, ATTACK_ACTION_TYPES, ATTACK_CHARACTERISTIC_DEFAULTS, ACTIVATION_TYPES, COST_HIDDEN_TYPES, DAMAGE_DICE, DAMAGE_TYPE_TAGS, DURATION_TYPES, DURATION_VALUE_TYPES, HELD_TYPES, RANGE_TYPES, RANGE_VALUE_TYPES, USAGE_PERIODS, type ActionAttack, type ActionDamage, type ActionDurationType, type ActionRangeType, type ActionType, type Actions, type ActivationType, type DamageDie } from "../../items/action.js";
 import { CHARACTERISTIC_IDS } from "../../characteristic.js";
 import { buildActionUpdates } from "./action-updates.js";
+import { DamageTypeDialog } from "./damage-type-dialog.js";
 
 const { HandlebarsApplicationMixin } = foundry.applications.api;
 
@@ -20,6 +21,7 @@ export class ActionSheet extends HandlebarsApplicationMixin(foundry.applications
       deleteActionEffectNote: ActionSheet.prototype._onDeleteActionEffectNote,
       addActionFootnote: ActionSheet.prototype._onAddActionFootnote,
       deleteActionFootnote: ActionSheet.prototype._onDeleteActionFootnote,
+      editDamageTypes: ActionSheet.prototype._onEditDamageTypes,
     },
   };
 
@@ -104,6 +106,22 @@ export class ActionSheet extends HandlebarsApplicationMixin(foundry.applications
       selected: id === attackData.characteristic,
     }));
 
+    const damageData: ActionDamage = {
+      dice: {
+        count: action.damage?.dice?.count ?? 0,
+        die: action.damage?.dice?.die ?? "d10",
+      },
+      base: action.damage?.base ?? "",
+      pierce: action.damage?.pierce ?? "",
+      types: action.damage?.types ?? ["universal"],
+    };
+    const diceTypes = (Object.entries(DAMAGE_DICE) as [DamageDie, string][]).map(([value, label]) => ({
+      value,
+      label,
+      selected: value === damageData.dice.die,
+    }));
+    const damageTypeLabel = damageData.types.map(t => DAMAGE_TYPE_TAGS[t]).join(" ");
+
     return {
       ...await super._prepareContext(options),
       sheetId: this.id,
@@ -118,6 +136,9 @@ export class ActionSheet extends HandlebarsApplicationMixin(foundry.applications
       attackData,
       heldTypes,
       characteristicTypes,
+      damageData,
+      diceTypes,
+      damageTypeLabel,
     };
   }
 
@@ -213,9 +234,26 @@ export class ActionSheet extends HandlebarsApplicationMixin(foundry.applications
       attackSection.disabled = !show;
     };
 
+    const syncDamageSection = (type: string): void => {
+      const isHealing = type === "healing";
+      for (const el of Array.from(this.element.querySelectorAll<HTMLElement>('[data-damage-label][data-healing-label]'))) {
+        el.textContent = isHealing ? (el.dataset.healingLabel ?? "") : (el.dataset.damageLabel ?? "");
+      }
+      for (const row of Array.from(this.element.querySelectorAll<HTMLElement>('.dos100-pierce-row, .dos100-damage-type-row'))) {
+        row.hidden = isHealing;
+        for (const input of Array.from(row.querySelectorAll<HTMLInputElement | HTMLSelectElement>('input, select'))) {
+          input.disabled = isHealing;
+        }
+      }
+    };
+
     if (actionTypeSelect !== null) {
       syncAttackSection(actionTypeSelect.value);
-      actionTypeSelect.addEventListener("change", () => syncAttackSection(actionTypeSelect.value));
+      syncDamageSection(actionTypeSelect.value);
+      actionTypeSelect.addEventListener("change", () => {
+        syncAttackSection(actionTypeSelect.value);
+        syncDamageSection(actionTypeSelect.value);
+      });
     }
 
     const updateSlider = (slider: HTMLInputElement): void => {
@@ -272,6 +310,14 @@ export class ActionSheet extends HandlebarsApplicationMixin(foundry.applications
     const notes = system.actions.items[this.#actionId].notes?.footnotes ?? [];
     const index = Number(target.dataset.identifier);
     await this.#item.update({ [`system.actions.items.${this.#actionId}.notes.footnotes`]: notes.filter((_: string, i: number) => i !== index) });
+  }
+
+  protected async _onEditDamageTypes(_event: PointerEvent, _target: HTMLElement): Promise<void> {
+    const system = this.#item.system as { actions: Actions };
+    const action = system.actions.items[this.#actionId];
+    const currentTypes = action.damage?.types ?? ["universal"];
+    const dialog = new DamageTypeDialog(this.#item, this.#actionId, currentTypes);
+    await dialog.render(true);
   }
 
   protected async _onSubmitForm(

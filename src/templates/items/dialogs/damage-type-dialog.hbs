@@ -1,0 +1,15 @@
+<div class="damage-type-dialog">
+  <ul>
+    {{#each damageTypeOptions}}
+      <li>
+        <label>
+          <input type="checkbox" value="{{value}}" {{#if selected}}checked{{/if}} />
+          {{localize label}} {{tag}}
+        </label>
+      </li>
+    {{/each}}
+  </ul>
+  <footer>
+    <button type="button" data-action="saveAndClose">{{localize "DOS100.item.damageTypeDialog.save"}}</button>
+  </footer>
+</div>

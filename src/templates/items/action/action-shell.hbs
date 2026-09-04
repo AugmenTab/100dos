@@ -292,6 +292,49 @@
           </div>
         </div>
       </fieldset>
+
+      <hr />
+
+      <h4 class="pc-section-heading"
+          data-damage-label="{{localize "DOS100.action.damage.label"}}"
+          data-healing-label="{{localize "DOS100.action.damage.healingLabel"}}">
+        {{localize "DOS100.action.damage.label"}}
+      </h4>
+
+      <div class="dos100-form-group">
+        <label for="{{sheetId}}-damage-dice-count"
+               data-damage-label="{{localize "DOS100.action.damage.dice.label"}}"
+               data-healing-label="{{localize "DOS100.action.damage.dice.healingLabel"}}">
+          {{localize "DOS100.action.damage.dice.label"}}
+        </label>
+        <div>
+          <input type="number" id="{{sheetId}}-damage-dice-count" name="damage.dice.count" value="{{damageData.dice.count}}" min="0" step="1" />
+          <select name="damage.dice.die">
+            {{#each diceTypes}}
+              <option value="{{value}}" {{#if selected}}selected{{/if}}>{{localize label}}</option>
+            {{/each}}
+          </select>
+        </div>
+      </div>
+
+      <div class="dos100-form-group">
+        <label for="{{sheetId}}-damage-base"
+               data-damage-label="{{localize "DOS100.action.damage.base"}}"
+               data-healing-label="{{localize "DOS100.action.damage.healingBase"}}">
+          {{localize "DOS100.action.damage.base"}}
+        </label>
+        <input type="text" id="{{sheetId}}-damage-base" name="damage.base" value="{{damageData.base}}" />
+      </div>
+
+      <div class="dos100-form-group dos100-pierce-row">
+        <label for="{{sheetId}}-damage-pierce">{{localize "DOS100.action.damage.pierce"}}</label>
+        <input type="text" id="{{sheetId}}-damage-pierce" name="damage.pierce" value="{{damageData.pierce}}" />
+      </div>
+
+      <div class="dos100-form-group dos100-damage-type-row">
+        <label>{{localize "DOS100.action.damage.types.label"}}</label>
+        <button type="button" data-action="editDamageTypes">{{damageTypeLabel}}</button>
+      </div>
     </section>
 
     <section

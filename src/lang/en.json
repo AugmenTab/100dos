@@ -110,6 +110,10 @@
         },
         "placeholder": "This feature is not yet implemented."
       },
+      "damageTypeDialog": {
+        "title": "Damage Type",
+        "save": "Save"
+      },
       "changeEditor": {
         "title": {
           "addChange": "Add Change",
@@ -861,6 +865,28 @@
         "critical": {
           "success": "Critical Success",
           "failure": "Critical Failure"
+        }
+      },
+      "damage": {
+        "label": "DAMAGE",
+        "healingLabel": "HEALING",
+        "base": "Base Damage",
+        "healingBase": "Base Healing",
+        "pierce": "Pierce",
+        "dice": {
+          "label": "Damage Dice",
+          "healingLabel": "Healing Dice",
+          "d5": "D5",
+          "d10": "D10"
+        },
+        "type": {
+          "universal": "Universal",
+          "piercing": "Piercing",
+          "bludgeoning": "Bludgeoning",
+          "slashing": "Slashing"
+        },
+        "types": {
+          "label": "Damage Type"
         }
       }
     }
