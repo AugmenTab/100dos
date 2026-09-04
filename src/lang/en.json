@@ -114,6 +114,15 @@
         "title": "Damage Type",
         "save": "Save"
       },
+      "specialRulesDialog": {
+        "title": "Special Rules",
+        "save": "Save",
+        "mode": {
+          "inherit": "Inherit",
+          "disabled": "Disabled",
+          "override": "Override"
+        }
+      },
       "changeEditor": {
         "title": {
           "addChange": "Add Change",
@@ -888,6 +897,41 @@
         "types": {
           "label": "Damage Type"
         }
+      },
+      "specialRules": {
+        "label": "Special Rules",
+        "edit": "Edit Special Rules",
+        "acid": "Acid",
+        "airburst": "Airburst",
+        "blast": "Blast",
+        "cauterize": "Cauterize",
+        "cryo": "Cryo",
+        "diceMinimum": "Dice Minimum",
+        "electrified": "Electrified",
+        "emp": "EMP",
+        "flame": "Flame",
+        "gravimetric": "Gravimetric",
+        "gravity": "Gravity",
+        "hardlight": "Hardlight",
+        "headshot": "Headshot",
+        "homing": "Homing",
+        "kill": "Kill",
+        "kinetic": "Kinetic",
+        "longBarrel": "Long Barrel",
+        "needle": "Needle",
+        "nonlethal": "Nonlethal",
+        "overheat": "Overheat",
+        "penetrating": "Penetrating",
+        "rechargeRate": "Recharge Rate",
+        "singleUse": "Single Use",
+        "slow": "Slow",
+        "spike": "Spike",
+        "spin": "Spin",
+        "spread": "Spread",
+        "sticky": "Sticky",
+        "stun": "Stun",
+        "tranquilize": "Tranquilize",
+        "vehicleLock": "Vehicle Lock"
       }
     }
   }

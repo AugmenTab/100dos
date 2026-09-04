@@ -55,6 +55,104 @@ export function normalizeDamageTypes(types: DamageType[]): DamageType[] {
   return types;
 }
 
+export type SpecialRuleId =
+  | "acid"
+  | "airburst"
+  | "blast"
+  | "cauterize"
+  | "cryo"
+  | "diceMinimum"
+  | "electrified"
+  | "emp"
+  | "flame"
+  | "gravimetric"
+  | "gravity"
+  | "hardlight"
+  | "headshot"
+  | "homing"
+  | "kill"
+  | "kinetic"
+  | "longBarrel"
+  | "needle"
+  | "nonlethal"
+  | "overheat"
+  | "penetrating"
+  | "rechargeRate"
+  | "singleUse"
+  | "slow"
+  | "spike"
+  | "spin"
+  | "spread"
+  | "sticky"
+  | "stun"
+  | "tranquilize"
+  | "vehicleLock";
+
+export type SpecialRuleOverride =
+  | { mode: "disabled" }
+  | { mode: "override"; formula?: string };
+
+export type ActionSpecialRules = Partial<Record<SpecialRuleId, SpecialRuleOverride>>;
+
+export type SpecialRuleEntry = {
+  name: string;
+  hasValue: boolean;
+};
+
+export const SPECIAL_RULES: Record<SpecialRuleId, SpecialRuleEntry> = {
+  acid:         { name: "DOS100.action.specialRules.acid",         hasValue: true  },
+  airburst:     { name: "DOS100.action.specialRules.airburst",     hasValue: true  },
+  blast:        { name: "DOS100.action.specialRules.blast",        hasValue: true  },
+  cauterize:    { name: "DOS100.action.specialRules.cauterize",    hasValue: false },
+  cryo:         { name: "DOS100.action.specialRules.cryo",         hasValue: true  },
+  diceMinimum:  { name: "DOS100.action.specialRules.diceMinimum",  hasValue: true  },
+  electrified:  { name: "DOS100.action.specialRules.electrified",  hasValue: true  },
+  emp:          { name: "DOS100.action.specialRules.emp",          hasValue: true  },
+  flame:        { name: "DOS100.action.specialRules.flame",        hasValue: true  },
+  gravimetric:  { name: "DOS100.action.specialRules.gravimetric",  hasValue: true  },
+  gravity:      { name: "DOS100.action.specialRules.gravity",      hasValue: true  },
+  hardlight:    { name: "DOS100.action.specialRules.hardlight",    hasValue: false },
+  headshot:     { name: "DOS100.action.specialRules.headshot",     hasValue: false },
+  homing:       { name: "DOS100.action.specialRules.homing",       hasValue: false },
+  kill:         { name: "DOS100.action.specialRules.kill",         hasValue: true  },
+  kinetic:      { name: "DOS100.action.specialRules.kinetic",      hasValue: false },
+  longBarrel:   { name: "DOS100.action.specialRules.longBarrel",   hasValue: false },
+  needle:       { name: "DOS100.action.specialRules.needle",       hasValue: true  },
+  nonlethal:    { name: "DOS100.action.specialRules.nonlethal",    hasValue: false },
+  overheat:     { name: "DOS100.action.specialRules.overheat",     hasValue: true  },
+  penetrating:  { name: "DOS100.action.specialRules.penetrating",  hasValue: false },
+  rechargeRate: { name: "DOS100.action.specialRules.rechargeRate", hasValue: true  },
+  singleUse:    { name: "DOS100.action.specialRules.singleUse",    hasValue: false },
+  slow:         { name: "DOS100.action.specialRules.slow",         hasValue: false },
+  spike:        { name: "DOS100.action.specialRules.spike",        hasValue: false },
+  spin:         { name: "DOS100.action.specialRules.spin",         hasValue: true  },
+  spread:       { name: "DOS100.action.specialRules.spread",       hasValue: false },
+  sticky:       { name: "DOS100.action.specialRules.sticky",       hasValue: false },
+  stun:         { name: "DOS100.action.specialRules.stun",         hasValue: true  },
+  tranquilize:  { name: "DOS100.action.specialRules.tranquilize",  hasValue: true  },
+  vehicleLock:  { name: "DOS100.action.specialRules.vehicleLock",  hasValue: false },
+};
+
+export function normalizeSpecialRules(
+  rows: Array<{ id: SpecialRuleId; mode: "inherit" | "disabled" | "override"; formula?: string }>,
+): ActionSpecialRules {
+  const result: ActionSpecialRules = {};
+  for (const { id, mode, formula } of rows) {
+    if (mode === "inherit") continue;
+    if (mode === "disabled") {
+      result[id] = { mode: "disabled" };
+      continue;
+    }
+    const trimmed = formula?.trim() ?? "";
+    if (SPECIAL_RULES[id]?.hasValue === true && trimmed !== "") {
+      result[id] = { mode: "override", formula: trimmed };
+    } else {
+      result[id] = { mode: "override" };
+    }
+  }
+  return result;
+}
+
 export type AttackHeld = "default" | "oneHanded" | "twoHanded";
 
 export type ActionAttack = {
@@ -175,6 +273,7 @@ export type ActionData = {
   notes: ActionNotes;
   attack?: ActionAttack;
   damage?: ActionDamage;
+  specialRules?: ActionSpecialRules;
 };
 
 export type ActionNotes = {

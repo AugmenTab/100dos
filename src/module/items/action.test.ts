@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { ACTION_TYPES, ACTIVATION_TYPES, ATTACK_ACTION_TYPES, ATTACK_CHARACTERISTIC_DEFAULTS, COST_HIDDEN_TYPES, CRITICAL_FAILURE_MAX, CRITICAL_FAILURE_MIN, CRITICAL_SUCCESS_MAX, CRITICAL_SUCCESS_MIN, DAMAGE_DICE, DAMAGE_TYPE_TAGS, DURATION_TYPES, DURATION_VALUE_TYPES, HELD_TYPES, normalizeDamageTypes, RANGE_TYPES, RANGE_VALUE_TYPES, shouldRecharge, type ActionsPoolUses, type ActionDamage, type ActionUses } from "./action.js";
+import { ACTION_TYPES, ACTIVATION_TYPES, ATTACK_ACTION_TYPES, ATTACK_CHARACTERISTIC_DEFAULTS, COST_HIDDEN_TYPES, CRITICAL_FAILURE_MAX, CRITICAL_FAILURE_MIN, CRITICAL_SUCCESS_MAX, CRITICAL_SUCCESS_MIN, DAMAGE_DICE, DAMAGE_TYPE_TAGS, DURATION_TYPES, DURATION_VALUE_TYPES, HELD_TYPES, normalizeDamageTypes, normalizeSpecialRules, RANGE_TYPES, RANGE_VALUE_TYPES, shouldRecharge, SPECIAL_RULES, type ActionsPoolUses, type ActionDamage, type ActionUses, type SpecialRuleId } from "./action.js";
 
 describe("ACTION_TYPES", () => {
   it("contains exactly the expected action types in order", () => {
@@ -338,5 +338,107 @@ describe("ActionDamage", () => {
       types: ["universal"],
     };
     expect(damage.dice.count).toBe(0);
+  });
+});
+
+describe("SPECIAL_RULES", () => {
+  const ids = Object.keys(SPECIAL_RULES) as SpecialRuleId[];
+
+  it("contains exactly 31 entries", () => {
+    expect(ids).toHaveLength(31);
+  });
+
+  it("has 17 valued rules", () => {
+    const valued = ids.filter(id => SPECIAL_RULES[id].hasValue);
+    expect(valued).toHaveLength(17);
+    for (const id of ["acid", "airburst", "blast", "cryo", "diceMinimum", "electrified", "emp", "flame", "gravimetric", "gravity", "kill", "needle", "overheat", "rechargeRate", "spin", "stun", "tranquilize"] as SpecialRuleId[]) {
+      expect(SPECIAL_RULES[id]?.hasValue, id).toBe(true);
+    }
+  });
+
+  it("has 14 boolean rules", () => {
+    const booleans = ids.filter(id => !SPECIAL_RULES[id].hasValue);
+    expect(booleans).toHaveLength(14);
+    for (const id of ["cauterize", "hardlight", "headshot", "homing", "kinetic", "longBarrel", "nonlethal", "penetrating", "singleUse", "slow", "spike", "spread", "sticky", "vehicleLock"] as SpecialRuleId[]) {
+      expect(SPECIAL_RULES[id]?.hasValue, id).toBe(false);
+    }
+  });
+
+  it("every entry has a non-empty i18n key", () => {
+    for (const id of ids) {
+      expect(SPECIAL_RULES[id]?.name, id).toBeTruthy();
+    }
+  });
+});
+
+describe("normalizeSpecialRules", () => {
+  it("produces an empty object when all rows are inherit", () => {
+    const result = normalizeSpecialRules([
+      { id: "blast", mode: "inherit" },
+      { id: "hardlight", mode: "inherit" },
+    ]);
+    expect(result).toEqual({});
+  });
+
+  it("omits inherit rows from the result", () => {
+    const result = normalizeSpecialRules([
+      { id: "blast", mode: "inherit" },
+      { id: "acid", mode: "disabled" },
+    ]);
+    expect("blast" in result).toBe(false);
+    expect(result.acid).toEqual({ mode: "disabled" });
+  });
+
+  it("persists disabled as { mode: 'disabled' } with no formula", () => {
+    const result = normalizeSpecialRules([{ id: "blast", mode: "disabled", formula: "8" }]);
+    expect(result.blast).toEqual({ mode: "disabled" });
+    expect((result.blast as { formula?: string }).formula).toBeUndefined();
+  });
+
+  it("persists boolean override as { mode: 'override' } with no formula", () => {
+    const result = normalizeSpecialRules([{ id: "hardlight", mode: "override", formula: "ignored" }]);
+    expect(result.hardlight).toEqual({ mode: "override" });
+    expect((result.hardlight as { formula?: string }).formula).toBeUndefined();
+  });
+
+  it("persists valued override with formula when formula is non-empty", () => {
+    const result = normalizeSpecialRules([{ id: "blast", mode: "override", formula: "8" }]);
+    expect(result.blast).toEqual({ mode: "override", formula: "8" });
+  });
+
+  it("omits formula key when valued override formula is empty", () => {
+    const result = normalizeSpecialRules([{ id: "blast", mode: "override", formula: "" }]);
+    expect(result.blast).toEqual({ mode: "override" });
+    expect((result.blast as { formula?: string }).formula).toBeUndefined();
+  });
+
+  it("trims whitespace-only formula to empty, omitting the key", () => {
+    const result = normalizeSpecialRules([{ id: "blast", mode: "override", formula: "   " }]);
+    expect(result.blast).toEqual({ mode: "override" });
+    expect((result.blast as { formula?: string }).formula).toBeUndefined();
+  });
+
+  it("trims leading and trailing whitespace from formula", () => {
+    const result = normalizeSpecialRules([{ id: "blast", mode: "override", formula: "  8  " }]);
+    expect(result.blast).toEqual({ mode: "override", formula: "8" });
+  });
+
+  it("handles mixed modes correctly", () => {
+    const result = normalizeSpecialRules([
+      { id: "acid", mode: "override", formula: "3" },
+      { id: "hardlight", mode: "disabled" },
+      { id: "penetrating", mode: "inherit" },
+      { id: "blast", mode: "override", formula: "" },
+    ]);
+    expect(result.acid).toEqual({ mode: "override", formula: "3" });
+    expect(result.hardlight).toEqual({ mode: "disabled" });
+    expect("penetrating" in result).toBe(false);
+    expect(result.blast).toEqual({ mode: "override" });
+  });
+
+  it("accepts formula strings with characteristic references", () => {
+    const formula = "8 + floor(@characteristics.str.mod / 2)";
+    const result = normalizeSpecialRules([{ id: "stun", mode: "override", formula }]);
+    expect(result.stun).toEqual({ mode: "override", formula });
   });
 });

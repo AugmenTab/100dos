@@ -1,0 +1,28 @@
+<div class="special-rules-dialog">
+  <ul>
+    {{#each rows}}
+      <li data-rule-id-row="{{id}}">
+        <button
+          type="button"
+          data-action="cycleMode"
+          data-rule-id="{{id}}"
+          data-current-mode="{{mode}}"
+        >{{localize modeLabel}}</button>
+        <span>{{localize name}}</span>
+        {{#if hasValue}}
+          <input
+            type="text"
+            value="{{formula}}"
+            placeholder="{{placeholder}}"
+            {{#if formulaDisabled}}disabled{{/if}}
+          />
+        {{else}}
+          <span></span>
+        {{/if}}
+      </li>
+    {{/each}}
+  </ul>
+  <footer>
+    <button type="button" data-action="saveAndClose">{{localize "DOS100.item.specialRulesDialog.save"}}</button>
+  </footer>
+</div>

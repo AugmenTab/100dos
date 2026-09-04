@@ -335,6 +335,28 @@
         <label>{{localize "DOS100.action.damage.types.label"}}</label>
         <button type="button" data-action="editDamageTypes">{{damageTypeLabel}}</button>
       </div>
+
+      <div class="dos100-special-rules-section">
+        <hr />
+
+        <h4 class="pc-section-heading">
+          {{localize "DOS100.action.specialRules.label"}}
+          <button
+            type="button"
+            class="icon-button"
+            data-action="editSpecialRules"
+            aria-label="{{localize 'DOS100.action.specialRules.edit'}}"
+          ><i class="fa-solid fa-pen-to-square" inert></i></button>
+        </h4>
+
+        {{#if specialRulePills.length}}
+          <ul>
+            {{#each specialRulePills}}
+              <li data-pill="{{variant}}" {{#if tooltip}}title="{{tooltip}}"{{/if}}>{{label}}</li>
+            {{/each}}
+          </ul>
+        {{/if}}
+      </div>
     </section>
 
     <section

@@ -1,8 +1,9 @@
 import { type Dos100Item } from "../../documents/item.js";
-import { ACTION_TYPES, ATTACK_ACTION_TYPES, ATTACK_CHARACTERISTIC_DEFAULTS, ACTIVATION_TYPES, COST_HIDDEN_TYPES, DAMAGE_DICE, DAMAGE_TYPE_TAGS, DURATION_TYPES, DURATION_VALUE_TYPES, HELD_TYPES, RANGE_TYPES, RANGE_VALUE_TYPES, USAGE_PERIODS, type ActionAttack, type ActionDamage, type ActionDurationType, type ActionRangeType, type ActionType, type Actions, type ActivationType, type DamageDie } from "../../items/action.js";
+import { ACTION_TYPES, ATTACK_ACTION_TYPES, ATTACK_CHARACTERISTIC_DEFAULTS, ACTIVATION_TYPES, COST_HIDDEN_TYPES, DAMAGE_DICE, DAMAGE_TYPE_TAGS, DURATION_TYPES, DURATION_VALUE_TYPES, HELD_TYPES, RANGE_TYPES, RANGE_VALUE_TYPES, SPECIAL_RULES, USAGE_PERIODS, type ActionAttack, type ActionDamage, type ActionDurationType, type ActionRangeType, type ActionSpecialRules, type ActionType, type Actions, type ActivationType, type DamageDie, type SpecialRuleId, type SpecialRuleOverride } from "../../items/action.js";
 import { CHARACTERISTIC_IDS } from "../../characteristic.js";
 import { buildActionUpdates } from "./action-updates.js";
 import { DamageTypeDialog } from "./damage-type-dialog.js";
+import { SpecialRulesDialog } from "./special-rules-dialog.js";
 
 const { HandlebarsApplicationMixin } = foundry.applications.api;
 
@@ -22,6 +23,7 @@ export class ActionSheet extends HandlebarsApplicationMixin(foundry.applications
       addActionFootnote: ActionSheet.prototype._onAddActionFootnote,
       deleteActionFootnote: ActionSheet.prototype._onDeleteActionFootnote,
       editDamageTypes: ActionSheet.prototype._onEditDamageTypes,
+      editSpecialRules: ActionSheet.prototype._onEditSpecialRules,
       editImage: ActionSheet.prototype._onEditImage,
     },
   };
@@ -123,6 +125,22 @@ export class ActionSheet extends HandlebarsApplicationMixin(foundry.applications
     }));
     const damageTypeLabel = damageData.types.map(t => DAMAGE_TYPE_TAGS[t]).join(" ");
 
+    const specialRulesMap: ActionSpecialRules = action.specialRules ?? {};
+    const specialRulePills = (Object.entries(specialRulesMap) as [SpecialRuleId, SpecialRuleOverride][]).map(([id, override]) => {
+      const entry = SPECIAL_RULES[id];
+      const displayName = game.i18n.localize(entry?.name ?? id);
+      if (override.mode === "disabled") {
+        return { label: `- ${displayName}`, variant: "destructive", tooltip: null as string | null };
+      }
+      const formula = override.mode === "override" ? (override as { mode: "override"; formula?: string }).formula : undefined;
+      if (entry?.hasValue === true && formula !== undefined && formula !== "") {
+        const tooltip = formula.length > 12 ? formula : null;
+        const display = formula.length > 12 ? `${formula.slice(0, 12)}…` : formula;
+        return { label: `+ ${displayName} ${display}`, variant: "neutral", tooltip };
+      }
+      return { label: `+ ${displayName}`, variant: "neutral", tooltip: null as string | null };
+    });
+
     return {
       ...await super._prepareContext(options),
       sheetId: this.id,
@@ -140,6 +158,7 @@ export class ActionSheet extends HandlebarsApplicationMixin(foundry.applications
       damageData,
       diceTypes,
       damageTypeLabel,
+      specialRulePills,
     };
   }
 
@@ -248,12 +267,20 @@ export class ActionSheet extends HandlebarsApplicationMixin(foundry.applications
       }
     };
 
+    const specialRulesSection = this.element.querySelector<HTMLElement>(".dos100-special-rules-section");
+    const syncSpecialRulesSection = (type: string): void => {
+      if (specialRulesSection === null) return;
+      specialRulesSection.hidden = type === "healing";
+    };
+
     if (actionTypeSelect !== null) {
       syncAttackSection(actionTypeSelect.value);
       syncDamageSection(actionTypeSelect.value);
+      syncSpecialRulesSection(actionTypeSelect.value);
       actionTypeSelect.addEventListener("change", () => {
         syncAttackSection(actionTypeSelect.value);
         syncDamageSection(actionTypeSelect.value);
+        syncSpecialRulesSection(actionTypeSelect.value);
       });
     }
 
@@ -330,6 +357,14 @@ export class ActionSheet extends HandlebarsApplicationMixin(foundry.applications
     const action = system.actions.items[this.#actionId];
     const currentTypes = action.damage?.types ?? ["universal"];
     const dialog = new DamageTypeDialog(this.#item, this.#actionId, currentTypes);
+    await dialog.render(true);
+  }
+
+  protected async _onEditSpecialRules(_event: PointerEvent, _target: HTMLElement): Promise<void> {
+    const system = this.#item.system as { actions: Actions };
+    const action = system.actions.items[this.#actionId];
+    const current: ActionSpecialRules = { ...(action.specialRules ?? {}) };
+    const dialog = new SpecialRulesDialog(this.#item, this.#actionId, current);
     await dialog.render(true);
   }
 
