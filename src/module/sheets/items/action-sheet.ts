@@ -117,6 +117,7 @@ export class ActionSheet extends HandlebarsApplicationMixin(foundry.applications
       base: action.damage?.base ?? "",
       pierce: action.damage?.pierce ?? "",
       types: action.damage?.types ?? ["universal"],
+      specialDamageBonus: action.damage?.specialDamageBonus ?? "",
     };
     const diceTypes = (Object.entries(DAMAGE_DICE) as [DamageDie, string][]).map(([value, label]) => ({
       value,

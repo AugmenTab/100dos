@@ -67,6 +67,8 @@ export type StaticChangeTarget =
   | "inboundThrownWeaponDamage"
   | "allInboundMeleeDamage"
   | "allInboundRangedDamage"
+  | "specialDamage"
+  | "inboundSpecialDamage"
 
   // Defense
   | "allDamageResistance"

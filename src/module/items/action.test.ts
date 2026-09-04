@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { ACTION_TYPES, ACTIVATION_TYPES, ATTACK_ACTION_TYPES, ATTACK_CHARACTERISTIC_DEFAULTS, COST_HIDDEN_TYPES, CRITICAL_FAILURE_MAX, CRITICAL_FAILURE_MIN, CRITICAL_SUCCESS_MAX, CRITICAL_SUCCESS_MIN, DAMAGE_DICE, DAMAGE_TYPE_TAGS, DURATION_TYPES, DURATION_VALUE_TYPES, HELD_TYPES, normalizeDamageTypes, normalizeSpecialRules, RANGE_TYPES, RANGE_VALUE_TYPES, shouldRecharge, SPECIAL_RULES, type ActionsPoolUses, type ActionDamage, type ActionUses, type SpecialRuleId } from "./action.js";
+import { ACTION_TYPES, ACTIVATION_TYPES, ATTACK_ACTION_TYPES, ATTACK_CHARACTERISTIC_DEFAULTS, COST_HIDDEN_TYPES, CRITICAL_FAILURE_MAX, CRITICAL_FAILURE_MIN, CRITICAL_SUCCESS_MAX, CRITICAL_SUCCESS_MIN, DAMAGE_DICE, DAMAGE_TYPE_TAGS, DURATION_TYPES, DURATION_VALUE_TYPES, HELD_TYPES, normalizeDamageTypes, normalizeSpecialRules, RANGE_TYPES, RANGE_VALUE_TYPES, shouldRecharge, SPECIAL_RULES, type ActionsPoolUses, type ActionDamage, type ActionUses, type DamageRollContext, type SpecialRuleId } from "./action.js";
 
 describe("ACTION_TYPES", () => {
   it("contains exactly the expected action types in order", () => {
@@ -326,6 +326,7 @@ describe("ActionDamage", () => {
       base: "",
       pierce: "",
       types: ["universal"],
+      specialDamageBonus: "",
     };
     expect(damage.types).toEqual(["universal"]);
   });
@@ -336,8 +337,44 @@ describe("ActionDamage", () => {
       base: "8",
       pierce: "",
       types: ["universal"],
+      specialDamageBonus: "",
     };
     expect(damage.dice.count).toBe(0);
+  });
+
+  it("includes specialDamageBonus defaulting to empty string", () => {
+    const damage: ActionDamage = {
+      dice: { count: 1, die: "d10" },
+      base: "",
+      pierce: "",
+      types: ["universal"],
+      specialDamageBonus: "",
+    };
+    expect(damage.specialDamageBonus).toBe("");
+  });
+
+  it("accepts a formula string for specialDamageBonus", () => {
+    const damage: ActionDamage = {
+      dice: { count: 1, die: "d10" },
+      base: "",
+      pierce: "",
+      types: ["universal"],
+      specialDamageBonus: "2D10",
+    };
+    expect(damage.specialDamageBonus).toBe("2D10");
+  });
+});
+
+describe("DamageRollContext", () => {
+  it("tracks maxD5 and maxD10 separately", () => {
+    const ctx: DamageRollContext = { maxD5: 2, maxD10: 1, maxDice: 3 };
+    expect(ctx.maxD5).toBe(2);
+    expect(ctx.maxD10).toBe(1);
+  });
+
+  it("maxDice equals maxD5 + maxD10", () => {
+    const ctx: DamageRollContext = { maxD5: 2, maxD10: 1, maxDice: 3 };
+    expect(ctx.maxDice).toBe(ctx.maxD5 + ctx.maxD10);
   });
 });
 

@@ -219,6 +219,8 @@
         "inboundThrownWeaponDamage": "Inbound Thrown Weapon Damage",
         "allInboundMeleeDamage": "All Inbound Melee Damage",
         "allInboundRangedDamage": "All Inbound Ranged Damage",
+        "specialDamage": "Special Damage",
+        "inboundSpecialDamage": "Inbound Special Damage",
         "allDamageResistance": "All Damage Resistance",
         "allHeadDamageResistance": "All Head Damage Resistance",
         "allTorsoDamageResistance": "All Torso Damage Resistance",
@@ -882,6 +884,7 @@
         "base": "Base Damage",
         "healingBase": "Base Healing",
         "pierce": "Pierce",
+        "specialDamageBonus": "Special Damage Bonus",
         "dice": {
           "label": "Damage Dice",
           "healingLabel": "Healing Dice",

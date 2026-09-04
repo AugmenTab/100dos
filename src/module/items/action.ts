@@ -23,6 +23,13 @@ export type ActionDamage = {
   base: string;
   pierce: string;
   types: DamageType[];
+  specialDamageBonus: string;
+};
+
+export type DamageRollContext = {
+  maxD5: number;
+  maxD10: number;
+  maxDice: number;
 };
 
 export const DAMAGE_DICE: Record<DamageDie, string> = {

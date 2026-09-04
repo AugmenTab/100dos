@@ -72,6 +72,7 @@ const STATIC_CATEGORY_DEFS: readonly StaticCategoryDef[] = [
       "allInboundDamage", "inboundWeaponDamage", "inboundMeleeWeaponDamage",
       "inboundNaturalAttackDamage", "inboundRangedWeaponDamage", "inboundThrownWeaponDamage",
       "allInboundMeleeDamage", "allInboundRangedDamage",
+      "specialDamage", "inboundSpecialDamage",
     ],
   },
   {
