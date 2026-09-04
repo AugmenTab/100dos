@@ -22,6 +22,7 @@ export class ActionSheet extends HandlebarsApplicationMixin(foundry.applications
       addActionFootnote: ActionSheet.prototype._onAddActionFootnote,
       deleteActionFootnote: ActionSheet.prototype._onDeleteActionFootnote,
       editDamageTypes: ActionSheet.prototype._onEditDamageTypes,
+      editImage: ActionSheet.prototype._onEditImage,
     },
   };
 
@@ -310,6 +311,18 @@ export class ActionSheet extends HandlebarsApplicationMixin(foundry.applications
     const notes = system.actions.items[this.#actionId].notes?.footnotes ?? [];
     const index = Number(target.dataset.identifier);
     await this.#item.update({ [`system.actions.items.${this.#actionId}.notes.footnotes`]: notes.filter((_: string, i: number) => i !== index) });
+  }
+
+  protected _onEditImage(_event: PointerEvent, target: HTMLElement): void {
+    const current = (target as HTMLImageElement).src;
+    const fp = new FilePicker({
+      type: "image",
+      current,
+      callback: (path: string) => {
+        void this.#item.update({ [`system.actions.items.${this.#actionId}.img`]: path });
+      },
+    });
+    void fp.browse();
   }
 
   protected async _onEditDamageTypes(_event: PointerEvent, _target: HTMLElement): Promise<void> {

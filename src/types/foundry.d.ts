@@ -31,6 +31,15 @@ declare class FormDataExtended extends FormData {
   object: Record<string, unknown>;
 }
 
+declare class FilePicker {
+  constructor(options: {
+    type?: "image" | "audio" | "video" | "imagevideo" | "folder" | "font" | "graphics" | "text" | "any";
+    current?: string;
+    callback?: (path: string) => void;
+  });
+  browse(path?: string): Promise<unknown>;
+}
+
 declare const game: Game;
 
 declare function fromUuid<T = unknown>(uuid: string): Promise<T | null>;
