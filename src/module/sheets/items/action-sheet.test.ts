@@ -172,4 +172,66 @@ describe("buildActionUpdates", () => {
     expect(updates[`system.actions.items.${ACTION_ID}.uses.actionCost.formula`]).toBe("1");
     expect(updates[`system.actions.items.${ACTION_ID}.uses.actionCost.perAttack`]).toBe(false);
   });
+
+  it("persists damage dice count", () => {
+    const updates = buildActionUpdates(ACTION_ID, { "damage.dice.count": 4 });
+    expect(updates[`system.actions.items.${ACTION_ID}.damage.dice.count`]).toBe(4);
+  });
+
+  it("persists damage dice count of 0", () => {
+    const updates = buildActionUpdates(ACTION_ID, { "damage.dice.count": 0 });
+    expect(updates[`system.actions.items.${ACTION_ID}.damage.dice.count`]).toBe(0);
+  });
+
+  it("persists damage dice die", () => {
+    const updatesD5 = buildActionUpdates(ACTION_ID, { "damage.dice.die": "d5" });
+    expect(updatesD5[`system.actions.items.${ACTION_ID}.damage.dice.die`]).toBe("d5");
+
+    const updatesD10 = buildActionUpdates(ACTION_ID, { "damage.dice.die": "d10" });
+    expect(updatesD10[`system.actions.items.${ACTION_ID}.damage.dice.die`]).toBe("d10");
+  });
+
+  it("persists base damage as a formula string", () => {
+    const updates = buildActionUpdates(ACTION_ID, { "damage.base": "8" });
+    expect(updates[`system.actions.items.${ACTION_ID}.damage.base`]).toBe("8");
+  });
+
+  it("persists base damage formulas containing floor(...)", () => {
+    const formula = "8 + floor(@characteristics.str.mod / 2)";
+    const updates = buildActionUpdates(ACTION_ID, { "damage.base": formula });
+    expect(updates[`system.actions.items.${ACTION_ID}.damage.base`]).toBe(formula);
+  });
+
+  it("persists pierce as a formula string", () => {
+    const updates = buildActionUpdates(ACTION_ID, { "damage.pierce": "12" });
+    expect(updates[`system.actions.items.${ACTION_ID}.damage.pierce`]).toBe("12");
+  });
+
+  it("persists pierce formulas containing characteristics references", () => {
+    const formula = "5 + floor(@characteristics.str.mod / 2)";
+    const updates = buildActionUpdates(ACTION_ID, { "damage.pierce": formula });
+    expect(updates[`system.actions.items.${ACTION_ID}.damage.pierce`]).toBe(formula);
+  });
+
+  it("persists damage types array", () => {
+    const updates = buildActionUpdates(ACTION_ID, { "damage.types": ["piercing", "slashing"] });
+    expect(updates[`system.actions.items.${ACTION_ID}.damage.types`]).toEqual(["piercing", "slashing"]);
+  });
+
+  it("persists all damage fields independently without affecting other fields", () => {
+    const updates = buildActionUpdates(ACTION_ID, {
+      "damage.dice.count": 2,
+      "damage.dice.die": "d10",
+      "damage.base": "8 + floor(@characteristics.str.mod / 2)",
+      "damage.pierce": "12",
+      "damage.types": ["universal"],
+      identifier: "myAttack",
+    });
+    expect(updates[`system.actions.items.${ACTION_ID}.damage.dice.count`]).toBe(2);
+    expect(updates[`system.actions.items.${ACTION_ID}.damage.dice.die`]).toBe("d10");
+    expect(updates[`system.actions.items.${ACTION_ID}.damage.base`]).toBe("8 + floor(@characteristics.str.mod / 2)");
+    expect(updates[`system.actions.items.${ACTION_ID}.damage.pierce`]).toBe("12");
+    expect(updates[`system.actions.items.${ACTION_ID}.damage.types`]).toEqual(["universal"]);
+    expect(updates[`system.actions.items.${ACTION_ID}.identifier`]).toBe("myAttack");
+  });
 });

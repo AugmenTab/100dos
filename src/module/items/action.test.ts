@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { ACTION_TYPES, ACTIVATION_TYPES, ATTACK_ACTION_TYPES, ATTACK_CHARACTERISTIC_DEFAULTS, COST_HIDDEN_TYPES, CRITICAL_FAILURE_MAX, CRITICAL_FAILURE_MIN, CRITICAL_SUCCESS_MAX, CRITICAL_SUCCESS_MIN, DURATION_TYPES, DURATION_VALUE_TYPES, HELD_TYPES, RANGE_TYPES, RANGE_VALUE_TYPES, shouldRecharge, type ActionsPoolUses, type ActionUses } from "./action.js";
+import { ACTION_TYPES, ACTIVATION_TYPES, ATTACK_ACTION_TYPES, ATTACK_CHARACTERISTIC_DEFAULTS, COST_HIDDEN_TYPES, CRITICAL_FAILURE_MAX, CRITICAL_FAILURE_MIN, CRITICAL_SUCCESS_MAX, CRITICAL_SUCCESS_MIN, DAMAGE_DICE, DAMAGE_TYPE_TAGS, DURATION_TYPES, DURATION_VALUE_TYPES, HELD_TYPES, normalizeDamageTypes, RANGE_TYPES, RANGE_VALUE_TYPES, shouldRecharge, type ActionsPoolUses, type ActionDamage, type ActionUses } from "./action.js";
 
 describe("ACTION_TYPES", () => {
   it("contains exactly the expected action types in order", () => {
@@ -248,5 +248,95 @@ describe("shouldRecharge", () => {
       expect(shouldRecharge("minute", "hour")).toBe(false);
       expect(shouldRecharge("minute", "day")).toBe(false);
     });
+  });
+});
+
+describe("DAMAGE_DICE", () => {
+  it("supports D5", () => {
+    expect("d5" in DAMAGE_DICE).toBe(true);
+  });
+
+  it("supports D10", () => {
+    expect("d10" in DAMAGE_DICE).toBe(true);
+  });
+
+  it("contains exactly D5 and D10", () => {
+    expect(Object.keys(DAMAGE_DICE)).toEqual(["d5", "d10"]);
+  });
+});
+
+describe("DAMAGE_TYPE_TAGS", () => {
+  it("renders Universal as [UD]", () => {
+    expect(DAMAGE_TYPE_TAGS["universal"]).toBe("[UD]");
+  });
+
+  it("renders Piercing as [PD]", () => {
+    expect(DAMAGE_TYPE_TAGS["piercing"]).toBe("[PD]");
+  });
+
+  it("renders Bludgeoning as [BD]", () => {
+    expect(DAMAGE_TYPE_TAGS["bludgeoning"]).toBe("[BD]");
+  });
+
+  it("renders Slashing as [SD]", () => {
+    expect(DAMAGE_TYPE_TAGS["slashing"]).toBe("[SD]");
+  });
+
+  it("derives a space-separated tag string from multiple types", () => {
+    const types = ["piercing", "slashing"] as const;
+    const label = types.map(t => DAMAGE_TYPE_TAGS[t]).join(" ");
+    expect(label).toBe("[PD] [SD]");
+  });
+});
+
+describe("normalizeDamageTypes", () => {
+  it("normalizes empty selection to [UD]", () => {
+    expect(normalizeDamageTypes([])).toEqual(["universal"]);
+  });
+
+  it("normalizes Universal selection to [UD] only", () => {
+    expect(normalizeDamageTypes(["universal"])).toEqual(["universal"]);
+  });
+
+  it("normalizes Universal plus other types to [UD] only", () => {
+    expect(normalizeDamageTypes(["universal", "piercing"])).toEqual(["universal"]);
+  });
+
+  it("normalizes all three physical types to [UD]", () => {
+    expect(normalizeDamageTypes(["piercing", "bludgeoning", "slashing"])).toEqual(["universal"]);
+  });
+
+  it("preserves a single physical type", () => {
+    expect(normalizeDamageTypes(["piercing"])).toEqual(["piercing"]);
+    expect(normalizeDamageTypes(["bludgeoning"])).toEqual(["bludgeoning"]);
+    expect(normalizeDamageTypes(["slashing"])).toEqual(["slashing"]);
+  });
+
+  it("preserves any valid two-type physical combination", () => {
+    expect(normalizeDamageTypes(["piercing", "bludgeoning"])).toEqual(["piercing", "bludgeoning"]);
+    expect(normalizeDamageTypes(["piercing", "slashing"])).toEqual(["piercing", "slashing"]);
+    expect(normalizeDamageTypes(["bludgeoning", "slashing"])).toEqual(["bludgeoning", "slashing"]);
+  });
+});
+
+describe("ActionDamage", () => {
+  it("defaults damage types to [UD]", () => {
+    const damage: ActionDamage = {
+      dice: { count: 0, die: "d5" },
+      base: "",
+      pierce: "",
+      types: ["universal"],
+    };
+    expect(damage.types).toEqual(["universal"]);
+  });
+
+  it("dice count may be 0", () => {
+    const damage: ActionDamage = {
+      dice: { count: 0, die: "d10" },
+      base: "8",
+      pierce: "",
+      types: ["universal"],
+    };
+    expect(damage.dice.count).toBe(0);
   });
 });
