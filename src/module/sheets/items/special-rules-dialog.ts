@@ -80,12 +80,17 @@ export class SpecialRulesDialog extends HandlebarsApplicationMixin(foundry.appli
       modeSelect.addEventListener("change", () => {
         const enabled = modeSelect.value === "override" && (SPECIAL_RULES[id]?.hasValue ?? false);
         formulaInput.disabled = !enabled;
+        formulaInput.required = enabled;
         if (!enabled) formulaInput.value = "";
       });
     }
   }
 
   protected async _onSaveAndClose(_event: PointerEvent, _target: HTMLElement): Promise<void> {
+    for (const input of Array.from(this.element.querySelectorAll<HTMLInputElement>("input[required]"))) {
+      if (!input.reportValidity()) return;
+    }
+
     const rows: Array<{ id: SpecialRuleId; mode: "inherit" | "disabled" | "override"; formula?: string }> = [];
     for (const li of Array.from(this.element.querySelectorAll<HTMLElement>("[data-rule-id-row]"))) {
       const id = li.dataset.ruleIdRow as SpecialRuleId;

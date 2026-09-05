@@ -13,7 +13,7 @@
             type="text"
             value="{{formula}}"
             placeholder="{{placeholder}}"
-            {{#if formulaDisabled}}disabled{{/if}}
+            {{#if formulaDisabled}}disabled{{else}}required{{/if}}
           />
         {{else}}
           <span></span>
