@@ -147,7 +147,7 @@ export class ActionSheet extends HandlebarsApplicationMixin(foundry.applications
       if (entry?.hasValue === true && formula !== undefined && formula !== "") {
         const tooltip = formula.length > 12 ? formula : null;
         const display = formula.length > 12 ? `${formula.slice(0, 12)}…` : formula;
-        return { label: `+ ${displayName} ${display}`, variant: "neutral", tooltip };
+        return { label: `+ ${displayName} (${display})`, variant: "neutral", tooltip };
       }
       return { label: `+ ${displayName}`, variant: "neutral", tooltip: null as string | null };
     });

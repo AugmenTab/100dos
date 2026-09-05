@@ -2,12 +2,11 @@
   <ul>
     {{#each rows}}
       <li data-rule-id-row="{{id}}">
-        <button
-          type="button"
-          data-action="cycleMode"
-          data-rule-id="{{id}}"
-          data-current-mode="{{mode}}"
-        >{{localize modeLabel}}</button>
+        <select name="mode-{{id}}">
+          <option value="inherit" {{#if (eq mode "inherit")}}selected{{/if}}>{{localize "DOS100.item.specialRulesDialog.mode.inherit"}}</option>
+          <option value="disabled" {{#if (eq mode "disabled")}}selected{{/if}}>{{localize "DOS100.item.specialRulesDialog.mode.disabled"}}</option>
+          <option value="override" {{#if (eq mode "override")}}selected{{/if}}>{{localize "DOS100.item.specialRulesDialog.mode.override"}}</option>
+        </select>
         <span>{{localize name}}</span>
         {{#if hasValue}}
           <input

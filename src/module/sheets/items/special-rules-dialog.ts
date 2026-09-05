@@ -1,5 +1,8 @@
 import { type Dos100Item } from "../../documents/item.js";
-import { normalizeSpecialRules, SPECIAL_RULES, type ActionSpecialRules, type SpecialRuleId } from "../../items/action.js";
+import { normalizeSpecialRules, SPECIAL_RULES, type Actions, type ActionSpecialRules, type SpecialRuleId, type SpecialRuleOverride } from "../../items/action.js";
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const ForcedDeletion: new () => unknown = ((foundry as any).data.operators as any).ForcedDeletion;
 
 const { HandlebarsApplicationMixin } = foundry.applications.api;
 
@@ -8,7 +11,6 @@ type SpecialRuleRow = {
   name: string;
   hasValue: boolean;
   mode: "inherit" | "disabled" | "override";
-  modeLabel: string;
   formula: string;
   placeholder: string;
   formulaDisabled: boolean;
@@ -31,7 +33,6 @@ export class SpecialRulesDialog extends HandlebarsApplicationMixin(foundry.appli
     position: { width: 480 },
     window: { title: "DOS100.item.specialRulesDialog.title" },
     actions: {
-      cycleMode: SpecialRulesDialog.prototype._onCycleMode,
       saveAndClose: SpecialRulesDialog.prototype._onSaveAndClose,
     },
   };
@@ -53,7 +54,6 @@ export class SpecialRulesDialog extends HandlebarsApplicationMixin(foundry.appli
         name: entry.name,
         hasValue: entry.hasValue,
         mode,
-        modeLabel: `DOS100.item.specialRulesDialog.mode.${mode}`,
         formula,
         placeholder: "",
         formulaDisabled: mode !== "override" || !entry.hasValue,
@@ -62,26 +62,26 @@ export class SpecialRulesDialog extends HandlebarsApplicationMixin(foundry.appli
     return { rows };
   }
 
-  protected _onCycleMode(_event: PointerEvent, target: HTMLElement): void {
-    const id = target.dataset.ruleId as SpecialRuleId;
-    const current = target.dataset.currentMode as "inherit" | "disabled" | "override";
-    const next: Record<"inherit" | "disabled" | "override", "inherit" | "disabled" | "override"> = {
-      inherit: "disabled",
-      disabled: "override",
-      override: "inherit",
-    };
-    const newMode = next[current];
-    target.dataset.currentMode = newMode;
-    target.classList.remove(`dos100-special-rule-cycle--${current}`);
-    target.classList.add(`dos100-special-rule-cycle--${newMode}`);
-    target.textContent = game.i18n.localize(`DOS100.item.specialRulesDialog.mode.${newMode}`);
+  override _onRender(_context: Record<string, unknown>, _options: Record<string, unknown>): void {
+    for (const li of Array.from(this.element.querySelectorAll<HTMLElement>("[data-rule-id-row]"))) {
+      const id = li.dataset.ruleIdRow as SpecialRuleId;
+      const modeSelect = li.querySelector<HTMLSelectElement>(`select[name="mode-${id}"]`);
+      const formulaInput = li.querySelector<HTMLInputElement>("input");
+      if (modeSelect === null || modeSelect === undefined) continue;
 
-    const row = target.closest<HTMLElement>("[data-rule-id-row]");
-    const formulaInput = row?.querySelector<HTMLInputElement>("input");
-    if (formulaInput !== null && formulaInput !== undefined) {
-      const enabled = newMode === "override" && (SPECIAL_RULES[id]?.hasValue ?? false);
-      formulaInput.disabled = !enabled;
-      if (!enabled) formulaInput.value = "";
+      const override = this.#current[id];
+      const initialMode: "inherit" | "disabled" | "override" =
+        override === undefined         ? "inherit"
+        : override.mode === "disabled" ? "disabled"
+        :                                "override";
+      modeSelect.value = initialMode;
+
+      if (formulaInput === null || formulaInput === undefined) continue;
+      modeSelect.addEventListener("change", () => {
+        const enabled = modeSelect.value === "override" && (SPECIAL_RULES[id]?.hasValue ?? false);
+        formulaInput.disabled = !enabled;
+        if (!enabled) formulaInput.value = "";
+      });
     }
   }
 
@@ -89,16 +89,37 @@ export class SpecialRulesDialog extends HandlebarsApplicationMixin(foundry.appli
     const rows: Array<{ id: SpecialRuleId; mode: "inherit" | "disabled" | "override"; formula?: string }> = [];
     for (const li of Array.from(this.element.querySelectorAll<HTMLElement>("[data-rule-id-row]"))) {
       const id = li.dataset.ruleIdRow as SpecialRuleId;
-      const btn = li.querySelector<HTMLElement>("[data-current-mode]");
-      const mode = btn?.dataset.currentMode as "inherit" | "disabled" | "override" | undefined;
-      if (mode === undefined) continue;
+      const modeSelect = li.querySelector<HTMLSelectElement>("select");
+      const mode = (modeSelect?.value ?? "inherit") as "inherit" | "disabled" | "override";
       const formulaInput = li.querySelector<HTMLInputElement>("input");
       rows.push({ id, mode, formula: formulaInput?.value });
     }
     const result = normalizeSpecialRules(rows);
-    await this.#item.update({
-      [`system.actions.items.${this.#actionId}.specialRules`]: result,
-    });
+
+    // Foundry's _diffObject processes deletion before set operations. Combining
+    // a whole-subtree delete with per-key sets on the same path causes the
+    // deletion to win when no values actually changed (empty diff overwrites
+    // nothing, so ForcedDeletion stays). Fix: delete only the stale keys
+    // individually, and set only the live ones. Each key is either deleted OR
+    // set — never both in the same update.
+    const system = this.#item.system as { actions: Actions };
+    const liveRules: ActionSpecialRules = system.actions.items[this.#actionId].specialRules ?? {};
+    const base = `system.actions.items.${this.#actionId}.specialRules`;
+    const update: Record<string, unknown> = {};
+
+    for (const id of Object.keys(liveRules) as SpecialRuleId[]) {
+      if (result[id] === undefined) {
+        update[`${base}.${id}`] = new ForcedDeletion();
+      }
+    }
+    for (const [id, override] of Object.entries(result) as [SpecialRuleId, SpecialRuleOverride][]) {
+      update[`${base}.${id}.mode`] = override.mode;
+      if (override.mode === "override" && "formula" in override) {
+        update[`${base}.${id}.formula`] = override.formula;
+      }
+    }
+
+    await this.#item.update(update);
     await this.close();
   }
 }

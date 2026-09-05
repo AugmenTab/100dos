@@ -907,7 +907,7 @@
         }
       },
       "specialRules": {
-        "label": "Special Rules",
+        "label": "Special Rules Override",
         "edit": "Edit Special Rules",
         "acid": "Acid",
         "airburst": "Airburst",
