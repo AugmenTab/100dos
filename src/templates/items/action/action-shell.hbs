@@ -362,6 +362,44 @@
           </ul>
         {{/if}}
       </div>
+
+      <div class="dos100-opposed-tests-section">
+        <hr />
+
+        <h4 class="pc-section-heading">
+          {{localize "DOS100.action.opposedTest.label"}}
+          <button
+            type="button"
+            class="icon-button"
+            data-action="addOpposedTest"
+            aria-label="{{localize 'DOS100.action.opposedTest.add'}}"
+          ><i class="fa-solid fa-plus" inert></i></button>
+        </h4>
+
+        {{#if opposedTestRows.length}}
+          <table class="dense-table">
+            <tbody class="dos100-opposed-tests-body">
+              {{#each opposedTestRows}}
+                <tr data-index="{{index}}" draggable="true">
+                  <td><i class="fa-solid fa-grip-lines"></i></td>
+                  <td class="dense-table-flexible">{{label}}</td>
+                  <td>
+                    <button type="button" class="icon-button" data-action="editOpposedTest" data-index="{{index}}"
+                      aria-label="{{localize 'DOS100.action.opposedTest.edit'}}">
+                      <i class="fa-solid fa-pen-to-square" inert></i>
+                    </button>
+                    <button type="button" class="icon-button" data-action="deleteOpposedTest" data-index="{{index}}"
+                      aria-label="{{localize 'DOS100.action.opposedTest.delete'}}">
+                      <i class="fa-solid fa-trash" inert></i>
+                    </button>
+                  </td>
+                </tr>
+              {{/each}}
+            </tbody>
+          </table>
+        {{/if}}
+
+      </div>
     </section>
 
     <section

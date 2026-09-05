@@ -1,0 +1,52 @@
+<form>
+  <div class="dos100-form-group">
+    <label for="opposed-test-type">{{localize "DOS100.action.opposedTest.type"}}</label>
+    <select name="type" id="opposed-test-type">
+      <option value="characteristic" {{#if (eq currentType "characteristic")}}selected{{/if}}>
+        {{localize "DOS100.action.opposedTest.typeCharacteristic"}}
+      </option>
+      <option value="skill" {{#if (eq currentType "skill")}}selected{{/if}}>
+        {{localize "DOS100.action.opposedTest.typeSkill"}}
+      </option>
+    </select>
+  </div>
+
+  <div data-type-section="characteristic">
+    <div class="dos100-form-group">
+      <label for="opposed-test-characteristic">{{localize "DOS100.action.opposedTest.characteristic"}}</label>
+      <select name="characteristic" id="opposed-test-characteristic">
+        {{#each characteristicOptions}}
+          <option value="{{value}}" {{#if selected}}selected{{/if}}>{{localize label}}</option>
+        {{/each}}
+      </select>
+    </div>
+  </div>
+
+  <div data-type-section="skill">
+    <div class="dos100-form-group">
+      <label for="opposed-test-skill-name">{{localize "DOS100.action.opposedTest.skillName"}}</label>
+      <input type="text" name="skillName" id="opposed-test-skill-name" value="{{skillName}}" />
+    </div>
+
+    <div class="dos100-form-group">
+      <label for="opposed-test-skill-identifier">{{localize "DOS100.action.opposedTest.skillIdentifier"}}</label>
+      <input type="text" name="skillIdentifier" id="opposed-test-skill-identifier" value="{{skillIdentifier}}" />
+    </div>
+
+    <div class="dos100-form-group">
+      <span>{{localize "DOS100.action.opposedTest.skillCharacteristics"}}</span>
+      <div class="dos100-characteristic-checkbox-grid">
+        {{#each characteristicCheckboxes}}
+          <label>
+            <input type="checkbox" name="skillCharacteristics" value="{{value}}" {{#if checked}}checked{{/if}} />
+            {{abbr}}
+          </label>
+        {{/each}}
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    <button type="button" data-action="saveAndClose">{{localize "DOS100.action.opposedTest.dialog.save"}}</button>
+  </footer>
+</form>

@@ -1,8 +1,9 @@
 import { type Dos100Item } from "../../documents/item.js";
 import { ACTION_TYPES, ATTACK_ACTION_TYPES, ATTACK_CHARACTERISTIC_DEFAULTS, ACTIVATION_TYPES, COST_HIDDEN_TYPES, DAMAGE_DICE, DAMAGE_TYPE_TAGS, DURATION_TYPES, DURATION_VALUE_TYPES, HELD_TYPES, RANGE_TYPES, RANGE_VALUE_TYPES, SPECIAL_RULES, USAGE_PERIODS, type ActionAttack, type ActionDamage, type ActionDurationType, type ActionRangeType, type ActionSpecialRules, type ActionType, type Actions, type ActivationType, type DamageDie, type SpecialRuleId, type SpecialRuleOverride } from "../../items/action.js";
 import { CHARACTERISTIC_IDS } from "../../characteristic.js";
-import { buildActionUpdates } from "./action-updates.js";
+import { buildActionUpdates, buildOpposedTestRows, deleteOpposedTestOption, reorderOpposedTestOptions } from "./action-updates.js";
 import { DamageTypeDialog } from "./damage-type-dialog.js";
+import { OpposedTestDialog } from "./opposed-test-dialog.js";
 import { SpecialRulesDialog } from "./special-rules-dialog.js";
 
 const { HandlebarsApplicationMixin } = foundry.applications.api;
@@ -11,6 +12,7 @@ export class ActionSheet extends HandlebarsApplicationMixin(foundry.applications
   #item: Dos100Item;
   #actionId: string;
   #updateHookId: number | undefined;
+  #tabPanelsScrollTop: number = 0;
 
   static override DEFAULT_OPTIONS = {
     classes: ["dos100", "sheet", "action-sheet"],
@@ -25,6 +27,9 @@ export class ActionSheet extends HandlebarsApplicationMixin(foundry.applications
       editDamageTypes: ActionSheet.prototype._onEditDamageTypes,
       editSpecialRules: ActionSheet.prototype._onEditSpecialRules,
       editImage: ActionSheet.prototype._onEditImage,
+      addOpposedTest: ActionSheet.prototype._onAddOpposedTest,
+      editOpposedTest: ActionSheet.prototype._onEditOpposedTest,
+      deleteOpposedTest: ActionSheet.prototype._onDeleteOpposedTest,
     },
   };
 
@@ -41,7 +46,7 @@ export class ActionSheet extends HandlebarsApplicationMixin(foundry.applications
   };
 
   static override PARTS = {
-    form: { template: "systems/100dos/templates/items/action/action-shell.hbs", scrollable: [".tab.active"] },
+    form: { template: "systems/100dos/templates/items/action/action-shell.hbs", scrollable: [".dos100-action-tab-panels"] },
   };
 
   constructor(item: Dos100Item, actionId: string, options?: Partial<Record<string, unknown>>) {
@@ -126,6 +131,11 @@ export class ActionSheet extends HandlebarsApplicationMixin(foundry.applications
     }));
     const damageTypeLabel = damageData.types.map(t => DAMAGE_TYPE_TAGS[t]).join(" ");
 
+    const opposedTestRows = buildOpposedTestRows(
+      action.opposedTestOptions ?? [],
+      (key: string) => game.i18n.localize(key),
+    );
+
     const specialRulesMap: ActionSpecialRules = action.specialRules ?? {};
     const specialRulePills = (Object.entries(specialRulesMap) as [SpecialRuleId, SpecialRuleOverride][]).map(([id, override]) => {
       const entry = SPECIAL_RULES[id];
@@ -160,15 +170,25 @@ export class ActionSheet extends HandlebarsApplicationMixin(foundry.applications
       diceTypes,
       damageTypeLabel,
       specialRulePills,
+      opposedTestRows,
     };
   }
 
   override _onRender(context: Record<string, unknown>, options: Record<string, unknown>): void {
     super._onRender(context, options);
 
+    const savedScrollTop = this.#tabPanelsScrollTop;
+    requestAnimationFrame(() => {
+      const panels = this.element?.querySelector<HTMLElement>(".dos100-action-tab-panels");
+      if (panels !== null && panels !== undefined) panels.scrollTop = savedScrollTop;
+    });
+
     if (this.#updateHookId !== undefined) Hooks.off("updateItem", this.#updateHookId);
     this.#updateHookId = Hooks.on("updateItem", (doc: unknown) => {
-      if ((doc as { id: string }).id === this.#item.id) void this.render(true);
+      if ((doc as { id: string }).id !== this.#item.id) return;
+      const panels = this.element?.querySelector<HTMLElement>(".dos100-action-tab-panels");
+      this.#tabPanelsScrollTop = panels?.scrollTop ?? 0;
+      void this.render(true);
     });
 
     const activationSelect = this.element.querySelector<HTMLSelectElement>('[name="activation.type"]');
@@ -285,6 +305,26 @@ export class ActionSheet extends HandlebarsApplicationMixin(foundry.applications
       });
     }
 
+    // TODO: When Skill Stamp Items exist, dropping one onto the Opposed Tests section
+    // should create a Skill Opposed Test option and append it to opposedTestOptions.
+    let dragIndex: number | null = null;
+    for (const row of Array.from(this.element.querySelectorAll<HTMLElement>(".dos100-opposed-tests-body tr[data-index]"))) {
+      row.addEventListener("dragstart", () => { dragIndex = Number(row.dataset.index); });
+      row.addEventListener("dragover", (e) => e.preventDefault());
+      row.addEventListener("drop", () => {
+        const targetIndex = Number(row.dataset.index);
+        if (dragIndex === null || dragIndex === targetIndex) { dragIndex = null; return; }
+        const system = this.#item.system as { actions: Actions };
+        const reordered = reorderOpposedTestOptions(
+          system.actions.items[this.#actionId].opposedTestOptions ?? [],
+          dragIndex,
+          targetIndex,
+        );
+        dragIndex = null;
+        void this.#item.update({ [`system.actions.items.${this.#actionId}.opposedTestOptions`]: reordered });
+      });
+    }
+
     const updateSlider = (slider: HTMLInputElement): void => {
       const value = Number(slider.value);
       const min = Number(slider.min);
@@ -367,6 +407,30 @@ export class ActionSheet extends HandlebarsApplicationMixin(foundry.applications
     const current: ActionSpecialRules = { ...(action.specialRules ?? {}) };
     const dialog = new SpecialRulesDialog(this.#item, this.#actionId, current);
     await dialog.render(true);
+  }
+
+  protected async _onAddOpposedTest(_event: PointerEvent, _target: HTMLElement): Promise<void> {
+    const dialog = new OpposedTestDialog(this.#item, this.#actionId, null, null);
+    await dialog.render(true);
+  }
+
+  protected async _onEditOpposedTest(_event: PointerEvent, target: HTMLElement): Promise<void> {
+    const index = Number(target.dataset.index);
+    const system = this.#item.system as { actions: Actions };
+    const option = (system.actions.items[this.#actionId].opposedTestOptions ?? [])[index];
+    if (option === undefined) return;
+    const dialog = new OpposedTestDialog(this.#item, this.#actionId, index, option);
+    await dialog.render(true);
+  }
+
+  protected async _onDeleteOpposedTest(_event: PointerEvent, target: HTMLElement): Promise<void> {
+    const index = Number(target.dataset.index);
+    const system = this.#item.system as { actions: Actions };
+    const updated = deleteOpposedTestOption(
+      system.actions.items[this.#actionId].opposedTestOptions ?? [],
+      index,
+    );
+    await this.#item.update({ [`system.actions.items.${this.#actionId}.opposedTestOptions`]: updated });
   }
 
   protected async _onSubmitForm(

@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { buildActionUpdates } from "./action-updates.js";
+import { buildActionUpdates, buildOpposedTestRows, deleteOpposedTestOption, reorderOpposedTestOptions } from "./action-updates.js";
+import { CHARACTERISTIC_IDS } from "../../characteristic.js";
 
 const ACTION_ID = "abc123";
 
@@ -233,5 +234,153 @@ describe("buildActionUpdates", () => {
     expect(updates[`system.actions.items.${ACTION_ID}.damage.pierce`]).toBe("12");
     expect(updates[`system.actions.items.${ACTION_ID}.damage.types`]).toEqual(["universal"]);
     expect(updates[`system.actions.items.${ACTION_ID}.identifier`]).toBe("myAttack");
+  });
+
+  it("persists specialDamageBonus as a formula string", () => {
+    const updates = buildActionUpdates(ACTION_ID, { "damage.specialDamageBonus": "2D10" });
+    expect(updates[`system.actions.items.${ACTION_ID}.damage.specialDamageBonus`]).toBe("2D10");
+  });
+
+  it("persists empty specialDamageBonus", () => {
+    const updates = buildActionUpdates(ACTION_ID, { "damage.specialDamageBonus": "" });
+    expect(updates[`system.actions.items.${ACTION_ID}.damage.specialDamageBonus`]).toBe("");
+  });
+
+  it("persists specialDamageBonus with characteristic reference", () => {
+    const formula = "3D10 + @characteristics.str.mod";
+    const updates = buildActionUpdates(ACTION_ID, { "damage.specialDamageBonus": formula });
+    expect(updates[`system.actions.items.${ACTION_ID}.damage.specialDamageBonus`]).toBe(formula);
+  });
+});
+
+describe("CHARACTERISTIC_IDS", () => {
+  it("exposes all ten characteristics", () => {
+    expect(CHARACTERISTIC_IDS).toHaveLength(10);
+  });
+});
+
+describe("buildOpposedTestRows", () => {
+  const localize = (key: string): string => key;
+
+  it("returns an empty array when options is empty", () => {
+    expect(buildOpposedTestRows([], localize)).toEqual([]);
+  });
+
+  it("formats characteristic rows with the characteristic i18n key", () => {
+    const rows = buildOpposedTestRows([{ type: "characteristic", characteristic: "crg" }], localize);
+    expect(rows).toHaveLength(1);
+    expect(rows[0]!.index).toBe(0);
+    expect(rows[0]!.label).toContain("DOS100.characteristic.crg.full");
+    expect(rows[0]!.label).toMatch(/^DOS100\.action\.opposedTest\.characteristicPrefix:/);
+  });
+
+  it("formats skill rows with uppercase characteristic abbreviations", () => {
+    const rows = buildOpposedTestRows(
+      [{ type: "skill", name: "Interrogation", identifier: "interrogation", characteristics: ["crg", "cha"] }],
+      localize,
+    );
+    expect(rows[0]!.label).toContain("Interrogation (CRG, CHA)");
+  });
+
+  it("formats skill rows with the skill prefix key", () => {
+    const rows = buildOpposedTestRows(
+      [{ type: "skill", name: "Deception", identifier: "deception", characteristics: ["cha"] }],
+      localize,
+    );
+    expect(rows[0]!.label).toMatch(/^DOS100\.action\.opposedTest\.skillPrefix:/);
+  });
+
+  it("assigns sequential indexes matching position in the array", () => {
+    const rows = buildOpposedTestRows(
+      [
+        { type: "characteristic", characteristic: "str" },
+        { type: "skill", name: "Stealth", identifier: "stealth", characteristics: ["agi"] },
+      ],
+      localize,
+    );
+    expect(rows[0]!.index).toBe(0);
+    expect(rows[1]!.index).toBe(1);
+  });
+
+  it("formats a skill row with a single characteristic without a trailing separator", () => {
+    const rows = buildOpposedTestRows(
+      [{ type: "skill", name: "Deception", identifier: "deception", characteristics: ["cha"] }],
+      localize,
+    );
+    expect(rows[0]!.label).toContain("(CHA)");
+    expect(rows[0]!.label).not.toContain(",");
+  });
+});
+
+describe("deleteOpposedTestOption", () => {
+  it("removes the option at the given index", () => {
+    const options = [
+      { type: "characteristic" as const, characteristic: "str" as const },
+      { type: "characteristic" as const, characteristic: "tou" as const },
+      { type: "characteristic" as const, characteristic: "agi" as const },
+    ];
+    const result = deleteOpposedTestOption(options, 1);
+    expect(result).toHaveLength(2);
+    expect(result[0]).toMatchObject({ characteristic: "str" });
+    expect(result[1]).toMatchObject({ characteristic: "agi" });
+  });
+
+  it("does not mutate the original array", () => {
+    const options = [{ type: "characteristic" as const, characteristic: "str" as const }];
+    deleteOpposedTestOption(options, 0);
+    expect(options).toHaveLength(1);
+  });
+
+  it("removes the first option", () => {
+    const options = [
+      { type: "characteristic" as const, characteristic: "str" as const },
+      { type: "characteristic" as const, characteristic: "tou" as const },
+    ];
+    const result = deleteOpposedTestOption(options, 0);
+    expect(result).toHaveLength(1);
+    expect(result[0]).toMatchObject({ characteristic: "tou" });
+  });
+
+  it("removes the last option", () => {
+    const options = [
+      { type: "characteristic" as const, characteristic: "str" as const },
+      { type: "characteristic" as const, characteristic: "tou" as const },
+    ];
+    const result = deleteOpposedTestOption(options, 1);
+    expect(result).toHaveLength(1);
+    expect(result[0]).toMatchObject({ characteristic: "str" });
+  });
+});
+
+describe("reorderOpposedTestOptions", () => {
+  const a = { type: "characteristic" as const, characteristic: "str" as const };
+  const b = { type: "characteristic" as const, characteristic: "tou" as const };
+  const c = { type: "characteristic" as const, characteristic: "agi" as const };
+
+  const chars = (opts: ReturnType<typeof reorderOpposedTestOptions>): string[] =>
+    opts.map(o => (o.type === "characteristic" ? o.characteristic : ""));
+
+  it("moves an option forward in the array", () => {
+    expect(chars(reorderOpposedTestOptions([a, b, c], 0, 2))).toEqual(["tou", "agi", "str"]);
+  });
+
+  it("moves an option backward in the array", () => {
+    expect(chars(reorderOpposedTestOptions([a, b, c], 2, 0))).toEqual(["agi", "str", "tou"]);
+  });
+
+  it("preserves the full array when moving to an adjacent position", () => {
+    expect(chars(reorderOpposedTestOptions([a, b, c], 1, 2))).toEqual(["str", "agi", "tou"]);
+  });
+
+  it("does not mutate the original array", () => {
+    const options = [a, b, c];
+    reorderOpposedTestOptions(options, 0, 2);
+    expect(chars(options)).toEqual(["str", "tou", "agi"]);
+  });
+
+  it("preserves all elements after reordering", () => {
+    const result = reorderOpposedTestOptions([a, b, c], 0, 1);
+    expect(result).toHaveLength(3);
+    expect(chars(result).sort()).toEqual(["agi", "str", "tou"]);
   });
 });

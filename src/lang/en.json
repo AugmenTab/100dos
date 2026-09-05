@@ -123,6 +123,11 @@
           "override": "Override"
         }
       },
+      "opposedTestDialog": {
+        "addTitle": "Add Opposed Test",
+        "editTitle": "Edit Opposed Test",
+        "save": "Save"
+      },
       "changeEditor": {
         "title": {
           "addChange": "Add Change",
@@ -935,6 +940,26 @@
         "stun": "Stun",
         "tranquilize": "Tranquilize",
         "vehicleLock": "Vehicle Lock"
+      },
+      "opposedTest": {
+        "label": "Opposed Tests",
+        "add": "Add Opposed Test",
+        "edit": "Edit Opposed Test",
+        "delete": "Delete Opposed Test",
+        "type": "Type",
+        "typeCharacteristic": "Characteristic",
+        "typeSkill": "Skill",
+        "characteristic": "Characteristic",
+        "skillName": "Name",
+        "skillIdentifier": "Identifier",
+        "skillCharacteristics": "Characteristics",
+        "characteristicPrefix": "Characteristic",
+        "skillPrefix": "Skill",
+        "dialog": {
+          "addTitle": "Add Opposed Test",
+          "editTitle": "Edit Opposed Test",
+          "save": "Save"
+        }
       }
     }
   }

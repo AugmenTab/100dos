@@ -160,6 +160,10 @@ export function normalizeSpecialRules(
   return result;
 }
 
+export type OpposedTestOption =
+  | { type: "characteristic"; characteristic: CharacteristicId }
+  | { type: "skill"; name: string; identifier: string; characteristics: CharacteristicId[] };
+
 export type AttackHeld = "default" | "oneHanded" | "twoHanded";
 
 export type ActionAttack = {
@@ -281,6 +285,7 @@ export type ActionData = {
   attack?: ActionAttack;
   damage?: ActionDamage;
   specialRules?: ActionSpecialRules;
+  opposedTestOptions: OpposedTestOption[];
 };
 
 export type ActionNotes = {
