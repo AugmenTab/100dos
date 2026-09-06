@@ -184,10 +184,10 @@ export class ActionSheet extends HandlebarsApplicationMixin(foundry.applications
     });
 
     if (this.#updateHookId !== undefined) Hooks.off("updateItem", this.#updateHookId);
-    this.#updateHookId = Hooks.on("updateItem", (doc: unknown) => {
+    this.#updateHookId = Hooks.on("updateItem", (doc: unknown, _changes: unknown, options: unknown) => {
       if ((doc as { id: string }).id !== this.#item.id) return;
-      const panels = this.element?.querySelector<HTMLElement>(".dos100-action-tab-panels");
-      this.#tabPanelsScrollTop = panels?.scrollTop ?? 0;
+      if ((options as { render?: boolean }).render === false) return;
+      this.#tabPanelsScrollTop = this.element?.querySelector<HTMLElement>(".dos100-action-tab-panels")?.scrollTop ?? 0;
       void this.render(true);
     });
 
@@ -321,7 +321,8 @@ export class ActionSheet extends HandlebarsApplicationMixin(foundry.applications
           targetIndex,
         );
         dragIndex = null;
-        void this.#item.update({ [`system.actions.items.${this.#actionId}.opposedTestOptions`]: reordered });
+        this.#saveScrollTop();
+        void this.#item.update({ [`system.actions.items.${this.#actionId}.opposedTestOptions`]: reordered }, { render: false }).then(() => this.render());
       });
     }
 
@@ -344,7 +345,7 @@ export class ActionSheet extends HandlebarsApplicationMixin(foundry.applications
     const actionForm = this.element.querySelector<HTMLFormElement>("form");
     if (actionForm !== null) {
       actionForm.addEventListener("change", async (event: Event) => {
-        const fd = new FormDataExtended(actionForm);
+        const fd = new foundry.applications.ux.FormDataExtended(actionForm);
         await this._onSubmitForm(event, actionForm, fd);
       });
     }
@@ -352,33 +353,43 @@ export class ActionSheet extends HandlebarsApplicationMixin(foundry.applications
 
   override async close(options?: Record<string, unknown>): Promise<this> {
     if (this.#updateHookId !== undefined) Hooks.off("updateItem", this.#updateHookId);
+    this.#item.sheet?.render();
+    this.#item.actor?.sheet?.render();
     return super.close(options);
   }
 
   protected async _onAddActionEffectNote(_event: PointerEvent, _target: HTMLElement): Promise<void> {
     const system = this.#item.system as { actions: Actions };
     const notes = system.actions.items[this.#actionId].notes?.effectNotes ?? [];
-    await this.#item.update({ [`system.actions.items.${this.#actionId}.notes.effectNotes`]: [...notes, ""] });
+    this.#saveScrollTop();
+    await this.#item.update({ [`system.actions.items.${this.#actionId}.notes.effectNotes`]: [...notes, ""] }, { render: false });
+    await this.render();
   }
 
   protected async _onDeleteActionEffectNote(_event: PointerEvent, target: HTMLElement): Promise<void> {
     const system = this.#item.system as { actions: Actions };
     const notes = system.actions.items[this.#actionId].notes?.effectNotes ?? [];
     const index = Number(target.dataset.identifier);
-    await this.#item.update({ [`system.actions.items.${this.#actionId}.notes.effectNotes`]: notes.filter((_: string, i: number) => i !== index) });
+    this.#saveScrollTop();
+    await this.#item.update({ [`system.actions.items.${this.#actionId}.notes.effectNotes`]: notes.filter((_: string, i: number) => i !== index) }, { render: false });
+    await this.render();
   }
 
   protected async _onAddActionFootnote(_event: PointerEvent, _target: HTMLElement): Promise<void> {
     const system = this.#item.system as { actions: Actions };
     const notes = system.actions.items[this.#actionId].notes?.footnotes ?? [];
-    await this.#item.update({ [`system.actions.items.${this.#actionId}.notes.footnotes`]: [...notes, ""] });
+    this.#saveScrollTop();
+    await this.#item.update({ [`system.actions.items.${this.#actionId}.notes.footnotes`]: [...notes, ""] }, { render: false });
+    await this.render();
   }
 
   protected async _onDeleteActionFootnote(_event: PointerEvent, target: HTMLElement): Promise<void> {
     const system = this.#item.system as { actions: Actions };
     const notes = system.actions.items[this.#actionId].notes?.footnotes ?? [];
     const index = Number(target.dataset.identifier);
-    await this.#item.update({ [`system.actions.items.${this.#actionId}.notes.footnotes`]: notes.filter((_: string, i: number) => i !== index) });
+    this.#saveScrollTop();
+    await this.#item.update({ [`system.actions.items.${this.#actionId}.notes.footnotes`]: notes.filter((_: string, i: number) => i !== index) }, { render: false });
+    await this.render();
   }
 
   protected _onEditImage(_event: PointerEvent, target: HTMLElement): void {
@@ -387,7 +398,8 @@ export class ActionSheet extends HandlebarsApplicationMixin(foundry.applications
       type: "image",
       current,
       callback: (path: string) => {
-        void this.#item.update({ [`system.actions.items.${this.#actionId}.img`]: path });
+        this.#saveScrollTop();
+        void this.#item.update({ [`system.actions.items.${this.#actionId}.img`]: path }, { render: false }).then(() => this.render());
       },
     });
     void fp.browse();
@@ -430,7 +442,9 @@ export class ActionSheet extends HandlebarsApplicationMixin(foundry.applications
       system.actions.items[this.#actionId].opposedTestOptions ?? [],
       index,
     );
-    await this.#item.update({ [`system.actions.items.${this.#actionId}.opposedTestOptions`]: updated });
+    this.#saveScrollTop();
+    await this.#item.update({ [`system.actions.items.${this.#actionId}.opposedTestOptions`]: updated }, { render: false });
+    await this.render();
   }
 
   protected async _onSubmitForm(
@@ -438,6 +452,10 @@ export class ActionSheet extends HandlebarsApplicationMixin(foundry.applications
     _form: HTMLFormElement,
     formData: { object: Record<string, unknown> },
   ): Promise<void> {
-    await this.#item.update(buildActionUpdates(this.#actionId, formData.object));
+    await this.#item.update(buildActionUpdates(this.#actionId, formData.object), { render: false });
+  }
+
+  #saveScrollTop(): void {
+    this.#tabPanelsScrollTop = this.element?.querySelector<HTMLElement>(".dos100-action-tab-panels")?.scrollTop ?? 0;
   }
 }

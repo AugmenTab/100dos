@@ -27,9 +27,6 @@ interface SettingConfig {
   default: unknown;
 }
 
-declare class FormDataExtended extends FormData {
-  object: Record<string, unknown>;
-}
 
 declare class FilePicker {
   constructor(options: {
@@ -126,7 +123,8 @@ declare class Actor {
   createEmbeddedDocuments(type: string, data: object[]): Promise<Item[]>;
   updateEmbeddedDocuments(type: string, data: object[]): Promise<Item[]>;
   deleteEmbeddedDocuments(type: string, ids: string[]): Promise<Item[]>;
-  update(data: Record<string, unknown>): Promise<unknown>;
+  readonly sheet: { render(force?: boolean): unknown } | null;
+  update(data: Record<string, unknown>, options?: { render?: boolean }): Promise<unknown>;
   toggleStatusEffect(statusId: string, options?: { active?: boolean }): Promise<unknown>;
 }
 
@@ -142,7 +140,7 @@ declare class Item {
   prepareData(): void;
   prepareBaseData(): void;
   prepareDerivedData(): void;
-  update(data: Record<string, unknown>): Promise<unknown>;
+  update(data: Record<string, unknown>, options?: { render?: boolean }): Promise<unknown>;
   delete(): Promise<this>;
   toObject(): Record<string, unknown>;
   getFlag(scope: string, key: string): unknown;
@@ -189,6 +187,9 @@ declare namespace foundry {
     }
   }
   namespace data {
+    namespace operators {
+      class ForcedDeletion {}
+    }
     namespace fields {
       class DataField {}
       class NumberField extends DataField {
@@ -261,6 +262,11 @@ declare namespace foundry {
     }
   }
   namespace applications {
+    namespace ux {
+      class FormDataExtended extends FormData {
+        object: Record<string, unknown>;
+      }
+    }
     namespace api {
       class ApplicationV2 {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any

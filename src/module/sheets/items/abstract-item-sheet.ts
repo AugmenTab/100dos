@@ -174,7 +174,7 @@ export abstract class AbstractItemSheet extends HandlebarsApplicationMixin(ItemS
     const item = this.item as Dos100Item;
     const id = target.dataset.identifier;
     if (!id) return;
-    await item.update({ [`system.actions.items.-=${id}`]: null });
+    await item.update({ [`system.actions.items`]: { [id]: new foundry.data.operators.ForcedDeletion() } });
   }
 
   protected async _onAddChange(_event: PointerEvent, _target: HTMLElement): Promise<void> {
