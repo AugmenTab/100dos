@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { readFileSync } from "fs";
 import { buildActionUpdates, buildOpposedTestRows, deleteOpposedTestOption, reorderOpposedTestOptions } from "./action-updates.js";
 import { CHARACTERISTIC_IDS } from "../../characteristic.js";
 import { type OpposedTest } from "../../items/action.js";
@@ -404,5 +405,18 @@ describe("reorderOpposedTestOptions", () => {
     const result = reorderOpposedTestOptions([a, b, c], 0, 1);
     expect(result).toHaveLength(3);
     expect(chars(result).sort()).toEqual(["agi", "str", "tou"]);
+  });
+});
+
+describe("ActionSheet Miscellaneous tab", () => {
+  const source = readFileSync(new URL("./action-sheet.ts", import.meta.url), "utf8");
+
+  it("contains a TODO noting Miscellaneous is planned post-MVP", () => {
+    expect(source).toMatch(/TODO:.*Reintroduce.*Miscellaneous.*post-MVP/s);
+  });
+
+  it("TODO mentions sound effects and measured-template configuration", () => {
+    expect(source).toMatch(/sound effects/);
+    expect(source).toMatch(/measured-template/);
   });
 });

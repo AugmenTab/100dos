@@ -43,7 +43,9 @@ export class ActionSheet extends HandlebarsApplicationMixin(foundry.applications
         { id: "description", label: "DOS100.item.actionSheet.tabs.description" },
         { id: "usage", label: "DOS100.item.actionSheet.tabs.usage" },
         { id: "action", label: "DOS100.item.actionSheet.tabs.action" },
-        { id: "miscellaneous", label: "DOS100.item.actionSheet.tabs.miscellaneous" },
+        // TODO: Reintroduce the Action Miscellaneous tab post-MVP.
+        // Planned features include optional Action sound effects and
+        // measured-template configuration for area-of-effect placement.
       ],
     },
   };
