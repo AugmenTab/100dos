@@ -1,5 +1,5 @@
 import { type Dos100Item } from "../../documents/item.js";
-import { ACTION_TYPES, ATTACK_ACTION_TYPES, ATTACK_CHARACTERISTIC_DEFAULTS, ACTIVATION_TYPES, COST_HIDDEN_TYPES, DAMAGE_DICE, DAMAGE_TYPE_TAGS, DURATION_TYPES, DURATION_VALUE_TYPES, HELD_TYPES, RANGE_TYPES, RANGE_VALUE_TYPES, SPECIAL_RULES, USAGE_PERIODS, type ActionAttack, type ActionDamage, type ActionDurationType, type ActionRangeType, type ActionSpecialRules, type ActionType, type Actions, type ActivationType, type DamageDie, type SpecialRuleId, type SpecialRuleOverride } from "../../items/action.js";
+import { ACTION_TYPES, ATTACK_ACTION_TYPES, ATTACK_CHARACTERISTIC_DEFAULTS, ACTIVATION_TYPES, COST_HIDDEN_TYPES, DAMAGE_DICE, DAMAGE_TYPE_TAGS, DURATION_TYPES, DURATION_VALUE_TYPES, HELD_TYPES, RANGE_TYPES, RANGE_VALUE_TYPES, SPECIAL_RULES, USAGE_PERIODS, type ActionAttack, type ActionDamage, type ActionDurationType, type ActionRangeType, type ActionSpecialRules, type ActionType, type Actions, type ActivationType, type DamageDie, type ItemRef, type SpecialRuleId, type SpecialRuleOverride } from "../../items/action.js";
 import { CHARACTERISTIC_IDS } from "../../characteristic.js";
 import { buildActionUpdates, buildOpposedTestRows, deleteOpposedTestOption, reorderOpposedTestOptions } from "./action-updates.js";
 import { DamageTypeDialog } from "./damage-type-dialog.js";
@@ -30,6 +30,9 @@ export class ActionSheet extends HandlebarsApplicationMixin(foundry.applications
       addOpposedTest: ActionSheet.prototype._onAddOpposedTest,
       editOpposedTest: ActionSheet.prototype._onEditOpposedTest,
       deleteOpposedTest: ActionSheet.prototype._onDeleteOpposedTest,
+      createOpposedTestEffect: ActionSheet.prototype._onCreateOpposedTestEffect,
+      editOpposedTestEffect: ActionSheet.prototype._onEditOpposedTestEffect,
+      deleteOpposedTestEffect: ActionSheet.prototype._onDeleteOpposedTestEffect,
     },
   };
 
@@ -132,9 +135,10 @@ export class ActionSheet extends HandlebarsApplicationMixin(foundry.applications
     const damageTypeLabel = damageData.types.map(t => DAMAGE_TYPE_TAGS[t]).join(" ");
 
     const opposedTestRows = buildOpposedTestRows(
-      action.opposedTestOptions ?? [],
+      action.opposedTest?.options ?? [],
       (key: string) => game.i18n.localize(key),
     );
+    const targetFailureEffect = action.opposedTest?.targetFailureEffect ?? null;
 
     const specialRulesMap: ActionSpecialRules = action.specialRules ?? {};
     const specialRulePills = (Object.entries(specialRulesMap) as [SpecialRuleId, SpecialRuleOverride][]).map(([id, override]) => {
@@ -151,6 +155,8 @@ export class ActionSheet extends HandlebarsApplicationMixin(foundry.applications
       }
       return { label: `+ ${displayName}`, variant: "neutral", tooltip: null as string | null };
     });
+
+    const canCreateEffect = opposedTestRows.length > 0 && targetFailureEffect === null;
 
     return {
       ...await super._prepareContext(options),
@@ -171,6 +177,8 @@ export class ActionSheet extends HandlebarsApplicationMixin(foundry.applications
       damageTypeLabel,
       specialRulePills,
       opposedTestRows,
+      targetFailureEffect,
+      canCreateEffect,
     };
   }
 
@@ -306,7 +314,7 @@ export class ActionSheet extends HandlebarsApplicationMixin(foundry.applications
     }
 
     // TODO: When Skill Stamp Items exist, dropping one onto the Opposed Tests section
-    // should create a Skill Opposed Test option and append it to opposedTestOptions.
+    // should create a Skill Opposed Test option and append it to opposedTest.options.
     let dragIndex: number | null = null;
     for (const row of Array.from(this.element.querySelectorAll<HTMLElement>(".dos100-opposed-tests-body tr[data-index]"))) {
       row.addEventListener("dragstart", () => { dragIndex = Number(row.dataset.index); });
@@ -316,13 +324,13 @@ export class ActionSheet extends HandlebarsApplicationMixin(foundry.applications
         if (dragIndex === null || dragIndex === targetIndex) { dragIndex = null; return; }
         const system = this.#item.system as { actions: Actions };
         const reordered = reorderOpposedTestOptions(
-          system.actions.items[this.#actionId].opposedTestOptions ?? [],
+          system.actions.items[this.#actionId].opposedTest?.options ?? [],
           dragIndex,
           targetIndex,
         );
         dragIndex = null;
         this.#saveScrollTop();
-        void this.#item.update({ [`system.actions.items.${this.#actionId}.opposedTestOptions`]: reordered }, { render: false }).then(() => this.render());
+        void this.#item.update({ [`system.actions.items.${this.#actionId}.opposedTest.options`]: reordered }, { render: false }).then(() => this.render());
       });
     }
 
@@ -342,6 +350,23 @@ export class ActionSheet extends HandlebarsApplicationMixin(foundry.applications
       slider.addEventListener("input", () => updateSlider(slider));
     }
 
+    const dd = new foundry.applications.ux.DragDrop.implementation({
+      dropSelector: null,
+      permissions: { drop: () => true },
+      callbacks: { drop: (e: DragEvent) => { void this._onDrop(e); } },
+    });
+    dd.bind(this.element);
+
+    const dropZone = this.element.querySelector<HTMLElement>("[data-drop-zone='targetFailureEffect']");
+    if (dropZone !== null) {
+      dropZone.addEventListener("dragenter", (e) => { e.preventDefault(); dropZone.classList.add("drop-target"); });
+      dropZone.addEventListener("dragover", (e) => { e.preventDefault(); });
+      dropZone.addEventListener("dragleave", (e) => {
+        if (!dropZone.contains(e.relatedTarget as Node)) dropZone.classList.remove("drop-target");
+      });
+      dropZone.addEventListener("drop", () => { dropZone.classList.remove("drop-target"); });
+    }
+
     const actionForm = this.element.querySelector<HTMLFormElement>("form");
     if (actionForm !== null) {
       actionForm.addEventListener("change", async (event: Event) => {
@@ -356,6 +381,25 @@ export class ActionSheet extends HandlebarsApplicationMixin(foundry.applications
     this.#item.sheet?.render();
     this.#item.actor?.sheet?.render();
     return super.close(options);
+  }
+
+  override _onDrop(event: DragEvent): void | Promise<void> {
+    return (async () => {
+      const system = this.#item.system as { actions: Actions };
+      const action = system.actions.items[this.#actionId];
+      if ((action.opposedTest?.options ?? []).length === 0) return;
+      const raw = event.dataTransfer?.getData("text/plain");
+      if (!raw) return;
+      let dropData: { type?: string; uuid?: string };
+      try { dropData = JSON.parse(raw) as { type?: string; uuid?: string }; } catch { return; }
+      if (dropData.type !== "Item" || dropData.uuid === undefined) return;
+      const dropped = await fromUuid<Item>(dropData.uuid);
+      if (dropped === null || dropped.type !== "effect") return;
+      const ref: ItemRef = { uuid: dropped.uuid, name: dropped.name, img: dropped.img };
+      this.#saveScrollTop();
+      await this.#item.update({ [`system.actions.items.${this.#actionId}.opposedTest.targetFailureEffect`]: ref }, { render: false });
+      await this.render();
+    })();
   }
 
   protected async _onAddActionEffectNote(_event: PointerEvent, _target: HTMLElement): Promise<void> {
@@ -429,7 +473,7 @@ export class ActionSheet extends HandlebarsApplicationMixin(foundry.applications
   protected async _onEditOpposedTest(_event: PointerEvent, target: HTMLElement): Promise<void> {
     const index = Number(target.dataset.index);
     const system = this.#item.system as { actions: Actions };
-    const option = (system.actions.items[this.#actionId].opposedTestOptions ?? [])[index];
+    const option = (system.actions.items[this.#actionId].opposedTest?.options ?? [])[index];
     if (option === undefined) return;
     const dialog = new OpposedTestDialog(this.#item, this.#actionId, index, option);
     await dialog.render(true);
@@ -439,11 +483,43 @@ export class ActionSheet extends HandlebarsApplicationMixin(foundry.applications
     const index = Number(target.dataset.index);
     const system = this.#item.system as { actions: Actions };
     const updated = deleteOpposedTestOption(
-      system.actions.items[this.#actionId].opposedTestOptions ?? [],
+      system.actions.items[this.#actionId].opposedTest?.options ?? [],
       index,
     );
     this.#saveScrollTop();
-    await this.#item.update({ [`system.actions.items.${this.#actionId}.opposedTestOptions`]: updated }, { render: false });
+    await this.#item.update({ [`system.actions.items.${this.#actionId}.opposedTest.options`]: updated }, { render: false });
+    await this.render();
+  }
+
+  protected async _onCreateOpposedTestEffect(_event: PointerEvent, _target: HTMLElement): Promise<void> {
+    if (this.#item.actor === null) return;
+    const system = this.#item.system as { actions: Actions };
+    const action = system.actions.items[this.#actionId];
+    const [created] = await this.#item.actor.createEmbeddedDocuments("Item", [{
+      name: `${action.name} — Target Effect`,
+      type: "effect",
+      system: { deleteOnExpire: true },
+    }]);
+    if (created === undefined) return;
+    const ref: ItemRef = { uuid: created.uuid, name: created.name, img: created.img };
+    this.#saveScrollTop();
+    await this.#item.update({ [`system.actions.items.${this.#actionId}.opposedTest.targetFailureEffect`]: ref }, { render: false });
+    await this.render();
+    created.sheet?.render(true);
+  }
+
+  protected async _onEditOpposedTestEffect(_event: PointerEvent, _target: HTMLElement): Promise<void> {
+    const system = this.#item.system as { actions: Actions };
+    const ref = system.actions.items[this.#actionId].opposedTest?.targetFailureEffect;
+    if (ref === null || ref === undefined) return;
+    const item = await fromUuid<Item>(ref.uuid);
+    if (item === null) return;
+    item.sheet?.render(true);
+  }
+
+  protected async _onDeleteOpposedTestEffect(_event: PointerEvent, _target: HTMLElement): Promise<void> {
+    this.#saveScrollTop();
+    await this.#item.update({ [`system.actions.items.${this.#actionId}.opposedTest.targetFailureEffect`]: null }, { render: false });
     await this.render();
   }
 

@@ -164,6 +164,17 @@ export type OpposedTestOption =
   | { type: "characteristic"; characteristic: CharacteristicId }
   | { type: "skill"; name: string; identifier: string; characteristics: CharacteristicId[] };
 
+export type ItemRef = {
+  uuid: string;
+  name: string;
+  img: string;
+};
+
+export type OpposedTest = {
+  options: OpposedTestOption[];
+  targetFailureEffect: ItemRef | null;
+};
+
 export type AttackHeld = "default" | "oneHanded" | "twoHanded";
 
 export type ActionAttack = {
@@ -285,7 +296,7 @@ export type ActionData = {
   attack?: ActionAttack;
   damage?: ActionDamage;
   specialRules?: ActionSpecialRules;
-  opposedTestOptions: OpposedTestOption[];
+  opposedTest: OpposedTest;
 };
 
 export type ActionNotes = {

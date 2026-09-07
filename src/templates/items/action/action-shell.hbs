@@ -376,9 +376,9 @@
           ><i class="fa-solid fa-plus" inert></i></button>
         </h4>
 
-        {{#if opposedTestRows.length}}
-          <table class="dense-table">
-            <tbody class="dos100-opposed-tests-body">
+        <table class="dense-table">
+          <tbody class="dos100-opposed-tests-body">
+            {{#if opposedTestRows.length}}
               {{#each opposedTestRows}}
                 <tr data-index="{{index}}" draggable="true">
                   <td><i class="fa-solid fa-grip-lines"></i></td>
@@ -395,9 +395,57 @@
                   </td>
                 </tr>
               {{/each}}
-            </tbody>
-          </table>
-        {{/if}}
+            {{else}}
+              <tr><td colspan="3" class="dense-table-empty-state">{{localize "DOS100.action.opposedTest.empty"}}</td></tr>
+            {{/if}}
+          </tbody>
+        </table>
+
+        <div data-drop-zone="targetFailureEffect">
+          <p class="eyebrow-label pc-section-heading-value">
+            <span>{{localize "DOS100.action.opposedTest.targetFailureEffect.label"}}</span>
+            {{#if canCreateEffect}}
+              <button
+                type="button"
+                class="icon-button"
+                data-action="createOpposedTestEffect"
+                aria-label="{{localize 'DOS100.action.opposedTest.targetFailureEffect.create'}}"
+              ><i class="fa-solid fa-plus" inert></i></button>
+            {{/if}}
+          </p>
+          {{#if targetFailureEffect}}
+            <table class="dense-table">
+              <tbody>
+                <tr>
+                  <td class="dense-table-flexible">
+                    <span class="dense-table-name-inner">
+                      <img class="dense-table-item-img" src="{{targetFailureEffect.img}}" alt="">
+                      {{targetFailureEffect.name}}
+                    </span>
+                  </td>
+                  <td>
+                    <button type="button" class="icon-button" data-action="editOpposedTestEffect"
+                      aria-label="{{localize 'DOS100.action.opposedTest.targetFailureEffect.edit'}}">
+                      <i class="fa-solid fa-pen-to-square" inert></i>
+                    </button>
+                    <button type="button" class="icon-button" data-action="deleteOpposedTestEffect"
+                      aria-label="{{localize 'DOS100.action.opposedTest.targetFailureEffect.delete'}}">
+                      <i class="fa-solid fa-trash" inert></i>
+                    </button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          {{else}}
+            <table class="dense-table">
+              <tbody>
+                <tr>
+                  <td class="dense-table-empty-state">{{localize "DOS100.action.opposedTest.targetFailureEffect.empty"}}</td>
+                </tr>
+              </tbody>
+            </table>
+          {{/if}}
+        </div>
 
       </div>
     </section>

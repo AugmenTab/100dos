@@ -266,6 +266,16 @@ declare namespace foundry {
       class FormDataExtended extends FormData {
         object: Record<string, unknown>;
       }
+      class DragDrop {
+        constructor(config: {
+          dragSelector?: string | null;
+          dropSelector?: string | null;
+          permissions?: { dragstart?: (selector: string) => boolean; drop?: (selector: string) => boolean };
+          callbacks?: { dragstart?: (event: DragEvent) => void; dragover?: (event: DragEvent) => void; drop?: (event: DragEvent) => void };
+        });
+        bind(element: HTMLElement): this;
+        static get implementation(): typeof DragDrop;
+      }
     }
     namespace api {
       class ApplicationV2 {
@@ -295,6 +305,7 @@ declare namespace foundry {
         ): void;
         _onClickTab(event: PointerEvent): void;
         _onFirstRender(context: Record<string, unknown>, options: Record<string, unknown>): Promise<void>;
+        _onDrop(event: DragEvent): void | Promise<void>;
       }
       // Provides _renderHTML and _replaceHTML via PARTS-based Handlebars rendering.
       // Typed as identity (returns T) so that extends expressions remain simple.

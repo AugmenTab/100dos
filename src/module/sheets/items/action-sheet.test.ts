@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { buildActionUpdates, buildOpposedTestRows, deleteOpposedTestOption, reorderOpposedTestOptions } from "./action-updates.js";
 import { CHARACTERISTIC_IDS } from "../../characteristic.js";
+import { type OpposedTest } from "../../items/action.js";
 
 const ACTION_ID = "abc123";
 
@@ -256,6 +257,27 @@ describe("buildActionUpdates", () => {
 describe("CHARACTERISTIC_IDS", () => {
   it("exposes all ten characteristics", () => {
     expect(CHARACTERISTIC_IDS).toHaveLength(10);
+  });
+});
+
+describe("OpposedTest", () => {
+  it("targetFailureEffect defaults to null", () => {
+    const opposedTest: OpposedTest = { options: [], targetFailureEffect: null };
+    expect(opposedTest.targetFailureEffect).toBeNull();
+  });
+
+  it("accepts a configured targetFailureEffect", () => {
+    const ref = { uuid: "Actor.abc.Item.xyz", name: "Stunned", img: "icons/svg/item-bag.svg" };
+    const opposedTest: OpposedTest = { options: [], targetFailureEffect: ref };
+    expect(opposedTest.targetFailureEffect).toEqual(ref);
+  });
+
+  it("options and targetFailureEffect are independent", () => {
+    const option = { type: "characteristic" as const, characteristic: "str" as const };
+    const ref = { uuid: "Actor.abc.Item.xyz", name: "Stunned", img: "icons/svg/item-bag.svg" };
+    const opposedTest: OpposedTest = { options: [option], targetFailureEffect: ref };
+    expect(opposedTest.options).toHaveLength(1);
+    expect(opposedTest.targetFailureEffect).not.toBeNull();
   });
 });
 

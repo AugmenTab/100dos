@@ -38,7 +38,7 @@ export class TagsEditorDialog extends HandlebarsApplicationMixin(foundry.applica
     this.element.querySelectorAll<HTMLElement>("li[data-index]").forEach(row => {
       row.addEventListener("dragstart", this._onDragStart.bind(this));
       row.addEventListener("dragover", e => e.preventDefault());
-      row.addEventListener("drop", this._onDrop.bind(this));
+      row.addEventListener("drop", this.#onDropRow.bind(this));
     });
   }
 
@@ -57,7 +57,7 @@ export class TagsEditorDialog extends HandlebarsApplicationMixin(foundry.applica
     event.dataTransfer?.setData("text/plain", String(this.#dragIndex));
   }
 
-  private _onDrop(event: DragEvent): void {
+  #onDropRow(event: DragEvent): void {
     event.preventDefault();
     const targetIndex = Number((event.currentTarget as HTMLElement).dataset.index);
     if (this.#dragIndex === null || this.#dragIndex === targetIndex) return;

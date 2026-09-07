@@ -944,6 +944,7 @@
       "opposedTest": {
         "label": "Opposed Tests",
         "add": "Add Opposed Test",
+        "empty": "No opposed test options configured.",
         "edit": "Edit Opposed Test",
         "delete": "Delete Opposed Test",
         "type": "Type",
@@ -955,6 +956,13 @@
         "skillCharacteristics": "Characteristics",
         "characteristicPrefix": "Characteristic",
         "skillPrefix": "Skill",
+        "targetFailureEffect": {
+          "label": "Target Failure Effect",
+          "create": "Create Effect",
+          "edit": "Edit Effect",
+          "delete": "Unlink Effect",
+          "empty": "Create an effect or drag one here."
+        },
         "dialog": {
           "addTitle": "Add Opposed Test",
           "editTitle": "Edit Opposed Test",

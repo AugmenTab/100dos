@@ -113,7 +113,7 @@ export class OpposedTestDialog extends HandlebarsApplicationMixin(foundry.applic
     }
 
     const system = this.#item.system as { actions: Actions };
-    const existing = [...(system.actions.items[this.#actionId].opposedTestOptions ?? [])];
+    const existing = [...(system.actions.items[this.#actionId].opposedTest?.options ?? [])];
     if (this.#index === null) {
       existing.push(option);
     } else {
@@ -121,7 +121,7 @@ export class OpposedTestDialog extends HandlebarsApplicationMixin(foundry.applic
     }
 
     await this.#item.update({
-      [`system.actions.items.${this.#actionId}.opposedTestOptions`]: existing,
+      [`system.actions.items.${this.#actionId}.opposedTest.options`]: existing,
     });
     await this.close();
   }
