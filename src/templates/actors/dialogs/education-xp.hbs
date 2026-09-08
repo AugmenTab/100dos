@@ -1,0 +1,19 @@
+<div class="ability-acquisition">
+  <p class="eyebrow-label">{{educationName}}</p>
+  <p>{{subtitleLine}}</p>
+  <div class="dos100-form-group">
+    <label for="education-xp-amount">{{xpLabel}}</label>
+    <input
+      type="number"
+      id="education-xp-amount"
+      name="xpAmount"
+      value="{{xpAmount}}"
+      step="1"
+    />
+  </div>
+  <div class="ability-acquisition-buttons">
+    <button type="button" data-action="record">{{localize "DOS100.educationXp.record"}}</button>
+    <button type="button" data-action="skip">{{localize "DOS100.educationXp.skip"}}</button>
+    <button type="button" data-action="cancelDialog">{{localize "DOS100.educationXp.cancel"}}</button>
+  </div>
+</div>

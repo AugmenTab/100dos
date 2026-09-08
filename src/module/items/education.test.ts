@@ -4,6 +4,8 @@ import {
   type ActorEducation,
   type EducationDefinition,
   createActorEducationFromDefinition,
+  educationTrainingDelta,
+  educationRefund,
 } from "../education.js";
 import { SKILL_DIFFICULTIES } from "../skill.js";
 import { CHARACTERISTIC_IDS } from "../characteristic.js";
@@ -261,6 +263,49 @@ describe("Actor Education identifier collision detection", () => {
   it("unique identifier passes collision check", () => {
     const existing: Record<string, unknown> = { medicalEducation: {} };
     expect("combatTraining" in existing).toBe(false);
+  });
+});
+
+describe("educationTrainingDelta", () => {
+  const cost: EducationCost = { plus5: 200, plus10: 400 };
+
+  it("plus5 to plus10 returns cost.plus10", () => {
+    expect(educationTrainingDelta("plus5", "plus10", cost)).toBe(400);
+  });
+
+  it("plus10 to plus5 returns negative cost.plus10", () => {
+    expect(educationTrainingDelta("plus10", "plus5", cost)).toBe(-400);
+  });
+
+  it("same training returns zero", () => {
+    expect(educationTrainingDelta("plus5", "plus5", cost)).toBe(0);
+    expect(educationTrainingDelta("plus10", "plus10", cost)).toBe(0);
+  });
+
+  it("does not mutate stored cost", () => {
+    const original = { plus5: 200, plus10: 400 };
+    educationTrainingDelta("plus5", "plus10", original);
+    expect(original.plus5).toBe(200);
+    expect(original.plus10).toBe(400);
+  });
+});
+
+describe("educationRefund", () => {
+  const cost: EducationCost = { plus5: 200, plus10: 400 };
+
+  it("at plus5 returns negative cost.plus5", () => {
+    expect(educationRefund("plus5", cost)).toBe(-200);
+  });
+
+  it("at plus10 returns negative sum of plus5 and plus10", () => {
+    expect(educationRefund("plus10", cost)).toBe(-600);
+  });
+
+  it("does not mutate stored cost", () => {
+    const original = { plus5: 200, plus10: 400 };
+    educationRefund("plus10", original);
+    expect(original.plus5).toBe(200);
+    expect(original.plus10).toBe(400);
   });
 });
 

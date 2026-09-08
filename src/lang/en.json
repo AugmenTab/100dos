@@ -797,6 +797,17 @@
       "skip": "Skip",
       "cancel": "Cancel"
     },
+    "educationXp": {
+      "acquisitionTitle": "Record Education Purchase?",
+      "trainingTitle": "Record Education Training Change?",
+      "deleteTitle": "Delete Education?",
+      "currentTraining": "Current Training: {training}",
+      "record": "Record",
+      "skip": "Skip",
+      "cancel": "Cancel",
+      "refundAndDelete": "Refund & Delete",
+      "delete": "Delete"
+    },
     "skillTrainingChange": {
       "title": "Record Skill Training Change?",
       "xpCost": "XP Cost",

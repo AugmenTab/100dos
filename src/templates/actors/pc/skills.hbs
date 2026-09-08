@@ -191,7 +191,15 @@
                   </div>
                 </td>
                 <td>{{localize (concat "DOS100.skills.difficulty." this.difficulty)}}</td>
-                <td>{{localize (concat "DOS100.educations.training." this.training)}}</td>
+                <td>
+                  <select
+                    class="eyebrow-label"
+                    name="system.educations.{{this.identifier}}.training"
+                    aria-label="{{localize "DOS100.educations.table.training"}} — {{this.name}}"
+                  >
+                    {{selectOptions ../educationTrainingOptions selected=this.training}}
+                  </select>
+                </td>
                 <td>
                   <select
                     class="eyebrow-label"

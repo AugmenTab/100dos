@@ -44,6 +44,24 @@ export type ActorEducation = {
   contributions: Contributions;
 };
 
+// +5 → +10 returns cost.plus10; +10 → +5 returns -cost.plus10; same → 0.
+export function educationTrainingDelta(
+  previous: EducationTraining,
+  next: EducationTraining,
+  cost: EducationCost,
+): number {
+  if (previous === next) return 0;
+  if (previous === "plus5" && next === "plus10") return cost.plus10;
+  return -cost.plus10;
+}
+
+// Total cost refunded when removing an Education: -plus5 at +5 training,
+// -(plus5 + plus10) at +10 training.
+export function educationRefund(training: EducationTraining, cost: EducationCost): number {
+  if (training === "plus5") return -cost.plus5;
+  return -(cost.plus5 + cost.plus10);
+}
+
 export function createActorEducationFromDefinition(definition: EducationDefinition): ActorEducation {
   const selected =
     definition.characteristics[0] ??

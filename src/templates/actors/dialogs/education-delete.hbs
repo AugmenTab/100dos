@@ -1,0 +1,19 @@
+<div class="ability-acquisition">
+  <p class="eyebrow-label">{{educationName}}</p>
+  <p>{{trainingLine}}</p>
+  <div class="dos100-form-group">
+    <label for="education-delete-xp-amount">{{localize "DOS100.skillTrainingChange.xpRefund"}}</label>
+    <input
+      type="number"
+      id="education-delete-xp-amount"
+      name="xpAmount"
+      value="{{xpAmount}}"
+      step="1"
+    />
+  </div>
+  <div class="ability-acquisition-buttons">
+    <button type="button" data-action="refundAndDelete">{{localize "DOS100.educationXp.refundAndDelete"}}</button>
+    <button type="button" data-action="deleteOnly">{{localize "DOS100.educationXp.delete"}}</button>
+    <button type="button" data-action="cancelDialog">{{localize "DOS100.educationXp.cancel"}}</button>
+  </div>
+</div>

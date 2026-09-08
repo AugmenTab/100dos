@@ -3,6 +3,8 @@ import { Dos100Item, ACTIONS_ITEM_TYPES } from "../../documents/item.js";
 import { AbilityAcquisitionDialog } from "./ability-acquisition-dialog.js";
 import { ActorSkillDialog } from "./actor-skill-dialog.js";
 import { ActorEducationDialog } from "./actor-education-dialog.js";
+import { EducationXpDialog } from "./education-xp-dialog.js";
+import { EducationDeleteDialog } from "./education-delete-dialog.js";
 import { SkillTrainingChangeDialog } from "./skill-training-change-dialog.js";
 import { type ActorMovement, type MovementMode } from "../../movement.js";
 import { type Encumbrance, type EncumbranceBand, encumbranceBands } from "../../encumbrance.js";
@@ -608,6 +610,14 @@ export class PcActorSheet extends Dos100ActorSheet {
         void this._onSkillTrainingChange(select);
       });
     }
+    for (const select of Array.from(
+      this.element.querySelectorAll<HTMLSelectElement>("select[name^='system.educations.'][name$='.training']"),
+    )) {
+      select.addEventListener("change", (event) => {
+        event.stopImmediatePropagation();
+        void this._onEducationTrainingChange(select);
+      });
+    }
   }
 
   private async _onSkillTrainingChange(select: HTMLSelectElement): Promise<void> {
@@ -644,6 +654,50 @@ export class PcActorSheet extends Dos100ActorSheet {
         id: foundry.utils.randomID(),
         type: isRefund ? "refund" : "purchase",
         description: `${skill.name}: ${prevLabel} → ${nextLabel}`,
+        value: result.xpAmount,
+        recordedBy: game.user?.id ?? null,
+        worldTime: null,
+        realTime: Date.now(),
+      };
+      await this.actor.update({ "system.xp.ledger": [...system.xp.ledger, entry] });
+    }
+  }
+
+  private async _onEducationTrainingChange(select: HTMLSelectElement): Promise<void> {
+    const match = /^system\.educations\.(.+)\.training$/.exec(select.name);
+    if (!match) return;
+    const identifier = match[1];
+    const educations = (this.actor.system as { educations: ActorEducations }).educations;
+    const education = educations[identifier];
+    if (!education) return;
+    const previous = education.training;
+    const next = select.value as EducationTraining;
+    if (previous === next) return;
+
+    const result = await EducationXpDialog.promptTrainingChange(
+      education.name,
+      previous,
+      next,
+      education.cost,
+    );
+
+    if (result.action === "cancel") {
+      select.value = previous;
+      return;
+    }
+
+    await this.actor.update({ [`system.educations.${identifier}.training`]: next });
+
+    if (result.action === "record") {
+      const isRefund = previous === "plus10" && next === "plus5";
+      const prevLabel = game.i18n.localize(`DOS100.educations.training.${previous}`);
+      const nextLabel = game.i18n.localize(`DOS100.educations.training.${next}`);
+      const description = `${education.name}: ${prevLabel} → ${nextLabel}`;
+      const system = this.actor.system as { xp: ExperienceLedger };
+      const entry: ExperienceLedgerItem = {
+        id: foundry.utils.randomID(),
+        type: isRefund ? "refund" : "purchase",
+        description,
         value: result.xpAmount,
         recordedBy: game.user?.id ?? null,
         worldTime: null,
@@ -876,6 +930,10 @@ export class PcActorSheet extends Dos100ActorSheet {
       );
       return;
     }
+
+    const xpResult = await EducationXpDialog.promptAcquire(source.name ?? "", sys.cost);
+    if (xpResult.action === "cancel") return;
+
     const definition: EducationDefinition = {
       name: source.name ?? "",
       identifier,
@@ -888,6 +946,21 @@ export class PcActorSheet extends Dos100ActorSheet {
     await this.actor.update({
       [`system.educations.${identifier}`]: createActorEducationFromDefinition(definition),
     });
+
+    if (xpResult.action === "record") {
+      const system = this.actor.system as { xp: ExperienceLedger };
+      const plus5Label = game.i18n.localize("DOS100.educations.training.plus5");
+      const entry: ExperienceLedgerItem = {
+        id: foundry.utils.randomID(),
+        type: "purchase",
+        description: `${source.name ?? ""}: ${plus5Label}`,
+        value: xpResult.xpAmount,
+        recordedBy: game.user?.id ?? null,
+        worldTime: null,
+        realTime: Date.now(),
+      };
+      await this.actor.update({ "system.xp.ledger": [...system.xp.ledger, entry] });
+    }
   }
 
   private async onTogglePinnedEducation(_event: PointerEvent, target: HTMLElement): Promise<void> {
@@ -966,6 +1039,31 @@ export class PcActorSheet extends Dos100ActorSheet {
   private async onDeleteEducation(_event: PointerEvent, target: HTMLElement): Promise<void> {
     const identifier = target.dataset.identifier;
     if (!identifier) return;
+    const education = (this.actor.system as { educations: ActorEducations }).educations[identifier];
+    if (!education) return;
+
+    const result = await EducationDeleteDialog.prompt({
+      educationName: education.name,
+      training: education.training,
+      cost: education.cost,
+    });
+    if (result.action === "cancel") return;
+
+    if (result.action === "refundAndDelete") {
+      const system = this.actor.system as { xp: ExperienceLedger };
+      const trainingLabel = game.i18n.localize(`DOS100.educations.training.${education.training}`);
+      const entry: ExperienceLedgerItem = {
+        id: foundry.utils.randomID(),
+        type: "refund",
+        description: `${education.name}: Removed ${trainingLabel}`,
+        value: result.xpAmount,
+        recordedBy: game.user?.id ?? null,
+        worldTime: null,
+        realTime: Date.now(),
+      };
+      await this.actor.update({ "system.xp.ledger": [...system.xp.ledger, entry] });
+    }
+
     await this.actor.update({
       [`system.educations.${identifier}`]: new foundry.data.operators.ForcedDeletion(),
     });
