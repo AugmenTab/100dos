@@ -35,7 +35,8 @@
       "armor": {},
       "gear": {},
       "ammunition": {},
-      "skill": {}
+      "skill": {},
+      "education": {}
     }
   },
   "socket": false,

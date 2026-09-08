@@ -12,7 +12,8 @@
       "armor": "Armor",
       "gear": "Gear",
       "ammunition": "Ammunition",
-      "skill": "Skill"
+      "skill": "Skill",
+      "education": "Education"
     }
   },
   "DOS100": {
@@ -99,6 +100,16 @@
           "trained": "Trained Cost",
           "plus10": "+10 Cost",
           "plus20": "+20 Cost"
+        }
+      },
+      "education": {
+        "characteristics": "Characteristics",
+        "skills": "Skills",
+        "skillsEmpty": "No permitted Skills yet. Drop a Skill Item here.",
+        "deleteSkill": "Remove {name}",
+        "cost": {
+          "plus5": "+5 Cost",
+          "plus10": "+10 Cost"
         }
       },
       "tagsEdit": "Edit tags",
@@ -581,6 +592,11 @@
       "notification": {
         "noIdentifier": "This Skill Item has no identifier. Set one on the Item before dragging it onto an Actor.",
         "identifierCollision": "This Actor already has a Skill with identifier \"{identifier}\"."
+      }
+    },
+    "education": {
+      "notification": {
+        "duplicateSkill": "This Education already has a permitted Skill with identifier \"{identifier}\"."
       }
     },
     "educations": {

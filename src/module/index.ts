@@ -13,6 +13,7 @@ import { ArmorItemSheet } from "./sheets/items/armor-sheet.js";
 import { GearItemSheet } from "./sheets/items/gear-sheet.js";
 import { AmmunitionItemSheet } from "./sheets/items/ammunition-sheet.js";
 import { SkillItemSheet } from "./sheets/items/skill-sheet.js";
+import { EducationItemSheet } from "./sheets/items/education-sheet.js";
 import { AbilityDataModel } from "./items/ability.js";
 import { EffectDataModel } from "./items/effect.js";
 import { TraitDataModel } from "./items/trait.js";
@@ -20,6 +21,7 @@ import { ArmorDataModel } from "./items/armor.js";
 import { GearDataModel } from "./items/gear.js";
 import { AmmunitionDataModel } from "./items/ammunition.js";
 import { SkillDataModel } from "./items/skill.js";
+import { EducationDataModel } from "./items/education.js";
 import { registerStatusEffects } from "./status.js";
 
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
@@ -75,6 +77,7 @@ Hooks.once("init", (): void => {
     "systems/100dos/templates/actors/dialogs/ability-acquisition.hbs",
     "systems/100dos/templates/actors/dialogs/actor-skill.hbs",
     "systems/100dos/templates/actors/dialogs/skill-training-change.hbs",
+    "systems/100dos/templates/items/education-shell.hbs",
   ]);
 
   game.settings.register(game.system.id, "debugMode", {
@@ -131,6 +134,7 @@ Hooks.once("init", (): void => {
   CONFIG.Item.dataModels["gear"] = GearDataModel;
   CONFIG.Item.dataModels["ammunition"] = AmmunitionDataModel;
   CONFIG.Item.dataModels["skill"] = SkillDataModel;
+  CONFIG.Item.dataModels["education"] = EducationDataModel;
   foundry.documents.collections.Items.registerSheet(game.system.id, AbilityItemSheet, {
     types: ["ability"],
     makeDefault: true,
@@ -157,6 +161,10 @@ Hooks.once("init", (): void => {
   });
   foundry.documents.collections.Items.registerSheet(game.system.id, SkillItemSheet, {
     types: ["skill"],
+    makeDefault: true,
+  });
+  foundry.documents.collections.Items.registerSheet(game.system.id, EducationItemSheet, {
+    types: ["education"],
     makeDefault: true,
   });
 

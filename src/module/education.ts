@@ -65,6 +65,9 @@ function actorEducationField(): foundry.data.fields.SchemaField {
     // fixed array to draw a leftmost-literal default from, so this is a
     // plain blank string like `name`/`description`.
     selected: new StringField({ required: true, initial: "" }),
+    // TODO: Education stamping must preserve permitted Skill display names.
+    // The target selector must not fall back to rendering the raw Skill
+    // identifier when the Actor does not possess that Skill.
     options: new ArrayField(new StringField({ required: true }), { required: true, initial: [] }),
     value: new NumberField({ required: true, initial: 0, integer: true }),
     pinned: new BooleanField({ required: true, initial: false }),

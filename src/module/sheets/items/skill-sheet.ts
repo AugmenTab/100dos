@@ -24,7 +24,7 @@ export class SkillItemSheet extends HandlebarsApplicationMixin(ItemSheetV2) {
   };
 
   static override PARTS = {
-    body: { template: "systems/100dos/templates/items/skill-shell.hbs" },
+    body: { template: "systems/100dos/templates/items/skill-shell.hbs", scrollable: [".dos100-item-tab-panels"] },
   };
 
   override async _prepareContext(options: Record<string, unknown>): Promise<Record<string, unknown>> {
