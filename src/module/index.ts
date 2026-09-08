@@ -73,6 +73,7 @@ Hooks.once("init", (): void => {
     "systems/100dos/templates/items/dialogs/change-target-picker.hbs",
     "systems/100dos/templates/items/dialogs/damage-type-dialog.hbs",
     "systems/100dos/templates/actors/dialogs/ability-acquisition.hbs",
+    "systems/100dos/templates/actors/dialogs/actor-skill.hbs",
   ]);
 
   game.settings.register(game.system.id, "debugMode", {

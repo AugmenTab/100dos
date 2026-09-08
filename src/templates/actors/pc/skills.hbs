@@ -16,11 +16,11 @@
           <th scope="col">{{localize "DOS100.skills.table.training"}}</th>
           <th scope="col">{{localize "DOS100.skills.table.characteristic"}}</th>
           <th scope="col">
-            {{!-- TODO: not wired up yet — no Add-Skill modal exists. --}}
-            <a
+              <a
               role="button"
               tabindex="0"
               class="icon-button"
+              data-action="createSkill"
               aria-label="{{localize "DOS100.skills.table.add"}}"
             ><i class="fa-solid fa-plus" inert></i></a>
           </th>
@@ -50,11 +50,11 @@
               <td class="dense-table-flexible">
                 <div class="dense-table-name-inner">
                   <span>{{this.name}}</span>
-                  {{!-- TODO: not wired up yet — no Skill edit modal exists. --}}
                   <a
                     role="button"
                     tabindex="0"
                     class="icon-button"
+                    data-action="editSkill"
                     data-identifier="{{this.identifier}}"
                     aria-label="{{localize "DOS100.skills.table.edit" name=this.name}}"
                   ><i class="fa-solid fa-pen-to-square" inert></i></a>

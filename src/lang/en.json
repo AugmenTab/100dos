@@ -569,6 +569,19 @@
         "plus20": "+20"
       }
     },
+    "actorSkill": {
+      "dialog": {
+        "createTitle": "New Skill",
+        "editTitle": "Edit Skill",
+        "name": "Name",
+        "save": "Save",
+        "cancel": "Cancel"
+      },
+      "notification": {
+        "noIdentifier": "This Skill Item has no identifier. Set one on the Item before dragging it onto an Actor.",
+        "identifierCollision": "This Actor already has a Skill with identifier \"{identifier}\"."
+      }
+    },
     "educations": {
       "label": "Educations",
       "value": "Value",

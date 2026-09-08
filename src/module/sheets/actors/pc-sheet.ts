@@ -1,6 +1,7 @@
 import { Dos100ActorSheet } from "../actor-sheet.js";
 import { Dos100Item, ACTIONS_ITEM_TYPES } from "../../documents/item.js";
 import { AbilityAcquisitionDialog } from "./ability-acquisition-dialog.js";
+import { ActorSkillDialog } from "./actor-skill-dialog.js";
 import { type ActorMovement, type MovementMode } from "../../movement.js";
 import { type Encumbrance, type EncumbranceBand, encumbranceBands } from "../../encumbrance.js";
 import { type MythicCharacteristics } from "../../mythic-characteristic.js";
@@ -13,7 +14,15 @@ import {
 } from "../../damage-resistance.js";
 import { type ExperienceLedger, type ExperienceLedgerItem } from "../../xp.js";
 import { type Finances, type FinanceLedgerItem } from "../../finances.js";
-import { type ActorSkill, type ActorSkills, type SkillTraining, SKILL_TRAININGS } from "../../skill.js";
+import {
+  type ActorSkill,
+  type ActorSkillDefinition,
+  type ActorSkills,
+  type SkillTraining,
+  SKILL_TRAININGS,
+  createActorSkillRecord,
+} from "../../skill.js";
+import { type SkillData } from "../../items/skill.js";
 import { type CharacteristicId, isCharacteristicId } from "../../characteristic.js";
 import {
   type ActorEducation,
@@ -113,6 +122,8 @@ export class PcActorSheet extends Dos100ActorSheet {
     actions: {
       useQuickItem: PcActorSheet.prototype.onUseQuickItem,
       togglePinnedSkill: PcActorSheet.prototype.onTogglePinnedSkill,
+      createSkill: PcActorSheet.prototype.onCreateSkill,
+      editSkill: PcActorSheet.prototype.onEditSkill,
       toggleStatus: PcActorSheet.prototype.onToggleStatus,
       toggleItemPinned: PcActorSheet.prototype.onToggleItemPinned,
       toggleEffectActive: PcActorSheet.prototype.onToggleEffectActive,
@@ -590,6 +601,69 @@ export class PcActorSheet extends Dos100ActorSheet {
     await this.actor.update({ [`system.skills.${identifier}.pinned`]: !skill.pinned });
   }
 
+  private async onCreateSkill(_event: PointerEvent, _target: HTMLElement): Promise<void> {
+    const result = await ActorSkillDialog.promptCreate();
+    if (result.action === "cancel") return;
+    const { definition } = result;
+    const skills = (this.actor.system as { skills: ActorSkills }).skills;
+    if (definition.identifier in skills) {
+      ui.notifications?.warn(
+        game.i18n.format("DOS100.actorSkill.notification.identifierCollision", { identifier: definition.identifier }),
+      );
+      return;
+    }
+    await this.actor.update({ [`system.skills.${definition.identifier}`]: createActorSkillRecord(definition) });
+  }
+
+  private async onEditSkill(_event: PointerEvent, target: HTMLElement): Promise<void> {
+    const identifier = target.dataset.identifier;
+    if (!identifier) return;
+    const skills = (this.actor.system as { skills: ActorSkills }).skills;
+    const skill = skills[identifier];
+    if (!skill) return;
+
+    const result = await ActorSkillDialog.promptEdit(identifier, {
+      name: skill.name,
+      difficulty: skill.difficulty,
+      type: skill.type,
+      characteristics: skill.characteristics,
+      description: skill.description,
+      cost: skill.cost,
+    });
+    if (result.action === "cancel") return;
+
+    const { definition } = result;
+
+    if (definition.identifier === identifier) {
+      await this.actor.update({
+        [`system.skills.${identifier}.name`]: definition.name,
+        [`system.skills.${identifier}.difficulty`]: definition.difficulty,
+        [`system.skills.${identifier}.type`]: definition.type,
+        [`system.skills.${identifier}.characteristics`]: definition.characteristics,
+        [`system.skills.${identifier}.cost`]: definition.cost,
+      });
+    } else {
+      if (definition.identifier in skills) {
+        ui.notifications?.warn(
+          game.i18n.format("DOS100.actorSkill.notification.identifierCollision", { identifier: definition.identifier }),
+        );
+        return;
+      }
+      const updatedSkill: ActorSkill = {
+        ...skill,
+        name: definition.name,
+        difficulty: definition.difficulty,
+        type: [...definition.type],
+        characteristics: [...definition.characteristics],
+        cost: { ...definition.cost },
+      };
+      await this.actor.update({
+        [`system.skills.${definition.identifier}`]: updatedSkill,
+        [`system.skills.${identifier}`]: new foundry.data.operators.ForcedDeletion(),
+      });
+    }
+  }
+
   private async onToggleStatus(event: PointerEvent, target: HTMLElement): Promise<void> {
     const statusId = target.dataset.statusId;
     if (!statusId) return;
@@ -674,6 +748,8 @@ export class PcActorSheet extends Dos100ActorSheet {
       if (!source) return;
       if (source.type === "ability") {
         await this._onDropAbility(source as Dos100Item);
+      } else if (source.type === "skill") {
+        await this._onDropSkill(source);
       } else {
         await this.actor.createEmbeddedDocuments("Item", [source.toObject()]);
       }
@@ -696,6 +772,32 @@ export class PcActorSheet extends Dos100ActorSheet {
       realTime: Date.now(),
     };
     await this.actor.update({ "system.xp.ledger": [...system.xp.ledger, entry] });
+  }
+
+  private async _onDropSkill(source: Item): Promise<void> {
+    const sys = source.system as SkillData;
+    const identifier = sys.identifier;
+    if (!identifier) {
+      ui.notifications?.warn(game.i18n.localize("DOS100.actorSkill.notification.noIdentifier"));
+      return;
+    }
+    const skills = (this.actor.system as { skills: ActorSkills }).skills;
+    if (identifier in skills) {
+      ui.notifications?.warn(
+        game.i18n.format("DOS100.actorSkill.notification.identifierCollision", { identifier }),
+      );
+      return;
+    }
+    const definition: ActorSkillDefinition = {
+      name: source.name ?? "",
+      difficulty: sys.difficulty,
+      type: [...sys.kinds],
+      characteristics: [...sys.characteristics],
+      description: sys.description,
+      cost: { ...sys.cost },
+      identifier,
+    };
+    await this.actor.update({ [`system.skills.${identifier}`]: createActorSkillRecord(definition) });
   }
 
   // Permanent/Temporary Effects each get their own manual Add control —

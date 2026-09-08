@@ -1,0 +1,62 @@
+<form class="dos100-actor-skill-form">
+  <div class="dos100-form-group">
+    <label for="{{sheetId}}-name">{{localize "DOS100.actorSkill.dialog.name"}}</label>
+    <input type="text" id="{{sheetId}}-name" name="name" value="{{name}}" />
+  </div>
+
+  <div class="dos100-form-group">
+    <label for="{{sheetId}}-difficulty">{{localize "DOS100.item.skill.difficulty"}}</label>
+    <select id="{{sheetId}}-difficulty" name="system.difficulty">
+      {{#each difficulties}}
+        <option value="{{value}}"{{#if selected}} selected{{/if}}>{{label}}</option>
+      {{/each}}
+    </select>
+  </div>
+
+  <div class="dos100-form-group">
+    <label for="{{sheetId}}-cost-trained">{{localize "DOS100.item.skill.cost.trained"}}</label>
+    <input type="number" id="{{sheetId}}-cost-trained" name="system.cost.trained" value="{{system.cost.trained}}" step="1" min="0" />
+  </div>
+  <div class="dos100-form-group">
+    <label for="{{sheetId}}-cost-plus10">{{localize "DOS100.item.skill.cost.plus10"}}</label>
+    <input type="number" id="{{sheetId}}-cost-plus10" name="system.cost.plus10" value="{{system.cost.plus10}}" step="1" min="0" />
+  </div>
+  <div class="dos100-form-group">
+    <label for="{{sheetId}}-cost-plus20">{{localize "DOS100.item.skill.cost.plus20"}}</label>
+    <input type="number" id="{{sheetId}}-cost-plus20" name="system.cost.plus20" value="{{system.cost.plus20}}" step="1" min="0" />
+  </div>
+
+  <hr />
+
+  <p class="eyebrow-label">{{localize "DOS100.item.skill.type"}}</p>
+  <div class="dos100-skill-type-checkboxes">
+    {{#each types}}
+      <label>
+        <input type="checkbox" data-array-field="system.type" value="{{value}}"{{#if checked}} checked{{/if}} />
+        {{label}}
+      </label>
+    {{/each}}
+  </div>
+
+  <p class="eyebrow-label">{{localize "DOS100.item.skill.characteristics"}}</p>
+  <div class="dos100-skill-char-checkboxes">
+    {{#each characteristics}}
+      <label>
+        <input type="checkbox" data-array-field="system.characteristics" value="{{value}}"{{#if checked}} checked{{/if}} />
+        {{label}}
+      </label>
+    {{/each}}
+  </div>
+
+  <hr />
+
+  <div class="dos100-form-group">
+    <label for="{{sheetId}}-identifier">{{localize "DOS100.item.identifier"}}</label>
+    <input type="text" id="{{sheetId}}-identifier" name="system.identifier" value="{{system.identifier}}" required />
+  </div>
+
+  <footer>
+    <button type="button" data-action="saveAndClose">{{localize "DOS100.actorSkill.dialog.save"}}</button>
+    <button type="button" data-action="cancelDialog">{{localize "DOS100.actorSkill.dialog.cancel"}}</button>
+  </footer>
+</form>

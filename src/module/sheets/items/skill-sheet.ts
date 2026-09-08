@@ -10,7 +10,7 @@ export class SkillItemSheet extends HandlebarsApplicationMixin(ItemSheetV2) {
     classes: ["dos100", "sheet", "item", "skill"],
     position: { width: 480, height: 560 },
     window: { resizable: true },
-    form: { submitOnChange: false, closeOnSubmit: false },
+    form: { submitOnChange: true, closeOnSubmit: false },
   };
 
   static override TABS = {
@@ -40,7 +40,7 @@ export class SkillItemSheet extends HandlebarsApplicationMixin(ItemSheetV2) {
     const types = SKILL_TYPES.map(t => ({
       value: t,
       label: game.i18n.localize(`DOS100.skills.type.${t}`),
-      checked: sys.type.includes(t),
+      checked: sys.kinds.includes(t),
     }));
 
     const characteristics = CHARACTERISTIC_IDS.map(id => ({
@@ -63,18 +63,15 @@ export class SkillItemSheet extends HandlebarsApplicationMixin(ItemSheetV2) {
 
   override _onRender(context: Record<string, unknown>, options: Record<string, unknown>): void {
     super._onRender(context, options);
-    const form = this.element.querySelector<HTMLFormElement>("form");
-    if (form === null) return;
-    form.addEventListener("change", async () => {
-      const fd = new foundry.applications.ux.FormDataExtended(form);
-      const data: Record<string, unknown> = { ...fd.object };
-      data["system.type"] = Array.from(
-        form.querySelectorAll<HTMLInputElement>("input[data-array-field='system.type']:checked"),
-      ).map(cb => cb.value) as SkillType[];
-      data["system.characteristics"] = Array.from(
-        form.querySelectorAll<HTMLInputElement>("input[data-array-field='system.characteristics']:checked"),
-      ).map(cb => cb.value) as CharacteristicId[];
-      await this.item.update(data);
-    });
+    for (const input of Array.from(this.element.querySelectorAll<HTMLInputElement>("input[name='system.kinds'], input[name='system.characteristics']"))) {
+      input.addEventListener("change", async () => {
+        const name = input.name as "system.kinds" | "system.characteristics";
+        const checked = Array.from(
+          this.element.querySelectorAll<HTMLInputElement>(`input[name='${name}']:checked`),
+        ).map(el => el.value) as SkillType[] | CharacteristicId[];
+        await this.item.update({ [name]: checked });
+      });
+    }
   }
+
 }

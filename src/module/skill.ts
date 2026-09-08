@@ -12,6 +12,12 @@ export const SKILL_TRAININGS: SkillTraining[] = ["none", "trained", "plus10", "p
 
 export type SkillIdentifier = string;
 
+export type SkillCost = {
+  trained: number;
+  plus10: number;
+  plus20: number;
+};
+
 // The record key under system.skills is the Skill's stable identity — not
 // duplicated here. A later name change must not imply re-keying the
 // record.
@@ -30,10 +36,44 @@ export type ActorSkill = {
   value: number;
   pinned: boolean;
   description: string;
+  cost: SkillCost;
   contributions: Contributions;
 };
 
 export type ActorSkills = Record<SkillIdentifier, ActorSkill>;
+
+// The definition fields an Actor Skill is stamped from or manually authored.
+// Actor-only fields (training, characteristic, value, pinned, contributions)
+// are not part of the definition.
+export type ActorSkillDefinition = {
+  name: string;
+  difficulty: SkillDifficulty;
+  type: SkillType[];
+  characteristics: CharacteristicId[];
+  description: string;
+  cost: SkillCost;
+  identifier: string;
+};
+
+// Shared creation path used by both the Skill Stamp drop and manual Actor
+// Skill creation. Actor-only fields are initialized to their established
+// defaults. Arrays and cost are independent copies, not references to the
+// source definition.
+export function createActorSkillRecord(def: ActorSkillDefinition): ActorSkill {
+  return {
+    name: def.name,
+    difficulty: def.difficulty,
+    type: [...def.type],
+    characteristics: [...def.characteristics],
+    description: def.description,
+    cost: { ...def.cost },
+    training: SKILL_TRAININGS[0],
+    characteristic: def.characteristics[0] ?? CHARACTERISTIC_IDS[0],
+    value: 0,
+    pinned: false,
+    contributions: [],
+  };
+}
 
 function actorSkillField(): foundry.data.fields.SchemaField {
   const { SchemaField, StringField, NumberField, BooleanField, HTMLField, ArrayField } = foundry.data.fields;
@@ -58,6 +98,11 @@ function actorSkillField(): foundry.data.fields.SchemaField {
     value: new NumberField({ required: true, initial: 0, integer: true }),
     pinned: new BooleanField({ required: true, initial: false }),
     description: new HTMLField({ required: true, initial: "" }),
+    cost: new SchemaField({
+      trained: new NumberField({ required: true, initial: 0, integer: true, min: 0 }),
+      plus10: new NumberField({ required: true, initial: 0, integer: true, min: 0 }),
+      plus20: new NumberField({ required: true, initial: 0, integer: true, min: 0 }),
+    }),
     contributions: contributionsField(),
   });
 }

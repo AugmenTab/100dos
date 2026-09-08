@@ -72,7 +72,7 @@
         <div class="dos100-skill-type-checkboxes">
           {{#each types}}
             <label>
-              <input type="checkbox" data-array-field="system.type" value="{{value}}"{{#if checked}} checked{{/if}} />
+              <input type="checkbox" name="system.kinds" value="{{value}}"{{#if checked}} checked{{/if}} />
               {{label}}
             </label>
           {{/each}}
@@ -82,7 +82,7 @@
         <div class="dos100-skill-char-checkboxes">
           {{#each characteristics}}
             <label>
-              <input type="checkbox" data-array-field="system.characteristics" value="{{value}}"{{#if checked}} checked{{/if}} />
+              <input type="checkbox" name="system.characteristics" value="{{value}}"{{#if checked}} checked{{/if}} />
               {{label}}
             </label>
           {{/each}}

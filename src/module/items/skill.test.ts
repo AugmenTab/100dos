@@ -23,13 +23,13 @@ describe("SkillData", () => {
     const data: SkillData = {
       identifier: "",
       difficulty: SKILL_DIFFICULTIES[0],
-      type: [],
+      kinds: [],
       characteristics: [],
       description: "",
       cost,
     };
     expect(data.identifier).toBe("");
-    expect(data.type).toEqual([]);
+    expect(data.kinds).toEqual([]);
     expect(data.characteristics).toEqual([]);
     expect(data.cost.trained).toBe(0);
     expect(data.cost.plus10).toBe(0);
@@ -52,7 +52,7 @@ describe("SkillData", () => {
     const data: SkillData = {
       identifier: "athletics",
       difficulty: "basic",
-      type: ["movement"],
+      kinds: ["movement"],
       characteristics: ["str", "agi"],
       description: "",
       cost: { trained: 100, plus10: 200, plus20: 300 },
