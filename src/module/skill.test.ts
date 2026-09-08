@@ -6,6 +6,7 @@ import {
   SKILL_DIFFICULTIES,
   SKILL_TRAININGS,
   createActorSkillRecord,
+  trainingCostDelta,
 } from "./skill.js";
 import { CHARACTERISTIC_IDS } from "./characteristic.js";
 import { type SkillCost as SkillCostFromItem } from "./items/skill.js";
@@ -136,6 +137,50 @@ describe("identifier collision guard", () => {
     const newId = "athletics";
     const isCollision = newId in skills && newId !== oldId;
     expect(isCollision).toBe(false);
+  });
+});
+
+describe("trainingCostDelta", () => {
+  const cost: SkillCost = { trained: 200, plus10: 400, plus20: 600 };
+
+  it("None → Trained returns cost.trained", () => {
+    expect(trainingCostDelta("none", "trained", cost)).toBe(200);
+  });
+
+  it("Trained → +10 returns cost.plus10", () => {
+    expect(trainingCostDelta("trained", "plus10", cost)).toBe(400);
+  });
+
+  it("+10 → +20 returns cost.plus20", () => {
+    expect(trainingCostDelta("plus10", "plus20", cost)).toBe(600);
+  });
+
+  it("Trained → None returns -cost.trained", () => {
+    expect(trainingCostDelta("trained", "none", cost)).toBe(-200);
+  });
+
+  it("+10 → Trained returns -cost.plus10", () => {
+    expect(trainingCostDelta("plus10", "trained", cost)).toBe(-400);
+  });
+
+  it("+20 → +10 returns -cost.plus20", () => {
+    expect(trainingCostDelta("plus20", "plus10", cost)).toBe(-600);
+  });
+
+  it("None → +20 sums all three costs", () => {
+    expect(trainingCostDelta("none", "plus20", cost)).toBe(1200);
+  });
+
+  it("+20 → None refunds all three costs", () => {
+    expect(trainingCostDelta("plus20", "none", cost)).toBe(-1200);
+  });
+
+  it("+20 → Trained sums the two upper-tier costs as a refund", () => {
+    expect(trainingCostDelta("plus20", "trained", cost)).toBe(-1000);
+  });
+
+  it("same level returns 0", () => {
+    expect(trainingCostDelta("plus10", "plus10", cost)).toBe(0);
   });
 });
 

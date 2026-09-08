@@ -2,6 +2,7 @@ import { Dos100ActorSheet } from "../actor-sheet.js";
 import { Dos100Item, ACTIONS_ITEM_TYPES } from "../../documents/item.js";
 import { AbilityAcquisitionDialog } from "./ability-acquisition-dialog.js";
 import { ActorSkillDialog } from "./actor-skill-dialog.js";
+import { SkillTrainingChangeDialog } from "./skill-training-change-dialog.js";
 import { type ActorMovement, type MovementMode } from "../../movement.js";
 import { type Encumbrance, type EncumbranceBand, encumbranceBands } from "../../encumbrance.js";
 import { type MythicCharacteristics } from "../../mythic-characteristic.js";
@@ -591,6 +592,61 @@ export class PcActorSheet extends Dos100ActorSheet {
     const actionId = actions ? Object.keys(actions.items)[0] : undefined;
     if (!actionId) return;
     await (item as Dos100Item).useAction(actionId);
+  }
+
+  override _onRender(context: Record<string, unknown>, options: Record<string, unknown>): void {
+    super._onRender(context, options);
+    for (const select of Array.from(
+      this.element.querySelectorAll<HTMLSelectElement>("select[name^='system.skills.'][name$='.training']"),
+    )) {
+      select.addEventListener("change", (event) => {
+        event.stopImmediatePropagation();
+        void this._onSkillTrainingChange(select);
+      });
+    }
+  }
+
+  private async _onSkillTrainingChange(select: HTMLSelectElement): Promise<void> {
+    const match = /^system\.skills\.(.+)\.training$/.exec(select.name);
+    if (!match) return;
+    const identifier = match[1];
+    const skills = (this.actor.system as { skills: ActorSkills }).skills;
+    const skill = skills[identifier];
+    if (!skill) return;
+    const previous = skill.training;
+    const next = select.value as SkillTraining;
+    if (previous === next) return;
+
+    const result = await SkillTrainingChangeDialog.prompt({
+      skillName: skill.name,
+      previous,
+      next,
+      cost: skill.cost,
+    });
+
+    if (result.action === "cancel") {
+      select.value = previous;
+      return;
+    }
+
+    await this.actor.update({ [`system.skills.${identifier}.training`]: next });
+
+    if (result.action === "record") {
+      const system = this.actor.system as { xp: ExperienceLedger };
+      const prevLabel = game.i18n.localize(`DOS100.skills.training.${previous}`);
+      const nextLabel = game.i18n.localize(`DOS100.skills.training.${next}`);
+      const isRefund = SKILL_TRAININGS.indexOf(next) < SKILL_TRAININGS.indexOf(previous);
+      const entry: ExperienceLedgerItem = {
+        id: foundry.utils.randomID(),
+        type: isRefund ? "refund" : "purchase",
+        description: `${skill.name}: ${prevLabel} → ${nextLabel}`,
+        value: result.xpAmount,
+        recordedBy: game.user?.id ?? null,
+        worldTime: null,
+        realTime: Date.now(),
+      };
+      await this.actor.update({ "system.xp.ledger": [...system.xp.ledger, entry] });
+    }
   }
 
   private async onTogglePinnedSkill(event: PointerEvent, target: HTMLElement): Promise<void> {

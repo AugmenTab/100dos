@@ -1,4 +1,4 @@
-export type ExperienceTransactionType = "reward" | "purchase";
+export type ExperienceTransactionType = "reward" | "purchase" | "refund";
 
 export type ExperienceLedgerItem = {
   id: string;
@@ -22,7 +22,7 @@ function experienceLedgerItemField(): foundry.data.fields.SchemaField {
   const { SchemaField, StringField, NumberField } = foundry.data.fields;
   return new SchemaField({
     id: new StringField({ required: true, initial: () => foundry.utils.randomID() }),
-    type: new StringField({ required: true, initial: "reward", choices: ["reward", "purchase"] }),
+    type: new StringField({ required: true, initial: "reward", choices: ["reward", "purchase", "refund"] }),
     description: new StringField({ required: true, initial: "" }),
     value: new NumberField({ required: true, initial: 0, integer: true }),
     recordedBy: new StringField({ required: true, nullable: true, initial: null }),

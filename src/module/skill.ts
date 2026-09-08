@@ -107,6 +107,29 @@ function actorSkillField(): foundry.data.fields.SchemaField {
   });
 }
 
+// Returns the net XP cost (positive) or refund (negative) for a training
+// level change. Each cost field represents crossing one tier boundary:
+//   cost.trained  = none → trained
+//   cost.plus10   = trained → +10
+//   cost.plus20   = +10 → +20
+// Multi-level transitions sum every boundary crossed.
+export function trainingCostDelta(
+  previous: SkillTraining,
+  next: SkillTraining,
+  cost: SkillCost,
+): number {
+  const prevIdx = SKILL_TRAININGS.indexOf(previous);
+  const nextIdx = SKILL_TRAININGS.indexOf(next);
+  const tierCosts = [cost.trained, cost.plus10, cost.plus20];
+  let delta = 0;
+  if (nextIdx > prevIdx) {
+    for (let i = prevIdx; i < nextIdx; i++) delta += tierCosts[i];
+  } else {
+    for (let i = nextIdx; i < prevIdx; i++) delta -= tierCosts[i];
+  }
+  return delta;
+}
+
 // A keyed collection of arbitrary Skill identifiers, not a fixed set of
 // named fields — every Actor's Skill list is arbitrary, so there's nothing
 // to default to. TODO: empty by design; core Skill seeding is a future task.

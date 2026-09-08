@@ -1,0 +1,19 @@
+<div class="ability-acquisition">
+  <p class="eyebrow-label">{{skillName}}</p>
+  <p>{{previousLabel}} → {{nextLabel}}</p>
+  <div class="dos100-form-group">
+    <label for="skill-training-xp-amount">{{xpLabel}}</label>
+    <input
+      type="number"
+      id="skill-training-xp-amount"
+      name="xpAmount"
+      value="{{xpAmount}}"
+      step="1"
+    />
+  </div>
+  <div class="ability-acquisition-buttons">
+    <button type="button" data-action="record">{{localize "DOS100.skillTrainingChange.record"}}</button>
+    <button type="button" data-action="skip">{{localize "DOS100.skillTrainingChange.skip"}}</button>
+    <button type="button" data-action="cancelDialog">{{localize "DOS100.skillTrainingChange.cancel"}}</button>
+  </div>
+</div>

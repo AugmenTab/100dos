@@ -429,7 +429,8 @@
         "unknownRecorder": "Unknown",
         "types": {
           "reward": "Reward",
-          "purchase": "Purchase"
+          "purchase": "Purchase",
+          "refund": "Refund"
         }
       }
     },
@@ -766,6 +767,15 @@
       "create": "Create",
       "skip": "Skip",
       "cancel": "Cancel"
+    },
+    "skillTrainingChange": {
+      "title": "Record Skill Training Change?",
+      "xpCost": "XP Cost",
+      "xpRefund": "XP Refund",
+      "record": "Record",
+      "skip": "Skip",
+      "cancel": "Cancel",
+      "refund": "Refund"
     },
     "pc": {
       "nav": {
