@@ -34,7 +34,8 @@
       "trait": {},
       "armor": {},
       "gear": {},
-      "ammunition": {}
+      "ammunition": {},
+      "skill": {}
     }
   },
   "socket": false,

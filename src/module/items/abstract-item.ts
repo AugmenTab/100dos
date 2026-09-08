@@ -1,9 +1,10 @@
 import { type Changes, changesField } from "../change.js";
 import { type Actions, actionsField } from "./action.js";
 import { type GrantData, grantsField } from "./grants.js";
+import { type Identifier } from "../identifier.js";
 
+export type { Identifier };
 export type Tag = string;
-export type Identifier = string;
 
 // The data shape every abstract Item type shares (capabilities/features
 // rendered via AbstractItemSheet — Ability, Trait, and later ones; not

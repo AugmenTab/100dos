@@ -11,7 +11,8 @@
       "trait": "Trait",
       "armor": "Armor",
       "gear": "Gear",
-      "ammunition": "Ammunition"
+      "ammunition": "Ammunition",
+      "skill": "Skill"
     }
   },
   "DOS100": {
@@ -90,6 +91,16 @@
       "summary": "Summary",
       "advanced": "Advanced",
       "identifier": "Identifier",
+      "skill": {
+        "difficulty": "Difficulty",
+        "type": "Type",
+        "characteristics": "Characteristics",
+        "cost": {
+          "trained": "Trained Cost",
+          "plus10": "+10 Cost",
+          "plus20": "+20 Cost"
+        }
+      },
       "tagsEdit": "Edit tags",
       "tagsEditor": {
         "title": "Edit Tags",

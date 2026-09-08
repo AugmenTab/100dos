@@ -5,7 +5,7 @@ export type SkillDifficulty = "basic" | "advanced";
 export const SKILL_DIFFICULTIES: SkillDifficulty[] = ["basic", "advanced"];
 
 export type SkillType = "social" | "movement" | "fieldcraft";
-const SKILL_TYPES: SkillType[] = ["social", "movement", "fieldcraft"];
+export const SKILL_TYPES: SkillType[] = ["social", "movement", "fieldcraft"];
 
 export type SkillTraining = "none" | "trained" | "plus10" | "plus20";
 export const SKILL_TRAININGS: SkillTraining[] = ["none", "trained", "plus10", "plus20"];

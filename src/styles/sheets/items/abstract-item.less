@@ -359,6 +359,41 @@
   }
 }
 
+.dos100-skill-sheet {
+  .eyebrow-label {
+    margin: 0.5rem 0 0.25rem;
+  }
+
+  .dos100-skill-type-checkboxes {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem 1.5rem;
+
+    label {
+      display: flex;
+      align-items: center;
+      gap: 0.375rem;
+      font-size: var(--font-size-13, 0.8125rem);
+    }
+  }
+
+  .dos100-skill-char-checkboxes {
+    display: grid;
+    grid-auto-flow: column;
+    grid-template-rows: repeat(5, auto);
+    grid-template-columns: 1fr 1fr;
+    width: 100%;
+    gap: 0.25rem;
+
+    label {
+      display: flex;
+      align-items: center;
+      gap: 0.375rem;
+      font-size: var(--font-size-13, 0.8125rem);
+    }
+  }
+}
+
 .ability-acquisition-dialog {
   .window-content {
     padding: 0.75rem;
