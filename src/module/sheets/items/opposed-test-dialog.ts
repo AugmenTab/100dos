@@ -71,8 +71,6 @@ export class OpposedTestDialog extends HandlebarsApplicationMixin(foundry.applic
     };
   }
 
-  // TODO: When Skill Stamp Items exist, dropping one onto this dialog should
-  // populate the Skill form with the Stamp's name, identifier, and Characteristic data.
   override _onRender(_context: Record<string, unknown>, _options: Record<string, unknown>): void {
     const typeSelect = this.element.querySelector<HTMLSelectElement>('[name="type"]');
     const syncSections = (type: string): void => {

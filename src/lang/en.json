@@ -979,6 +979,9 @@
         "label": "Opposed Tests",
         "add": "Add Opposed Test",
         "empty": "No opposed test options configured.",
+        "notification": {
+          "duplicateSkill": "This Action already has a Skill Opposed Test with identifier \"{identifier}\"."
+        },
         "edit": "Edit Opposed Test",
         "delete": "Delete Opposed Test",
         "type": "Type",

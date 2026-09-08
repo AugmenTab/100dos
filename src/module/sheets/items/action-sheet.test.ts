@@ -1,8 +1,8 @@
 import { describe, expect, it } from "vitest";
 import { readFileSync } from "fs";
 import { buildActionUpdates, buildOpposedTestRows, deleteOpposedTestOption, reorderOpposedTestOptions } from "./action-updates.js";
-import { CHARACTERISTIC_IDS } from "../../characteristic.js";
-import { type OpposedTest } from "../../items/action.js";
+import { CHARACTERISTIC_IDS, type CharacteristicId } from "../../characteristic.js";
+import { type OpposedTest, type OpposedTestOption } from "../../items/action.js";
 
 const ACTION_ID = "abc123";
 
@@ -405,6 +405,91 @@ describe("reorderOpposedTestOptions", () => {
     const result = reorderOpposedTestOptions([a, b, c], 0, 1);
     expect(result).toHaveLength(3);
     expect(chars(result).sort()).toEqual(["agi", "str", "tou"]);
+  });
+});
+
+describe("Skill stamp → Opposed Test mapping", () => {
+  type SkillStamp = { name: string; identifier: string; characteristics: CharacteristicId[]; difficulty: string; type: string[]; description: string; cost: object };
+
+  const stamp: SkillStamp = {
+    name: "Interrogation",
+    identifier: "interrogation",
+    characteristics: ["crg", "cha"],
+    difficulty: "basic",
+    type: ["social"],
+    description: "<p>...</p>",
+    cost: { trained: 100, plus10: 200, plus20: 400 },
+  };
+
+  const toOption = (s: SkillStamp): Extract<OpposedTestOption, { type: "skill" }> => ({
+    type: "skill",
+    name: s.name,
+    identifier: s.identifier,
+    characteristics: [...s.characteristics],
+  });
+
+  it("produces a skill-type option", () => {
+    expect(toOption(stamp).type).toBe("skill");
+  });
+
+  it("copies name from item name", () => {
+    expect(toOption(stamp).name).toBe("Interrogation");
+  });
+
+  it("copies identifier from system.identifier", () => {
+    expect(toOption(stamp).identifier).toBe("interrogation");
+  });
+
+  it("copies all characteristics", () => {
+    expect(toOption(stamp).characteristics).toEqual(["crg", "cha"]);
+  });
+
+  it("characteristics array is an independent copy", () => {
+    const option = toOption(stamp);
+    option.characteristics.push("int");
+    expect(stamp.characteristics).toEqual(["crg", "cha"]);
+  });
+
+  it("does not include difficulty in the option", () => {
+    expect(toOption(stamp)).not.toHaveProperty("difficulty");
+  });
+
+  it("does not include skill type classification in the option", () => {
+    expect(toOption(stamp)).not.toHaveProperty("kind");
+    expect(toOption(stamp)).not.toHaveProperty("kinds");
+  });
+
+  it("does not include description in the option", () => {
+    expect(toOption(stamp)).not.toHaveProperty("description");
+  });
+
+  it("does not include cost in the option", () => {
+    expect(toOption(stamp)).not.toHaveProperty("cost");
+  });
+
+  it("new option is appended to the end of existing options", () => {
+    const existing: OpposedTestOption[] = [{ type: "characteristic", characteristic: "crg" }];
+    const appended = [...existing, toOption(stamp)];
+    expect(appended).toHaveLength(2);
+    expect(appended[1]!.type).toBe("skill");
+  });
+
+  it("duplicate identifier is detected before appending", () => {
+    const existing: OpposedTestOption[] = [toOption(stamp)];
+    const isDuplicate = existing.some(o => o.type === "skill" && o.identifier === stamp.identifier);
+    expect(isDuplicate).toBe(true);
+  });
+
+  it("non-matching identifier is not a duplicate", () => {
+    const existing: OpposedTestOption[] = [toOption(stamp)];
+    const isDuplicate = existing.some(o => o.type === "skill" && o.identifier === "stealth");
+    expect(isDuplicate).toBe(false);
+  });
+
+  it("characteristic options do not participate in duplicate identifier check", () => {
+    const existing: OpposedTestOption[] = [{ type: "characteristic", characteristic: "crg" }];
+    const isDuplicate = existing.some(o => o.type === "skill" && o.identifier === stamp.identifier);
+    expect(isDuplicate).toBe(false);
   });
 });
 

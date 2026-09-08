@@ -1,5 +1,6 @@
 import { type Dos100Item } from "../../documents/item.js";
-import { ACTION_TYPES, ATTACK_ACTION_TYPES, ATTACK_CHARACTERISTIC_DEFAULTS, ACTIVATION_TYPES, COST_HIDDEN_TYPES, DAMAGE_DICE, DAMAGE_TYPE_TAGS, DURATION_TYPES, DURATION_VALUE_TYPES, HELD_TYPES, RANGE_TYPES, RANGE_VALUE_TYPES, SPECIAL_RULES, USAGE_PERIODS, type ActionAttack, type ActionDamage, type ActionDurationType, type ActionRangeType, type ActionSpecialRules, type ActionType, type Actions, type ActivationType, type DamageDie, type ItemRef, type SpecialRuleId, type SpecialRuleOverride } from "../../items/action.js";
+import { ACTION_TYPES, ATTACK_ACTION_TYPES, ATTACK_CHARACTERISTIC_DEFAULTS, ACTIVATION_TYPES, COST_HIDDEN_TYPES, DAMAGE_DICE, DAMAGE_TYPE_TAGS, DURATION_TYPES, DURATION_VALUE_TYPES, HELD_TYPES, RANGE_TYPES, RANGE_VALUE_TYPES, SPECIAL_RULES, USAGE_PERIODS, type ActionAttack, type ActionDamage, type ActionDurationType, type ActionRangeType, type ActionSpecialRules, type ActionType, type Actions, type ActivationType, type DamageDie, type ItemRef, type OpposedTestOption, type SpecialRuleId, type SpecialRuleOverride } from "../../items/action.js";
+import { type SkillData } from "../../items/skill.js";
 import { CHARACTERISTIC_IDS } from "../../characteristic.js";
 import { buildActionUpdates, buildOpposedTestRows, deleteOpposedTestOption, reorderOpposedTestOptions } from "./action-updates.js";
 import { DamageTypeDialog } from "./damage-type-dialog.js";
@@ -315,8 +316,6 @@ export class ActionSheet extends HandlebarsApplicationMixin(foundry.applications
       });
     }
 
-    // TODO: When Skill Stamp Items exist, dropping one onto the Opposed Tests section
-    // should create a Skill Opposed Test option and append it to opposedTest.options.
     let dragIndex: number | null = null;
     for (const row of Array.from(this.element.querySelectorAll<HTMLElement>(".dos100-opposed-tests-body tr[data-index]"))) {
       row.addEventListener("dragstart", () => { dragIndex = Number(row.dataset.index); });
@@ -387,21 +386,61 @@ export class ActionSheet extends HandlebarsApplicationMixin(foundry.applications
 
   override _onDrop(event: DragEvent): void | Promise<void> {
     return (async () => {
-      const system = this.#item.system as { actions: Actions };
-      const action = system.actions.items[this.#actionId];
-      if ((action.opposedTest?.options ?? []).length === 0) return;
       const raw = event.dataTransfer?.getData("text/plain");
       if (!raw) return;
       let dropData: { type?: string; uuid?: string };
       try { dropData = JSON.parse(raw) as { type?: string; uuid?: string }; } catch { return; }
       if (dropData.type !== "Item" || dropData.uuid === undefined) return;
       const dropped = await fromUuid<Item>(dropData.uuid);
-      if (dropped === null || dropped.type !== "effect") return;
-      const ref: ItemRef = { uuid: dropped.uuid, name: dropped.name, img: dropped.img };
-      this.#saveScrollTop();
-      await this.#item.update({ [`system.actions.items.${this.#actionId}.opposedTest.targetFailureEffect`]: ref }, { render: false });
-      await this.render();
+      if (dropped === null) return;
+      if (dropped.type === "skill") {
+        await this.#onDropSkill(dropped);
+      } else if (dropped.type === "effect") {
+        await this.#onDropEffect(dropped);
+      }
     })();
+  }
+
+  async #onDropSkill(dropped: Item): Promise<void> {
+    if (this.element.querySelector('[data-tab="action"].active') === null) return;
+    const sys = dropped.system as SkillData;
+    if (!sys.identifier) {
+      ui.notifications?.warn(game.i18n.localize("DOS100.actorSkill.notification.noIdentifier"));
+      return;
+    }
+    const system = this.#item.system as { actions: Actions };
+    const options = system.actions.items[this.#actionId].opposedTest?.options ?? [];
+    if (options.some(o => o.type === "skill" && o.identifier === sys.identifier)) {
+      ui.notifications?.warn(
+        game.i18n.format("DOS100.action.opposedTest.notification.duplicateSkill", { identifier: sys.identifier }),
+      );
+      return;
+    }
+    const newOption: OpposedTestOption = {
+      type: "skill",
+      name: dropped.name ?? "",
+      identifier: sys.identifier,
+      characteristics: [...sys.characteristics],
+    };
+    this.#saveScrollTop();
+    await this.#item.update(
+      { [`system.actions.items.${this.#actionId}.opposedTest.options`]: [...options, newOption] },
+      { render: false },
+    );
+    await this.render();
+  }
+
+  async #onDropEffect(dropped: Item): Promise<void> {
+    const system = this.#item.system as { actions: Actions };
+    const action = system.actions.items[this.#actionId];
+    if ((action.opposedTest?.options ?? []).length === 0) return;
+    const ref: ItemRef = { uuid: dropped.uuid, name: dropped.name, img: dropped.img };
+    this.#saveScrollTop();
+    await this.#item.update(
+      { [`system.actions.items.${this.#actionId}.opposedTest.targetFailureEffect`]: ref },
+      { render: false },
+    );
+    await this.render();
   }
 
   protected async _onAddActionEffectNote(_event: PointerEvent, _target: HTMLElement): Promise<void> {
