@@ -1,0 +1,69 @@
+<form class="dos100-actor-education-form">
+  <div class="dos100-form-group">
+    <label for="{{sheetId}}-name">{{localize "DOS100.actorEducation.dialog.name"}}</label>
+    <input type="text" id="{{sheetId}}-name" name="name" value="{{name}}" />
+  </div>
+
+  <div class="dos100-form-group">
+    <label for="{{sheetId}}-difficulty">{{localize "DOS100.item.skill.difficulty"}}</label>
+    <select id="{{sheetId}}-difficulty" name="system.difficulty">
+      {{#each difficulties}}
+        <option value="{{value}}"{{#if selected}} selected{{/if}}>{{label}}</option>
+      {{/each}}
+    </select>
+  </div>
+
+  <div class="dos100-form-group">
+    <label for="{{sheetId}}-cost-plus5">{{localize "DOS100.item.education.cost.plus5"}}</label>
+    <input type="number" id="{{sheetId}}-cost-plus5" name="system.cost.plus5" value="{{system.cost.plus5}}" step="1" min="0" />
+  </div>
+  <div class="dos100-form-group">
+    <label for="{{sheetId}}-cost-plus10">{{localize "DOS100.item.education.cost.plus10"}}</label>
+    <input type="number" id="{{sheetId}}-cost-plus10" name="system.cost.plus10" value="{{system.cost.plus10}}" step="1" min="0" />
+  </div>
+
+  <hr />
+
+  <p class="eyebrow-label">{{localize "DOS100.item.education.characteristics"}}</p>
+  <div class="dos100-skill-char-checkboxes">
+    {{#each characteristics}}
+      <label>
+        <input type="checkbox" data-array-field="system.characteristics" value="{{value}}"{{#if checked}} checked{{/if}} />
+        {{label}}
+      </label>
+    {{/each}}
+  </div>
+
+  <p class="eyebrow-label">{{localize "DOS100.item.education.skills"}}</p>
+  {{#if skills.length}}
+    <ul class="dos100-education-skills">
+      {{#each skills}}
+        <li>
+          <span>{{this.name}}</span>
+          <a
+            role="button"
+            tabindex="0"
+            class="icon-button"
+            data-action="deleteEducationSkill"
+            data-index="{{@index}}"
+            aria-label="{{localize "DOS100.item.education.deleteSkill" name=this.name}}"
+          ><i class="fa-solid fa-trash" inert></i></a>
+        </li>
+      {{/each}}
+    </ul>
+  {{else}}
+    <p class="dos100-education-skills-empty">{{localize "DOS100.item.education.skillsEmpty"}}</p>
+  {{/if}}
+
+  <hr />
+
+  <div class="dos100-form-group">
+    <label for="{{sheetId}}-identifier">{{localize "DOS100.item.identifier"}}</label>
+    <input type="text" id="{{sheetId}}-identifier" name="system.identifier" value="{{system.identifier}}" required />
+  </div>
+
+  <footer>
+    <button type="button" data-action="saveAndClose">{{localize "DOS100.actorEducation.dialog.save"}}</button>
+    <button type="button" data-action="cancelDialog">{{localize "DOS100.actorEducation.dialog.cancel"}}</button>
+  </footer>
+</form>

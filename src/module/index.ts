@@ -76,6 +76,7 @@ Hooks.once("init", (): void => {
     "systems/100dos/templates/items/dialogs/damage-type-dialog.hbs",
     "systems/100dos/templates/actors/dialogs/ability-acquisition.hbs",
     "systems/100dos/templates/actors/dialogs/actor-skill.hbs",
+    "systems/100dos/templates/actors/dialogs/actor-education.hbs",
     "systems/100dos/templates/actors/dialogs/skill-training-change.hbs",
     "systems/100dos/templates/items/education-shell.hbs",
   ]);

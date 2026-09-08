@@ -361,7 +361,8 @@
 
 .dos100-skill-sheet,
 .dos100-education-sheet,
-.actor-skill-dialog {
+.actor-skill-dialog,
+.actor-education-dialog {
   .eyebrow-label {
     margin: 0.5rem 0 0.25rem;
   }
@@ -396,7 +397,8 @@
   }
 }
 
-.dos100-education-sheet {
+.dos100-education-sheet,
+.actor-education-dialog {
   .dos100-education-skills {
     list-style: none;
     margin: 0;
@@ -420,12 +422,30 @@
   }
 }
 
-.actor-skill-dialog {
+.actor-skill-dialog,
+.actor-education-dialog {
   .window-content {
     padding: 0.75rem;
   }
+}
 
+.actor-skill-dialog {
   .dos100-actor-skill-form {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+
+    footer {
+      display: flex;
+      gap: 0.5rem;
+      justify-content: flex-end;
+      padding-top: 0.5rem;
+    }
+  }
+}
+
+.actor-education-dialog {
+  .dos100-actor-education-form {
     display: flex;
     flex-direction: column;
     gap: 0.25rem;

@@ -2,6 +2,7 @@ import { Dos100ActorSheet } from "../actor-sheet.js";
 import { Dos100Item, ACTIONS_ITEM_TYPES } from "../../documents/item.js";
 import { AbilityAcquisitionDialog } from "./ability-acquisition-dialog.js";
 import { ActorSkillDialog } from "./actor-skill-dialog.js";
+import { ActorEducationDialog } from "./actor-education-dialog.js";
 import { SkillTrainingChangeDialog } from "./skill-training-change-dialog.js";
 import { type ActorMovement, type MovementMode } from "../../movement.js";
 import { type Encumbrance, type EncumbranceBand, encumbranceBands } from "../../encumbrance.js";
@@ -24,13 +25,16 @@ import {
   createActorSkillRecord,
 } from "../../skill.js";
 import { type SkillData } from "../../items/skill.js";
-import { type CharacteristicId, isCharacteristicId } from "../../characteristic.js";
+import { type EducationData } from "../../items/education.js";
+import { type CharacteristicId } from "../../characteristic.js";
 import {
   type ActorEducation,
   type ActorEducations,
+  type EducationDefinition,
   type EducationTarget,
   type EducationTraining,
   EDUCATION_TRAININGS,
+  createActorEducationFromDefinition,
 } from "../../education.js";
 import { type Actions } from "../../items/action.js";
 import { type EffectData } from "../../items/effect.js";
@@ -125,6 +129,10 @@ export class PcActorSheet extends Dos100ActorSheet {
       togglePinnedSkill: PcActorSheet.prototype.onTogglePinnedSkill,
       createSkill: PcActorSheet.prototype.onCreateSkill,
       editSkill: PcActorSheet.prototype.onEditSkill,
+      togglePinnedEducation: PcActorSheet.prototype.onTogglePinnedEducation,
+      createEducation: PcActorSheet.prototype.onCreateEducation,
+      editEducation: PcActorSheet.prototype.onEditEducation,
+      deleteEducation: PcActorSheet.prototype.onDeleteEducation,
       toggleStatus: PcActorSheet.prototype.onToggleStatus,
       toggleItemPinned: PcActorSheet.prototype.onToggleItemPinned,
       toggleEffectActive: PcActorSheet.prototype.onToggleEffectActive,
@@ -338,32 +346,28 @@ export class PcActorSheet extends Dos100ActorSheet {
   }
 
   // Render context, not persisted data: each row's Characteristic/Skill
-  // <select> options are built from that Education's own `options` list
-  // only, and rows are sorted alphabetically by name — same rationale as
-  // skillRows() above. No persisted ordering exists yet.
+  // <select> options are derived from the Education's own stored
+  // characteristics and skills snapshot, never from actor.system.skills —
+  // so the selector displays correctly even for Skills the Actor doesn't
+  // possess. Rows are sorted alphabetically by name.
   private educationRows(): EducationRow[] {
     const educations = (this.actor.system as { educations: ActorEducations }).educations;
-    const skills = (this.actor.system as { skills: ActorSkills }).skills;
     return Object.entries(educations)
       .map(([identifier, education]) => ({
         ...education,
         identifier,
-        targetOptions: education.options.map((target) => ({
-          value: target,
-          label: this.educationTargetLabel(target, skills),
-        })),
+        targetOptions: [
+          ...education.characteristics.map((id) => ({
+            value: id as EducationTarget,
+            label: game.i18n.localize(`DOS100.characteristic.${id}.abbr`),
+          })),
+          ...education.skills.map((skill) => ({
+            value: skill.identifier as EducationTarget,
+            label: skill.name,
+          })),
+        ],
       }))
       .sort((a, b) => a.name.localeCompare(b.name));
-  }
-
-  // A target is either one of the ten reserved Characteristic IDs or a
-  // Skill identifier (see education.ts) — resolved to a display label here,
-  // never persisted. A Skill identifier with no matching system.skills
-  // entry falls back to the raw identifier itself rather than mutating the
-  // Education or hiding the option.
-  private educationTargetLabel(target: EducationTarget, skills: ActorSkills): string {
-    if (isCharacteristicId(target)) return game.i18n.localize(`DOS100.characteristic.${target}.abbr`);
-    return skills[target]?.name ?? target;
   }
 
   // Render context, not persisted data: the fixed Training enum's options
@@ -806,6 +810,8 @@ export class PcActorSheet extends Dos100ActorSheet {
         await this._onDropAbility(source as Dos100Item);
       } else if (source.type === "skill") {
         await this._onDropSkill(source);
+      } else if (source.type === "education") {
+        await this._onDropEducation(source);
       } else {
         await this.actor.createEmbeddedDocuments("Item", [source.toObject()]);
       }
@@ -854,6 +860,115 @@ export class PcActorSheet extends Dos100ActorSheet {
       identifier,
     };
     await this.actor.update({ [`system.skills.${identifier}`]: createActorSkillRecord(definition) });
+  }
+
+  private async _onDropEducation(source: Item): Promise<void> {
+    const sys = source.system as EducationData;
+    const identifier = sys.identifier;
+    if (!identifier) {
+      ui.notifications?.warn(game.i18n.localize("DOS100.actorEducation.notification.noIdentifier"));
+      return;
+    }
+    const educations = (this.actor.system as { educations: ActorEducations }).educations;
+    if (identifier in educations) {
+      ui.notifications?.warn(
+        game.i18n.format("DOS100.actorEducation.notification.identifierCollision", { identifier }),
+      );
+      return;
+    }
+    const definition: EducationDefinition = {
+      name: source.name ?? "",
+      identifier,
+      difficulty: sys.difficulty,
+      characteristics: [...sys.characteristics],
+      skills: sys.skills.map(s => ({ identifier: s.identifier, name: s.name })),
+      description: sys.description,
+      cost: { plus5: sys.cost.plus5, plus10: sys.cost.plus10 },
+    };
+    await this.actor.update({
+      [`system.educations.${identifier}`]: createActorEducationFromDefinition(definition),
+    });
+  }
+
+  private async onTogglePinnedEducation(_event: PointerEvent, target: HTMLElement): Promise<void> {
+    const identifier = target.dataset.identifier;
+    if (!identifier) return;
+    const education = (this.actor.system as { educations: ActorEducations }).educations[identifier];
+    if (!education) return;
+    await this.actor.update({ [`system.educations.${identifier}.pinned`]: !education.pinned });
+  }
+
+  private async onCreateEducation(_event: PointerEvent, _target: HTMLElement): Promise<void> {
+    const result = await ActorEducationDialog.promptCreate();
+    if (result.action === "cancel") return;
+    const { definition } = result;
+    const educations = (this.actor.system as { educations: ActorEducations }).educations;
+    if (definition.identifier in educations) {
+      ui.notifications?.warn(
+        game.i18n.format("DOS100.actorEducation.notification.identifierCollision", { identifier: definition.identifier }),
+      );
+      return;
+    }
+    await this.actor.update({
+      [`system.educations.${definition.identifier}`]: createActorEducationFromDefinition(definition),
+    });
+  }
+
+  private async onEditEducation(_event: PointerEvent, target: HTMLElement): Promise<void> {
+    const identifier = target.dataset.identifier;
+    if (!identifier) return;
+    const educations = (this.actor.system as { educations: ActorEducations }).educations;
+    const education = educations[identifier];
+    if (!education) return;
+
+    const result = await ActorEducationDialog.promptEdit(identifier, {
+      name: education.name,
+      difficulty: education.difficulty,
+      characteristics: education.characteristics,
+      skills: education.skills,
+      description: education.description,
+      cost: education.cost,
+    });
+    if (result.action === "cancel") return;
+
+    const { definition } = result;
+
+    if (definition.identifier === identifier) {
+      await this.actor.update({
+        [`system.educations.${identifier}.name`]: definition.name,
+        [`system.educations.${identifier}.difficulty`]: definition.difficulty,
+        [`system.educations.${identifier}.characteristics`]: definition.characteristics,
+        [`system.educations.${identifier}.skills`]: definition.skills,
+        [`system.educations.${identifier}.cost`]: definition.cost,
+      });
+    } else {
+      if (definition.identifier in educations) {
+        ui.notifications?.warn(
+          game.i18n.format("DOS100.actorEducation.notification.identifierCollision", { identifier: definition.identifier }),
+        );
+        return;
+      }
+      const updatedEducation: ActorEducation = {
+        ...education,
+        name: definition.name,
+        difficulty: definition.difficulty,
+        characteristics: [...definition.characteristics],
+        skills: definition.skills.map(s => ({ identifier: s.identifier, name: s.name })),
+        cost: { plus5: definition.cost.plus5, plus10: definition.cost.plus10 },
+      };
+      await this.actor.update({
+        [`system.educations.${definition.identifier}`]: updatedEducation,
+        [`system.educations.${identifier}`]: new foundry.data.operators.ForcedDeletion(),
+      });
+    }
+  }
+
+  private async onDeleteEducation(_event: PointerEvent, target: HTMLElement): Promise<void> {
+    const identifier = target.dataset.identifier;
+    if (!identifier) return;
+    await this.actor.update({
+      [`system.educations.${identifier}`]: new foundry.data.operators.ForcedDeletion(),
+    });
   }
 
   // Permanent/Temporary Effects each get their own manual Add control —

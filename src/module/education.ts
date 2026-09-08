@@ -1,6 +1,7 @@
-import { type CharacteristicId } from "./characteristic.js";
+import { CHARACTERISTIC_IDS, type CharacteristicId } from "./characteristic.js";
 import { type Contributions, contributionsField } from "./contribution.js";
 import { SKILL_DIFFICULTIES, type SkillDifficulty, type SkillIdentifier } from "./skill.js";
+import { type EducationCost, type EducationSkill } from "./items/education.js";
 
 export type EducationTraining = "plus5" | "plus10";
 export const EDUCATION_TRAININGS: EducationTraining[] = ["plus5", "plus10"];
@@ -13,25 +14,55 @@ export type EducationTarget = SkillIdentifier | CharacteristicId;
 
 export type EducationIdentifier = string;
 
+// The definition fields supplied when creating an Actor Education manually
+// or copied from a Stamp — identifier is the key in system.educations,
+// separated from the definition body so the creation helper can validate
+// and insert in one place.
+export type EducationDefinition = {
+  name: string;
+  identifier: string;
+  difficulty: SkillDifficulty;
+  characteristics: CharacteristicId[];
+  skills: EducationSkill[];
+  description: string;
+  cost: EducationCost;
+};
+
 // The record key under system.educations is the Education's stable
 // identity — not duplicated here, matching ActorSkill (see skill.ts).
 export type ActorEducation = {
   name: string;
   difficulty: SkillDifficulty;
   training: EducationTraining;
-  // The Actor's currently selected Characteristic/Skill target for this
-  // Education, and the ordered set of targets valid to select — two
-  // different fields for two different jobs, same split as ActorSkill's
-  // characteristic/characteristics. TODO: nothing here enforces `selected`
-  // is a member of `options`; that's left to whatever populates an
-  // Education, not this wireframe.
   selected: EducationTarget;
-  options: EducationTarget[];
+  characteristics: CharacteristicId[];
+  skills: EducationSkill[];
   value: number;
   pinned: boolean;
   description: string;
+  cost: EducationCost;
   contributions: Contributions;
 };
+
+export function createActorEducationFromDefinition(definition: EducationDefinition): ActorEducation {
+  const selected =
+    definition.characteristics[0] ??
+    definition.skills[0]?.identifier ??
+    "";
+  return {
+    name: definition.name,
+    difficulty: definition.difficulty,
+    training: EDUCATION_TRAININGS[0],
+    selected,
+    characteristics: [...definition.characteristics],
+    skills: definition.skills.map(s => ({ identifier: s.identifier, name: s.name })),
+    value: 0,
+    pinned: false,
+    description: definition.description,
+    cost: { plus5: definition.cost.plus5, plus10: definition.cost.plus10 },
+    contributions: [],
+  };
+}
 
 export type ActorEducations = Record<EducationIdentifier, ActorEducation>;
 
@@ -65,13 +96,24 @@ function actorEducationField(): foundry.data.fields.SchemaField {
     // fixed array to draw a leftmost-literal default from, so this is a
     // plain blank string like `name`/`description`.
     selected: new StringField({ required: true, initial: "" }),
-    // TODO: Education stamping must preserve permitted Skill display names.
-    // The target selector must not fall back to rendering the raw Skill
-    // identifier when the Actor does not possess that Skill.
-    options: new ArrayField(new StringField({ required: true }), { required: true, initial: [] }),
+    characteristics: new ArrayField(
+      new StringField({ required: true, choices: CHARACTERISTIC_IDS }),
+      { required: true, initial: [] },
+    ),
+    skills: new ArrayField(
+      new SchemaField({
+        identifier: new StringField({ required: true, initial: "" }),
+        name: new StringField({ required: true, initial: "" }),
+      }),
+      { required: true, initial: [] },
+    ),
     value: new NumberField({ required: true, initial: 0, integer: true }),
     pinned: new BooleanField({ required: true, initial: false }),
     description: new HTMLField({ required: true, initial: "" }),
+    cost: new SchemaField({
+      plus5: new NumberField({ required: true, initial: 0, integer: true, min: 0 }),
+      plus10: new NumberField({ required: true, initial: 0, integer: true, min: 0 }),
+    }),
     contributions: contributionsField(),
   });
 }

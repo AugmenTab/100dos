@@ -594,6 +594,19 @@
         "identifierCollision": "This Actor already has a Skill with identifier \"{identifier}\"."
       }
     },
+    "actorEducation": {
+      "dialog": {
+        "createTitle": "New Education",
+        "editTitle": "Edit Education",
+        "name": "Name",
+        "save": "Save",
+        "cancel": "Cancel"
+      },
+      "notification": {
+        "noIdentifier": "This Education Item has no identifier. Set one on the Item before dragging it onto an Actor.",
+        "identifierCollision": "This Actor already has an Education with identifier \"{identifier}\"."
+      }
+    },
     "education": {
       "notification": {
         "duplicateSkill": "This Education already has a permitted Skill with identifier \"{identifier}\"."
