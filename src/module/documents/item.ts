@@ -6,9 +6,12 @@ import { type Actions, type UsagePeriod, shouldRecharge } from "../items/action.
 // has (or will have) one.
 export const ACTIONS_ITEM_TYPES = new Set(["ability", "trait", "effect", "armor", "gear"]);
 
-// Item types that carry system.identifier and receive automatic seeding
-// on creation.
-export const ABSTRACT_ITEM_TYPES = new Set(["ability", "trait", "effect", "skill"]);
+// Item types that can be linked as children/supplements in the Link tab.
+export const ABSTRACT_ITEM_TYPES = new Set(["ability", "trait", "effect"]);
+
+// All item types that carry system.identifier and receive automatic seeding
+// on creation (superset of ABSTRACT_ITEM_TYPES).
+const IDENTIFIER_ITEM_TYPES = new Set([...ABSTRACT_ITEM_TYPES, "skill", "education"]);
 
 export function toCamelCase(str: string): string {
   const words = str.split(/[^a-zA-Z0-9]+/).filter(w => w.length > 0);
@@ -56,7 +59,7 @@ export class Dos100Item extends Item {
   protected override _onCreate(data: object, options: object, userId: string): void {
     super._onCreate(data, options, userId);
     if (game.user?.id !== userId) return;
-    if (ABSTRACT_ITEM_TYPES.has(this.type) && !(this.system as { identifier: string }).identifier) {
+    if (IDENTIFIER_ITEM_TYPES.has(this.type) && !(this.system as { identifier: string }).identifier) {
       void this._seedIdentifier();
     }
     if (!this.actor) return;
@@ -69,7 +72,7 @@ export class Dos100Item extends Item {
     const base = toCamelCase(this.name ?? "");
     const taken = new Set(
       (this.actor?.items ?? ([] as Item[]))
-        .filter(i => i.id !== this.id && ABSTRACT_ITEM_TYPES.has(i.type))
+        .filter(i => i.id !== this.id && IDENTIFIER_ITEM_TYPES.has(i.type))
         .map(i => (i.system as { identifier?: string }).identifier)
         .filter((id): id is string => typeof id === "string" && id.length > 0),
     );
