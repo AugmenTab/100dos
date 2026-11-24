@@ -2,13 +2,20 @@
 // callback bodies. Deliberately narrow and independent from
 // src/types/foundry.d.ts — this covers only what the E2E harness touches.
 
+// Only the system fields specs read structurally. Row shapes stay unknown;
+// a spec casts them to whatever subset it asserts on.
+interface E2EItemSystem {
+  actions: { items: Record<string, unknown>; pinned: boolean };
+  changes: { computed: unknown[]; conditional: unknown[] };
+}
+
 interface E2EItemDocument {
   readonly id: string;
   readonly uuid: string;
   readonly name: string;
   readonly type: string;
   readonly img: string;
-  readonly system: Record<string, unknown>;
+  readonly system: Record<string, unknown> & E2EItemSystem;
   readonly actor: E2EActorDocument | null;
   readonly sheet: { id: string; render(force?: boolean): Promise<unknown> };
   getFlag(scope: string, key: string): unknown;
@@ -98,6 +105,7 @@ interface E2EApplication {
 }
 
 declare const foundry: {
+  utils: { randomID(): string };
   applications: {
     instances: {
       get(id: string): E2EApplication | undefined;

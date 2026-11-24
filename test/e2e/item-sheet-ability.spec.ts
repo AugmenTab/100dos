@@ -256,7 +256,7 @@ test("Duplicate Action creates a copy with (Copy) appended to the name", async (
       id: actionId,
       name: "Slash",
       activation: { type: "full", cost: null },
-      uses: { per: "unlimited", value: 0, max: 0, cost: 1, formula: { max: "", cost: "" } },
+      uses: { per: "unlimited", value: 0, max: 0, formula: "", itemCost: { value: 0, formula: "", perAttack: false }, actionCost: { value: 1, formula: "", perAttack: false } },
     },
   });
   const sheetId = await openItemSheet(page, actorId, itemId);
@@ -289,7 +289,7 @@ test("Delete Action removes the row", async ({ foundryPage: page, fixtureLane })
       id: actionId,
       name: "Slash",
       activation: { type: "full", cost: null },
-      uses: { per: "unlimited", value: 0, max: 0, cost: 1, formula: { max: "", cost: "" } },
+      uses: { per: "unlimited", value: 0, max: 0, formula: "", itemCost: { value: 0, formula: "", perAttack: false }, actionCost: { value: 1, formula: "", perAttack: false } },
     },
   });
   const sheetId = await openItemSheet(page, actorId, itemId);

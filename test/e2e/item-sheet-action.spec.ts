@@ -4,7 +4,7 @@ import { openItemSheet, openTab, updateItem } from "./support/item-sheet.js";
 
 const ACTION_STUB = {
   activation: { type: "full" as const, cost: null },
-  uses: { per: "unlimited" as const, value: 0, max: 0, cost: 1, formula: { max: "", cost: "" } },
+  uses: { per: "unlimited" as const, value: 0, max: 0, formula: "", itemCost: { value: 0, formula: "", perAttack: false }, actionCost: { value: 1, formula: "", perAttack: false } },
 };
 
 async function seedAction(

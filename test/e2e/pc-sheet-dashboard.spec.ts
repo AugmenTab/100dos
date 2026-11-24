@@ -165,7 +165,7 @@ test("pinning an Ability surfaces it as a quick-use control that delegates to th
             id: "action1",
             name: "Test Action",
             activation: { type: "free", cost: null },
-            uses: { per: "encounter", value: 1, max: 1, cost: 1, formula: { max: "", cost: "" } },
+            uses: { per: "encounter", value: 1, max: 1, formula: "", itemCost: { value: 0, formula: "", perAttack: false }, actionCost: { value: 1, formula: "", perAttack: false } },
           },
         },
       });
