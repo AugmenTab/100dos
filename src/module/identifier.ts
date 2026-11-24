@@ -23,3 +23,11 @@ export function identifierProblemMessage(identifier: string): string | null {
   if (problem === null) return null;
   return game.i18n.format(`DOS100.identifierValidation.${problem}`, { identifier });
 }
+
+// `base` itself if free, otherwise the first of base2, base3, ... not in
+// `taken`.
+export function uniqueIdentifier(base: string, taken: ReadonlySet<string>): string {
+  let slug = base;
+  for (let counter = 2; taken.has(slug); counter++) slug = `${base}${counter}`;
+  return slug;
+}

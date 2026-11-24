@@ -148,6 +148,12 @@ declare class Item {
   toObject(): Record<string, unknown>;
   getFlag(scope: string, key: string): unknown;
   setFlag(scope: string, key: string, value: unknown): Promise<this>;
+  updateSource(changes: Record<string, unknown>): object;
+  protected static _preCreateOperation(
+    documents: Item[],
+    operation: { parent?: Actor | null },
+    user: unknown,
+  ): Promise<boolean | void>;
   protected _onCreate(data: object, options: object, userId: string): void;
   protected _onUpdate(data: object, options: object, userId: string): void;
   protected _onDelete(options: object, userId: string): void;

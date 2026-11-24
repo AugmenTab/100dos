@@ -1,6 +1,7 @@
 import { type GrantData } from "../items/grants.js";
 import { type Actions, type UsagePeriod, shouldRecharge } from "../items/action.js";
 import { CHARACTERISTIC_IDS } from "../characteristic.js";
+import { uniqueIdentifier } from "../identifier.js";
 
 // Item types whose system data carries the shared Actions structure —
 // checked explicitly rather than duck-typed, since not every Item type
@@ -57,36 +58,45 @@ export class Dos100Item extends Item {
     return (this.actor.items.get(id) as Dos100Item) ?? null;
   }
 
-  protected override _onCreate(data: object, options: object, userId: string): void {
-    super._onCreate(data, options, userId);
-    if (game.user?.id !== userId) return;
-    if (IDENTIFIER_ITEM_TYPES.has(this.type) && !(this.system as { identifier: string }).identifier) {
-      void this._seedIdentifier();
-    }
-    if (!this.actor) return;
-    const grants = (this.system as { grants?: GrantData[] }).grants;
-    if (!grants?.length) return;
-    void this._createGrants(grants);
-  }
-
-  private async _seedIdentifier(): Promise<void> {
-    const base = toCamelCase(this.name ?? "");
-    // Characteristic IDs are reserved (see identifier.ts) — an Item named
-    // e.g. "Str" must not seed one.
+  // Seeds a missing system.identifier before the creation is written, so
+  // it lands in the same database operation rather than a follow-up update.
+  // Done batch-wide rather than per-Document in _preCreate so Items created
+  // together (e.g. an Ability's grants) can't seed the same slug as each
+  // other — each claimed slug is added to `taken` before the next.
+  // Characteristic IDs are reserved (see identifier.ts), so an Item named
+  // e.g. "Str" must not seed one.
+  protected static override async _preCreateOperation(
+    documents: Item[],
+    operation: { parent?: Actor | null },
+    user: unknown,
+  ): Promise<boolean | void> {
+    if ((await super._preCreateOperation(documents, operation, user)) === false) return false;
     const taken = new Set<string>([
       ...CHARACTERISTIC_IDS,
-      ...(this.actor?.items ?? ([] as Item[]))
-        .filter(i => i.id !== this.id && IDENTIFIER_ITEM_TYPES.has(i.type))
+      ...(operation.parent?.items ?? ([] as Item[]))
+        .filter(i => IDENTIFIER_ITEM_TYPES.has(i.type))
         .map(i => (i.system as { identifier?: string }).identifier)
         .filter((id): id is string => typeof id === "string" && id.length > 0),
     ]);
-    let slug = base;
-    let counter = 2;
-    while (taken.has(slug)) {
-      slug = `${base}${counter}`;
-      counter++;
+    for (const document of documents) {
+      if (!IDENTIFIER_ITEM_TYPES.has(document.type)) continue;
+      const existing = (document.system as { identifier?: string }).identifier;
+      if (existing) {
+        taken.add(existing);
+        continue;
+      }
+      const slug = uniqueIdentifier(toCamelCase(document.name ?? ""), taken);
+      taken.add(slug);
+      document.updateSource({ "system.identifier": slug });
     }
-    await this.update({ "system.identifier": slug });
+  }
+
+  protected override _onCreate(data: object, options: object, userId: string): void {
+    super._onCreate(data, options, userId);
+    if (game.user?.id !== userId || !this.actor) return;
+    const grants = (this.system as { grants?: GrantData[] }).grants;
+    if (!grants?.length) return;
+    void this._createGrants(grants);
   }
 
   protected override _onUpdate(data: object, options: object, userId: string): void {
@@ -136,8 +146,10 @@ export class Dos100Item extends Item {
       if (g.kind === "child") childIds.push(item.id!);
       else supplementIds.push(item.id!);
     }
-    await this.setFlag(sysId, "childItemIds", childIds);
-    await this.setFlag(sysId, "supplementItemIds", supplementIds);
+    await this.update({
+      [`flags.${sysId}.childItemIds`]: childIds,
+      [`flags.${sysId}.supplementItemIds`]: supplementIds,
+    });
   }
 
   /**

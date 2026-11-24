@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { identifierProblem } from "./identifier.js";
+import { identifierProblem, uniqueIdentifier } from "./identifier.js";
 import { CHARACTERISTIC_IDS } from "./characteristic.js";
 
 describe("identifierProblem", () => {
@@ -13,5 +13,19 @@ describe("identifierProblem", () => {
 
   it("rejects every Characteristic ID as reserved", () => {
     for (const id of CHARACTERISTIC_IDS) expect(identifierProblem(id)).toBe("reserved");
+  });
+});
+
+describe("uniqueIdentifier", () => {
+  it("returns the base when it is free", () => {
+    expect(uniqueIdentifier("athletics", new Set())).toBe("athletics");
+  });
+
+  it("appends the first free counter starting at 2", () => {
+    expect(uniqueIdentifier("athletics", new Set(["athletics", "athletics2"]))).toBe("athletics3");
+  });
+
+  it("suffixes a reserved Characteristic ID", () => {
+    expect(uniqueIdentifier("str", new Set(CHARACTERISTIC_IDS))).toBe("str2");
   });
 });
