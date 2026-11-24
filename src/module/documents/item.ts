@@ -211,7 +211,17 @@ export class Dos100Item extends Item {
    * restores the shared Actions pool if its period matches.
    */
   async rechargeActions(period: UsagePeriod | "encounter"): Promise<void> {
-    if (this.type !== "ability") return;
+    const updates = this.rechargeUpdates(period);
+    if (updates !== null) await this.update(updates);
+  }
+
+  /**
+   * The update rechargeActions would apply, or null when nothing needs
+   * restoring — returned rather than applied so a caller recharging many
+   * Items can batch them into one updateEmbeddedDocuments call.
+   */
+  rechargeUpdates(period: UsagePeriod | "encounter"): Record<string, number> | null {
+    if (this.type !== "ability") return null;
     const system = this.system as { actions: Actions };
 
     const updates: Record<string, number> = {};
@@ -227,8 +237,6 @@ export class Dos100Item extends Item {
       }
     }
 
-    if (Object.keys(updates).length > 0) {
-      await this.update(updates);
-    }
+    return Object.keys(updates).length > 0 ? updates : null;
   }
 }

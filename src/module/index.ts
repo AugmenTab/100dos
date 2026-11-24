@@ -186,16 +186,24 @@ Hooks.once("ready", (): void => {
 // Recharge per-encounter ability uses at both combat start and combat end,
 // so abilities are always fresh entering a fight and restored after one ends.
 // GM-only to avoid simultaneous updates from multiple connected clients.
+// One updateEmbeddedDocuments per Actor rather than one update per Item, with
+// the Actors themselves updated in parallel. Deduplicated by uuid, since a
+// linked Actor with several tokens in the combat appears once per combatant.
 async function rechargeEncounterUses(combat: Combat): Promise<void> {
   if (!game.user?.isGM) return;
+  const actors = new Map<string, Actor>();
   for (const combatant of combat.combatants) {
-    if (!combatant.actor) continue;
-    for (const item of combatant.actor.items) {
-      if (item.type === "ability") {
-        await (item as Dos100Item).rechargeActions("encounter");
-      }
-    }
+    if (combatant.actor) actors.set(combatant.actor.uuid, combatant.actor);
   }
+  await Promise.all(
+    Array.from(actors.values()).map(async (actor) => {
+      const updates = Array.from(actor.items).flatMap((item) => {
+        const update = (item as Dos100Item).rechargeUpdates("encounter");
+        return update === null ? [] : [{ _id: item.id, ...update }];
+      });
+      if (updates.length > 0) await actor.updateEmbeddedDocuments("Item", updates);
+    }),
+  );
 }
 
 Hooks.on("combatStart", (combat: unknown): void => {
