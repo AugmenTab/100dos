@@ -9,26 +9,24 @@
           value="{{this}}"
           aria-label="{{localize "DOS100.item.tagsEditor.tagLabel"}}"
         />
-        <a
-          role="button"
-          tabindex="0"
+        <button
+          type="button"
           class="icon-button"
           data-action="deleteTag"
           data-index="{{@index}}"
           aria-label="{{localize "DOS100.item.tagsEditor.delete"}}"
-        ><i class="fa-solid fa-trash" inert></i></a>
+        ><i class="fa-solid fa-trash" inert></i></button>
       </li>
     {{else}}
       <li class="empty-state">{{localize "DOS100.item.tagsEditor.empty"}}</li>
     {{/each}}
   </ul>
   <footer>
-    <a
-      role="button"
-      tabindex="0"
+    <button
+      type="button"
       data-action="addTag"
       aria-label="{{localize "DOS100.item.tagsEditor.add"}}"
-    >+ {{localize "DOS100.item.tagsEditor.add"}}</a>
+    >+ {{localize "DOS100.item.tagsEditor.add"}}</button>
     <div>
       <button type="button" data-action="saveAndClose">{{localize "DOS100.item.tagsEditor.save"}}</button>
       <button type="button" data-action="cancelDialog">{{localize "DOS100.item.tagsEditor.cancel"}}</button>

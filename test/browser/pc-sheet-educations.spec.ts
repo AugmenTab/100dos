@@ -49,28 +49,28 @@ test("the header row has no textual label for Pinned, Name spans both columns, a
 
   const addHeader = headers.last();
   await expect(addHeader).toHaveText("");
-  await expect(addHeader.locator('a[role="button"]')).toHaveAttribute("aria-label", "Add Education");
+  await expect(addHeader.locator('button.icon-button')).toHaveAttribute("aria-label", "Add Education");
 });
 
 test("Name includes Edit, Info, and a Delete affordance carrying the Education's stable identifier", async ({ page }) => {
   await page.setContent(renderSkills({ educationRows: [{ identifier: "engineering", name: "Engineering" }] }));
 
   const row = educationsTable(page).locator("tbody tr").filter({ hasText: "Engineering" });
-  const editControl = row.locator("a").filter({ has: page.locator("i.fa-pen-to-square") });
+  const editControl = row.locator("button").filter({ has: page.locator("i.fa-pen-to-square") });
   await expect(editControl).toHaveAttribute("data-identifier", "engineering");
   await expect(editControl).toHaveAttribute("aria-label", "Edit Education: Engineering");
 
-  const infoControl = row.locator("a").filter({ has: page.locator("i.fa-book-open") });
+  const infoControl = row.locator("button").filter({ has: page.locator("i.fa-book-open") });
   await expect(infoControl).toHaveAttribute("data-identifier", "engineering");
   await expect(infoControl).toHaveAttribute("aria-label", "View Education Description: Engineering");
 
-  const deleteControl = row.locator("a.dense-table-delete");
+  const deleteControl = row.locator("button.dense-table-delete");
   await expect(deleteControl).toHaveCount(1);
   await expect(deleteControl).toHaveAttribute("data-identifier", "engineering");
   await expect(deleteControl).toHaveAttribute("aria-label", "Delete Education: Engineering");
   await expect(deleteControl.locator("i.fa-trash")).toHaveCount(1);
 
-  const nameControls = row.locator(".dense-table-name-inner a");
+  const nameControls = row.locator(".dense-table-name-inner button");
   await expect(nameControls).toHaveCount(3);
   await expect(nameControls.nth(2)).toHaveClass(/dense-table-delete/);
 });
@@ -106,7 +106,7 @@ test("an empty ActorEducations record still shows the summary, table structure, 
 
   await expect(page.locator(".pc-section-heading-value")).toContainText("0");
   await expect(educationsTable(page).locator("thead th")).toHaveCount(5);
-  await expect(educationsTable(page).locator('thead a[role="button"]')).toBeVisible();
+  await expect(educationsTable(page).locator('thead button.icon-button')).toBeVisible();
   await expect(educationsTable(page).locator("tbody tr")).toHaveCount(1);
   const emptyState = educationsTable(page).locator(".dense-table-empty-state");
   await expect(emptyState).toHaveText("No Educations recorded yet.");

@@ -21,7 +21,7 @@ test("Links tab rows resolve from the grant system: child and supplement items a
   const childRow = childrenPanel.locator("table.dense-table tbody tr").nth(0);
   await expect(childRow.locator("td").nth(0).locator("img")).toHaveAttribute("src", /.+/);
   await expect(childRow.locator("td").nth(0)).toContainText("[E2E] Child Trait");
-  const childButtons = childRow.locator("td").nth(1).locator("a.icon-button");
+  const childButtons = childRow.locator("td").nth(1).locator("button.icon-button");
   await expect(childButtons).toHaveCount(2);
   await expect(childButtons.nth(0)).toHaveAttribute("aria-label", "Edit child item");
   await expect(childButtons.nth(1)).toHaveAttribute("aria-label", "Delete child item");
@@ -33,7 +33,7 @@ test("Links tab rows resolve from the grant system: child and supplement items a
   const supplementRow = supplementsPanel.locator("table.dense-table tbody tr").nth(0);
   await expect(supplementRow.locator("td").nth(0).locator("img")).toHaveAttribute("src", /.+/);
   await expect(supplementRow.locator("td").nth(0)).toContainText("[E2E] Supplement Trait");
-  const supplementButtons = supplementRow.locator("td").nth(1).locator("a.icon-button");
+  const supplementButtons = supplementRow.locator("td").nth(1).locator("button.icon-button");
   await expect(supplementButtons).toHaveCount(2);
   await expect(supplementButtons.nth(0)).toHaveAttribute("aria-label", "Edit supplement item");
   await expect(supplementButtons.nth(1)).toHaveAttribute("aria-label", "Delete supplement item");

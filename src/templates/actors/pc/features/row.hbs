@@ -8,12 +8,11 @@
   <td>
     {{#if this.hasActions}}
       {{!-- TODO: not wired up yet — no roll resolution exists. --}}
-      <a
-        role="button"
-        tabindex="0"
+      <button
+        type="button"
         class="icon-button"
         aria-label="{{localize "DOS100.item.table.useActions" name=this.item.name}}"
-      ><i class="fa-solid fa-dice-d10" inert></i></a>
+      ><i class="fa-solid fa-dice-d10" inert></i></button>
     {{/if}}
   </td>
   <td>
@@ -22,29 +21,26 @@
     {{/if}}
   </td>
   <td>
-    <a
-      role="button"
-      tabindex="0"
+    <button
+      type="button"
       class="icon-button"
       data-action="editItem"
       data-item-id="{{this.item.id}}"
       aria-label="{{localize "DOS100.item.table.edit" name=this.item.name}}"
-    ><i class="fa-solid fa-pen-to-square" inert></i></a>
-    <a
-      role="button"
-      tabindex="0"
+    ><i class="fa-solid fa-pen-to-square" inert></i></button>
+    <button
+      type="button"
       class="icon-button"
       data-action="duplicateItem"
       data-item-id="{{this.item.id}}"
       aria-label="{{localize "DOS100.item.table.duplicate" name=this.item.name}}"
-    ><i class="fa-solid fa-copy" inert></i></a>
-    <a
-      role="button"
-      tabindex="0"
+    ><i class="fa-solid fa-copy" inert></i></button>
+    <button
+      type="button"
       class="icon-button"
       data-action="deleteItem"
       data-item-id="{{this.item.id}}"
       aria-label="{{localize "DOS100.item.table.delete" name=this.item.name}}"
-    ><i class="fa-solid fa-trash" inert></i></a>
+    ><i class="fa-solid fa-trash" inert></i></button>
   </td>
 </tr>

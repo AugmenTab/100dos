@@ -16,13 +16,12 @@
           <th scope="col">{{localize "DOS100.skills.table.training"}}</th>
           <th scope="col">{{localize "DOS100.skills.table.characteristic"}}</th>
           <th scope="col">
-              <a
-              role="button"
-              tabindex="0"
+              <button
+              type="button"
               class="icon-button"
               data-action="createSkill"
               aria-label="{{localize "DOS100.skills.table.add"}}"
-            ><i class="fa-solid fa-plus" inert></i></a>
+            ><i class="fa-solid fa-plus" inert></i></button>
           </th>
         </tr>
       </thead>
@@ -31,9 +30,8 @@
           {{#each skillRows}}
             <tr>
               <td>
-                <a
-                  role="button"
-                  tabindex="0"
+                <button
+                  type="button"
                   class="icon-button dense-table-pin"
                   data-action="togglePinnedSkill"
                   data-identifier="{{this.identifier}}"
@@ -45,27 +43,25 @@
                   {{else}}
                     <i class="fa-solid fa-thumbtack-slash" inert></i>
                   {{/if}}
-                </a>
+                </button>
               </td>
               <td class="dense-table-flexible">
                 <div class="dense-table-name-inner">
                   <span>{{this.name}}</span>
-                  <a
-                    role="button"
-                    tabindex="0"
+                  <button
+                    type="button"
                     class="icon-button"
                     data-action="editSkill"
                     data-identifier="{{this.identifier}}"
                     aria-label="{{localize "DOS100.skills.table.edit" name=this.name}}"
-                  ><i class="fa-solid fa-pen-to-square" inert></i></a>
+                  ><i class="fa-solid fa-pen-to-square" inert></i></button>
                   {{!-- TODO: not wired up yet — no description popup exists. --}}
-                  <a
-                    role="button"
-                    tabindex="0"
+                  <button
+                    type="button"
                     class="icon-button"
                     data-identifier="{{this.identifier}}"
                     aria-label="{{localize "DOS100.skills.table.viewDescription" name=this.name}}"
-                  ><i class="fa-solid fa-book-open" inert></i></a>
+                  ><i class="fa-solid fa-book-open" inert></i></button>
                 </div>
               </td>
               <td>{{localize (concat "DOS100.skills.difficulty." this.difficulty)}}</td>
@@ -130,13 +126,12 @@
             <th scope="col">{{localize "DOS100.educations.table.training"}}</th>
             <th scope="col">{{localize "DOS100.educations.table.target"}}</th>
             <th scope="col">
-              <a
-                role="button"
-                tabindex="0"
+              <button
+                type="button"
                 class="icon-button"
                 data-action="createEducation"
                 aria-label="{{localize "DOS100.educations.table.add"}}"
-              ><i class="fa-solid fa-plus" inert></i></a>
+              ><i class="fa-solid fa-plus" inert></i></button>
             </th>
           </tr>
         </thead>
@@ -145,9 +140,8 @@
             {{#each educationRows}}
               <tr>
                 <td>
-                  <a
-                    role="button"
-                    tabindex="0"
+                  <button
+                    type="button"
                     class="icon-button dense-table-pin"
                     data-action="togglePinnedEducation"
                     data-identifier="{{this.identifier}}"
@@ -159,35 +153,32 @@
                     {{else}}
                       <i class="fa-solid fa-thumbtack-slash" inert></i>
                     {{/if}}
-                  </a>
+                  </button>
                 </td>
                 <td class="dense-table-flexible">
                   <div class="dense-table-name-inner">
                     <span>{{this.name}}</span>
-                    <a
-                      role="button"
-                      tabindex="0"
+                    <button
+                      type="button"
                       class="icon-button"
                       data-action="editEducation"
                       data-identifier="{{this.identifier}}"
                       aria-label="{{localize "DOS100.educations.table.edit" name=this.name}}"
-                    ><i class="fa-solid fa-pen-to-square" inert></i></a>
+                    ><i class="fa-solid fa-pen-to-square" inert></i></button>
                     {{!-- TODO: not wired up yet — no description popup exists. --}}
-                    <a
-                      role="button"
-                      tabindex="0"
+                    <button
+                      type="button"
                       class="icon-button"
                       data-identifier="{{this.identifier}}"
                       aria-label="{{localize "DOS100.educations.table.viewDescription" name=this.name}}"
-                    ><i class="fa-solid fa-book-open" inert></i></a>
-                    <a
-                      role="button"
-                      tabindex="0"
+                    ><i class="fa-solid fa-book-open" inert></i></button>
+                    <button
+                      type="button"
                       class="icon-button dense-table-delete"
                       data-action="deleteEducation"
                       data-identifier="{{this.identifier}}"
                       aria-label="{{localize "DOS100.educations.table.delete" name=this.name}}"
-                    ><i class="fa-solid fa-trash" inert></i></a>
+                    ><i class="fa-solid fa-trash" inert></i></button>
                   </div>
                 </td>
                 <td>{{localize (concat "DOS100.skills.difficulty." this.difficulty)}}</td>

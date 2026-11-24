@@ -12,13 +12,12 @@
         <tr>
           <th scope="col" colspan="3" class="dense-table-flexible">{{localize "DOS100.item.changes.label"}}</th>
           <th scope="col">
-            <a
-              role="button"
-              tabindex="0"
+            <button
+              type="button"
               class="icon-button"
               data-action="addChange"
               aria-label="{{localize "DOS100.item.changes.add"}}"
-            ><i class="fa-solid fa-plus" inert></i></a>
+            ><i class="fa-solid fa-plus" inert></i></button>
           </th>
         </tr>
       </thead>
@@ -41,30 +40,27 @@
               </td>
               <td><code>{{this.targetLabel}}</code></td>
               <td>
-                <a
-                  role="button"
-                  tabindex="0"
+                <button
+                  type="button"
                   class="icon-button"
                   data-action="editChange"
                   data-identifier="{{this.id}}"
                   aria-label="{{localize "DOS100.item.changes.edit"}}"
-                ><i class="fa-solid fa-pen-to-square" inert></i></a>
-                <a
-                  role="button"
-                  tabindex="0"
+                ><i class="fa-solid fa-pen-to-square" inert></i></button>
+                <button
+                  type="button"
                   class="icon-button"
                   data-action="duplicateChange"
                   data-identifier="{{this.id}}"
                   aria-label="{{localize "DOS100.item.changes.duplicate"}}"
-                ><i class="fa-solid fa-copy" inert></i></a>
-                <a
-                  role="button"
-                  tabindex="0"
+                ><i class="fa-solid fa-copy" inert></i></button>
+                <button
+                  type="button"
                   class="icon-button"
                   data-action="deleteChange"
                   data-identifier="{{this.id}}"
                   aria-label="{{localize "DOS100.item.changes.delete"}}"
-                ><i class="fa-solid fa-trash" inert></i></a>
+                ><i class="fa-solid fa-trash" inert></i></button>
               </td>
             </tr>
           {{/each}}
@@ -83,13 +79,12 @@
         <tr>
           <th scope="col" colspan="2" class="dense-table-flexible">{{localize "DOS100.item.conditionals.label"}}</th>
           <th scope="col">
-            <a
-              role="button"
-              tabindex="0"
+            <button
+              type="button"
               class="icon-button"
               data-action="addConditional"
               aria-label="{{localize "DOS100.item.conditionals.add"}}"
-            ><i class="fa-solid fa-plus" inert></i></a>
+            ><i class="fa-solid fa-plus" inert></i></button>
           </th>
         </tr>
       </thead>
@@ -106,30 +101,27 @@
               </td>
               <td><code>{{this.targetLabel}}</code></td>
               <td>
-                <a
-                  role="button"
-                  tabindex="0"
+                <button
+                  type="button"
                   class="icon-button"
                   data-action="editConditional"
                   data-identifier="{{this.id}}"
                   aria-label="{{localize "DOS100.item.conditionals.edit"}}"
-                ><i class="fa-solid fa-pen-to-square" inert></i></a>
-                <a
-                  role="button"
-                  tabindex="0"
+                ><i class="fa-solid fa-pen-to-square" inert></i></button>
+                <button
+                  type="button"
                   class="icon-button"
                   data-action="duplicateConditional"
                   data-identifier="{{this.id}}"
                   aria-label="{{localize "DOS100.item.conditionals.duplicate"}}"
-                ><i class="fa-solid fa-copy" inert></i></a>
-                <a
-                  role="button"
-                  tabindex="0"
+                ><i class="fa-solid fa-copy" inert></i></button>
+                <button
+                  type="button"
                   class="icon-button"
                   data-action="deleteConditional"
                   data-identifier="{{this.id}}"
                   aria-label="{{localize "DOS100.item.conditionals.delete"}}"
-                ><i class="fa-solid fa-trash" inert></i></a>
+                ><i class="fa-solid fa-trash" inert></i></button>
               </td>
             </tr>
           {{/each}}

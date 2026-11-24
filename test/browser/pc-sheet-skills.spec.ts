@@ -55,7 +55,7 @@ test("the header row has no textual label for Pinned, Name spans both columns, a
 
   const addHeader = headers.last();
   await expect(addHeader).toHaveText("");
-  await expect(addHeader.locator('a[role="button"]')).toHaveAttribute("aria-label", "Add Skill");
+  await expect(addHeader.locator('button.icon-button')).toHaveAttribute("aria-label", "Add Skill");
 });
 
 test("an empty ActorSkills record still shows the table structure, the Add control, and an intentional empty state", async ({
@@ -64,7 +64,7 @@ test("an empty ActorSkills record still shows the table structure, the Add contr
   await page.setContent(renderSkills());
 
   await expect(skillsTable(page).locator("thead th")).toHaveCount(6);
-  await expect(skillsTable(page).locator('thead a[role="button"]')).toBeVisible();
+  await expect(skillsTable(page).locator('thead button.icon-button')).toBeVisible();
   await expect(skillsTable(page).locator("tbody tr")).toHaveCount(1);
   const emptyState = skillsTable(page).locator(".dense-table-empty-state");
   await expect(emptyState).toHaveText("No Skills recorded yet.");

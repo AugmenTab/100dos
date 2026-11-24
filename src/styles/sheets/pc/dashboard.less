@@ -87,16 +87,14 @@
     align-items: center;
     gap: var(--spacer-8, 0.5rem);
 
-    /* The only anchor inside this row — no separate class needed to
-       select it. Appearance reset/sizing comes from .icon-button; this is
-       just its position within the row. */
-    > a {
+    /* Add Archetype. Appearance reset/sizing comes from .icon-button; this
+       is just its position within the row. */
+    > .icon-button {
       flex: 0 0 auto;
     }
 
-    /* The only button inside this row — no separate class needed to
-       select it. */
-    > button {
+    /* Rest — pinned to the row's far end. */
+    > .simple-button {
       flex: 0 0 auto;
       margin-left: auto;
     }

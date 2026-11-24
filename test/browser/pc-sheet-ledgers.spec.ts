@@ -26,9 +26,9 @@ test.describe("XP ledger page", () => {
 
     const actionHeader = page.locator("thead th").last();
     await expect(actionHeader).toHaveText("");
-    await expect(actionHeader.locator('a[role="button"]')).toHaveAttribute("aria-label", "Add XP Transaction");
+    await expect(actionHeader.locator('button.icon-button')).toHaveAttribute("aria-label", "Add XP Transaction");
 
-    const deleteControl = page.locator("tbody tr").first().locator('a[role="button"]');
+    const deleteControl = page.locator("tbody tr").first().locator('button.icon-button');
     await expect(deleteControl).toHaveAttribute("aria-label", "Delete transaction: Strength Advancement");
   });
 
@@ -36,7 +36,7 @@ test.describe("XP ledger page", () => {
     await page.setContent(renderXp());
 
     await expect(page.locator(".simple-stat-table")).toBeVisible();
-    await expect(page.locator('thead a[role="button"]')).toBeVisible();
+    await expect(page.locator('thead button.icon-button')).toBeVisible();
     await expect(page.locator("tbody tr")).toHaveCount(1);
     await expect(page.locator(".dense-table-empty-state")).toHaveText("No XP transactions recorded yet.");
   });
@@ -48,9 +48,9 @@ test.describe("Finances ledger page", () => {
 
     const actionHeader = page.locator("thead th").last();
     await expect(actionHeader).toHaveText("");
-    await expect(actionHeader.locator('a[role="button"]')).toHaveAttribute("aria-label", "Add Finance Transaction");
+    await expect(actionHeader.locator('button.icon-button')).toHaveAttribute("aria-label", "Add Finance Transaction");
 
-    const deleteControl = page.locator("tbody tr").first().locator('a[role="button"]');
+    const deleteControl = page.locator("tbody tr").first().locator('button.icon-button');
     await expect(deleteControl).toHaveAttribute("aria-label", "Delete transaction: Battle Rifle");
   });
 
@@ -58,7 +58,7 @@ test.describe("Finances ledger page", () => {
     await page.setContent(renderFinances());
 
     await expect(page.locator(".simple-stat-table")).toBeVisible();
-    await expect(page.locator('thead a[role="button"]')).toBeVisible();
+    await expect(page.locator('thead button.icon-button')).toBeVisible();
     await expect(page.locator("tbody tr")).toHaveCount(1);
     await expect(page.locator(".dense-table-empty-state")).toHaveText("No finance transactions recorded yet.");
   });

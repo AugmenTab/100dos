@@ -118,11 +118,11 @@ test("the Changes and Conditionals headers carry Add affordances in their final 
   const panel = sheet.locator('.tab[data-tab="changes"].active');
   const tables = panel.locator("table.dense-table");
 
-  const addChange = tables.nth(0).locator("thead th").nth(1).locator("a.icon-button");
+  const addChange = tables.nth(0).locator("thead th").nth(1).locator("button.icon-button");
   await expect(addChange).toHaveAttribute("aria-label", "Add Change");
   await expect(addChange).toHaveAttribute("data-action", "addChange");
 
-  const addConditional = tables.nth(1).locator("thead th").nth(1).locator("a.icon-button");
+  const addConditional = tables.nth(1).locator("thead th").nth(1).locator("button.icon-button");
   await expect(addConditional).toHaveAttribute("aria-label", "Add Conditional");
   await expect(addConditional).toHaveAttribute("data-action", "addConditional");
 });
@@ -168,7 +168,7 @@ test("Change rows display mode (as a compact symbol), formula, target, and Edit/
   await expect(setRow.locator("td").nth(0).locator("span")).toHaveAttribute("aria-label", "Set");
 
   const actionsCell = addRow.locator("td").nth(3);
-  const actionButtons = actionsCell.locator("a.icon-button");
+  const actionButtons = actionsCell.locator("button.icon-button");
   await expect(actionButtons).toHaveCount(3);
   await expect(actionButtons.nth(0)).toHaveAttribute("aria-label", "Edit Change");
   await expect(actionButtons.nth(1)).toHaveAttribute("aria-label", "Duplicate Change");
@@ -203,7 +203,7 @@ test("Conditional rows display notes as a non-editable textarea-style preview, t
   await expect(notes).toBeDisabled();
   await expect(row.locator("td").nth(1).locator("code")).toHaveText("All Characteristic Tests");
 
-  const actionButtons = row.locator("td").nth(2).locator("a.icon-button");
+  const actionButtons = row.locator("td").nth(2).locator("button.icon-button");
   await expect(actionButtons).toHaveCount(3);
   await expect(actionButtons.nth(0)).toHaveAttribute("aria-label", "Edit Conditional");
   await expect(actionButtons.nth(1)).toHaveAttribute("aria-label", "Duplicate Conditional");
@@ -222,9 +222,9 @@ test("empty Changes and Conditionals tables remain visible with their Add afford
   const tables = panel.locator("table.dense-table");
 
   await expect(tables.nth(0).locator("tbody")).toContainText("No Changes recorded yet.");
-  await expect(tables.nth(0).locator("thead th").nth(1).locator("a.icon-button")).toBeVisible();
+  await expect(tables.nth(0).locator("thead th").nth(1).locator("button.icon-button")).toBeVisible();
   await expect(tables.nth(1).locator("tbody")).toContainText("No Conditionals recorded yet.");
-  await expect(tables.nth(1).locator("thead th").nth(1).locator("a.icon-button")).toBeVisible();
+  await expect(tables.nth(1).locator("thead th").nth(1).locator("button.icon-button")).toBeVisible();
 });
 
 test("Add Action creates a new Action row with default values", async ({ foundryPage: page, fixtureLane }) => {
@@ -233,7 +233,7 @@ test("Add Action creates a new Action row with default values", async ({ foundry
   const sheet = page.locator(`#${sheetId}`);
   await openTab(sheet, "details");
   const panel = sheet.locator('.tab[data-tab="details"].active');
-  const addButton = panel.locator('thead a[data-action="addAction"]');
+  const addButton = panel.locator('thead button[data-action="addAction"]');
   await addButton.click();
   await expect.poll(async () =>
     Object.keys(
@@ -263,7 +263,7 @@ test("Duplicate Action creates a copy with (Copy) appended to the name", async (
   const sheet = page.locator(`#${sheetId}`);
   await openTab(sheet, "details");
   const panel = sheet.locator('.tab[data-tab="details"].active');
-  const dupButton = panel.locator(`a[data-action="duplicateAction"][data-identifier="${actionId}"]`);
+  const dupButton = panel.locator(`button[data-action="duplicateAction"][data-identifier="${actionId}"]`);
   await dupButton.click();
   await expect.poll(async () =>
     Object.keys(
@@ -296,7 +296,7 @@ test("Delete Action removes the row", async ({ foundryPage: page, fixtureLane })
   const sheet = page.locator(`#${sheetId}`);
   await openTab(sheet, "details");
   const panel = sheet.locator('.tab[data-tab="details"].active');
-  const delButton = panel.locator(`a[data-action="deleteAction"][data-identifier="${actionId}"]`);
+  const delButton = panel.locator(`button[data-action="deleteAction"][data-identifier="${actionId}"]`);
   await delButton.click();
   await expect.poll(async () =>
     Object.keys(
@@ -319,7 +319,7 @@ test("Duplicate Change appends a copy to the computed array", async ({ foundryPa
   const sheet = page.locator(`#${sheetId}`);
   await openTab(sheet, "changes");
   const panel = sheet.locator('.tab[data-tab="changes"].active');
-  const dupButton = panel.locator('a[data-action="duplicateChange"]').first();
+  const dupButton = panel.locator('button[data-action="duplicateChange"]').first();
   await dupButton.click();
   await expect.poll(async () =>
     (await page.evaluate(
@@ -340,7 +340,7 @@ test("Delete Change removes the entry from the computed array", async ({ foundry
   const sheet = page.locator(`#${sheetId}`);
   await openTab(sheet, "changes");
   const panel = sheet.locator('.tab[data-tab="changes"].active');
-  const delButton = panel.locator('a[data-action="deleteChange"]').first();
+  const delButton = panel.locator('button[data-action="deleteChange"]').first();
   await delButton.click();
   await expect.poll(async () =>
     (await page.evaluate(
@@ -361,7 +361,7 @@ test("Duplicate Conditional appends a copy to the conditional array", async ({ f
   const sheet = page.locator(`#${sheetId}`);
   await openTab(sheet, "changes");
   const panel = sheet.locator('.tab[data-tab="changes"].active');
-  const dupButton = panel.locator('a[data-action="duplicateConditional"]').first();
+  const dupButton = panel.locator('button[data-action="duplicateConditional"]').first();
   await dupButton.click();
   await expect.poll(async () =>
     (await page.evaluate(
@@ -382,7 +382,7 @@ test("Delete Conditional removes the entry from the conditional array", async ({
   const sheet = page.locator(`#${sheetId}`);
   await openTab(sheet, "changes");
   const panel = sheet.locator('.tab[data-tab="changes"].active');
-  const delButton = panel.locator('a[data-action="deleteConditional"]').first();
+  const delButton = panel.locator('button[data-action="deleteConditional"]').first();
   await delButton.click();
   await expect.poll(async () =>
     (await page.evaluate(
@@ -429,7 +429,7 @@ test("Add Change opens the editor dialog; saving appends a new row with the ente
   await openTab(sheet, "changes");
   const panel = sheet.locator('.tab[data-tab="changes"].active');
 
-  await panel.locator('thead a[data-action="addChange"]').click();
+  await panel.locator('thead button[data-action="addChange"]').click();
   const dialog = page.locator(".change-editor-dialog");
   await expect(dialog).toBeVisible();
   await expect(dialog.locator('select[name="mode"]')).toBeVisible();
@@ -439,7 +439,7 @@ test("Add Change opens the editor dialog; saving appends a new row with the ente
   await dialog.locator('input[name="formula"]').fill("99");
   await dialog.locator("button[data-action='selectTarget']").click();
   const picker = page.locator(".change-target-picker-dialog");
-  await picker.locator('a[data-action="pickTarget"]').first().click();
+  await picker.locator('button[data-action="pickTarget"]').first().click();
   await expect(picker).not.toBeVisible();
   await dialog.locator("button[data-action='saveAndClose']").click();
   await expect(dialog).not.toBeVisible();
@@ -471,7 +471,7 @@ test("Add Change dialog Cancel leaves the computed array unchanged", async ({
   await openTab(sheet, "changes");
   const panel = sheet.locator('.tab[data-tab="changes"].active');
 
-  await panel.locator('thead a[data-action="addChange"]').click();
+  await panel.locator('thead button[data-action="addChange"]').click();
   const dialog = page.locator(".change-editor-dialog");
   await expect(dialog).toBeVisible();
   await dialog.locator("button[data-action='cancelDialog']").click();
@@ -499,7 +499,7 @@ test("Edit Change opens the editor pre-filled; saving replaces the row with upda
   await openTab(sheet, "changes");
   const panel = sheet.locator('.tab[data-tab="changes"].active');
 
-  await panel.locator('a[data-action="editChange"]').first().click();
+  await panel.locator('button[data-action="editChange"]').first().click();
   const dialog = page.locator(".change-editor-dialog");
   await expect(dialog).toBeVisible();
   await expect(dialog.locator('select[name="mode"]')).toHaveValue("add");
@@ -530,14 +530,14 @@ test("Target picker opens from the Change editor; selecting a target updates the
   await openTab(sheet, "changes");
   const panel = sheet.locator('.tab[data-tab="changes"].active');
 
-  await panel.locator('thead a[data-action="addChange"]').click();
+  await panel.locator('thead button[data-action="addChange"]').click();
   const editor = page.locator(".change-editor-dialog");
   await expect(editor).toBeVisible();
 
   await editor.locator("button[data-action='selectTarget']").click();
   const picker = page.locator(".change-target-picker-dialog");
   await expect(picker).toBeVisible();
-  await picker.locator('a[data-action="pickTarget"]').first().click();
+  await picker.locator('button[data-action="pickTarget"]').first().click();
   await expect(picker).not.toBeVisible();
   await expect(editor.locator('button[data-action="selectTarget"]')).toHaveText("All Characteristic Tests");
 
@@ -555,7 +555,7 @@ test("Add Conditional opens the editor dialog; saving appends a new row with the
   await openTab(sheet, "changes");
   const panel = sheet.locator('.tab[data-tab="changes"].active');
 
-  await panel.locator('thead a[data-action="addConditional"]').click();
+  await panel.locator('thead button[data-action="addConditional"]').click();
   const dialog = page.locator(".change-editor-dialog");
   await expect(dialog).toBeVisible();
   await expect(dialog.locator('textarea[name="value"]')).toBeVisible();
@@ -563,7 +563,7 @@ test("Add Conditional opens the editor dialog; saving appends a new row with the
   await dialog.locator('textarea[name="value"]').fill("Bonus applies while raging.");
   await dialog.locator("button[data-action='selectTarget']").click();
   const picker = page.locator(".conditional-note-target-picker-dialog");
-  await picker.locator('a[data-action="pickTarget"]').first().click();
+  await picker.locator('button[data-action="pickTarget"]').first().click();
   await expect(picker).not.toBeVisible();
   await dialog.locator("button[data-action='saveAndClose']").click();
   await expect(dialog).not.toBeVisible();
@@ -599,7 +599,7 @@ test("Edit Conditional opens the editor pre-filled; saving replaces the row with
   await openTab(sheet, "changes");
   const panel = sheet.locator('.tab[data-tab="changes"].active');
 
-  await panel.locator('a[data-action="editConditional"]').first().click();
+  await panel.locator('button[data-action="editConditional"]').first().click();
   const dialog = page.locator(".change-editor-dialog");
   await expect(dialog).toBeVisible();
   await expect(dialog.locator('textarea[name="value"]')).toHaveValue("Original note.");
@@ -628,7 +628,7 @@ test("Target picker switches categories; selecting a target in a non-default cat
   const sheet = page.locator(`#${sheetId}`);
   await openTab(sheet, "changes");
 
-  await sheet.locator('thead a[data-action="addChange"]').click();
+  await sheet.locator('thead button[data-action="addChange"]').click();
   const editor = page.locator(".change-editor-dialog");
   const picker = page.locator(".change-target-picker-dialog");
 
@@ -645,7 +645,7 @@ test("Target picker switches categories; selecting a target in a non-default cat
   await expect(navButtons.filter({ hasText: "Characteristic Tests" })).not.toHaveClass(/active/);
 
   // Select "Wounds"
-  await picker.locator('a[data-action="pickTarget"][data-target="wounds"]').click();
+  await picker.locator('button[data-action="pickTarget"][data-target="wounds"]').click();
   await expect(picker).not.toBeVisible();
   await expect(editor.locator('button[data-action="selectTarget"]')).toHaveText("Wounds");
 
@@ -696,7 +696,7 @@ test("Target picker shows actor-specific skills and persists a dynamic skill tar
   const sheet = page.locator(`#${sheetId}`);
   await openTab(sheet, "changes");
 
-  await sheet.locator('thead a[data-action="addChange"]').click();
+  await sheet.locator('thead button[data-action="addChange"]').click();
   const editor = page.locator(".change-editor-dialog");
   const picker = page.locator(".change-target-picker-dialog");
 
@@ -707,7 +707,7 @@ test("Target picker shows actor-specific skills and persists a dynamic skill tar
   await picker.locator("nav button").filter({ hasText: "Skills" }).click();
 
   // The seeded skill should appear
-  const skillTarget = picker.locator('a[data-action="pickTarget"][data-target="skill:medicineHuman"]');
+  const skillTarget = picker.locator('button[data-action="pickTarget"][data-target="skill:medicineHuman"]');
   await expect(skillTarget).toBeVisible();
   await expect(skillTarget).toHaveText("Human Medicine");
   await skillTarget.click();
@@ -759,7 +759,7 @@ test("Target picker shows actor-specific DR locations and persists a dynamic DR 
   const sheet = page.locator(`#${sheetId}`);
   await openTab(sheet, "changes");
 
-  await sheet.locator('thead a[data-action="addChange"]').click();
+  await sheet.locator('thead button[data-action="addChange"]').click();
   const editor = page.locator(".change-editor-dialog");
   const picker = page.locator(".change-target-picker-dialog");
 
@@ -770,7 +770,7 @@ test("Target picker shows actor-specific DR locations and persists a dynamic DR 
   await picker.locator("nav button").filter({ hasText: "Defense" }).click();
 
   // The seeded DR location should appear
-  const drTarget = picker.locator('a[data-action="pickTarget"][data-target="drLocation:head1"]');
+  const drTarget = picker.locator('button[data-action="pickTarget"][data-target="drLocation:head1"]');
   await expect(drTarget).toBeVisible();
   await expect(drTarget).toHaveText("Head 1 Damage Resistance");
   await drTarget.click();
@@ -801,7 +801,7 @@ test("Conditional Note target picker opens; switching category and selecting a s
   const sheet = page.locator(`#${sheetId}`);
   await openTab(sheet, "changes");
 
-  await sheet.locator('thead a[data-action="addConditional"]').click();
+  await sheet.locator('thead button[data-action="addConditional"]').click();
   const editor = page.locator(".change-editor-dialog");
   const picker = page.locator(".conditional-note-target-picker-dialog");
 
@@ -817,7 +817,7 @@ test("Conditional Note target picker opens; switching category and selecting a s
   await expect(navButtons.filter({ hasText: "Defense" })).toHaveClass(/active/);
 
   // Select "Energy Shields"
-  await picker.locator('a[data-action="pickTarget"][data-target="energyShields"]').click();
+  await picker.locator('button[data-action="pickTarget"][data-target="energyShields"]').click();
   await expect(picker).not.toBeVisible();
   await expect(editor.locator('button[data-action="selectTarget"]')).toHaveText("Energy Shields");
 
@@ -867,7 +867,7 @@ test("Conditional Note target picker shows actor-specific skills and persists a 
   const sheet = page.locator(`#${sheetId}`);
   await openTab(sheet, "changes");
 
-  await sheet.locator('thead a[data-action="addConditional"]').click();
+  await sheet.locator('thead button[data-action="addConditional"]').click();
   const editor = page.locator(".change-editor-dialog");
   const picker = page.locator(".conditional-note-target-picker-dialog");
 
@@ -876,7 +876,7 @@ test("Conditional Note target picker shows actor-specific skills and persists a 
 
   await picker.locator("nav button").filter({ hasText: "Skills" }).click();
 
-  const skillTarget = picker.locator('a[data-action="pickTarget"][data-target="skill:smallArms"]');
+  const skillTarget = picker.locator('button[data-action="pickTarget"][data-target="skill:smallArms"]');
   await expect(skillTarget).toBeVisible();
   await expect(skillTarget).toHaveText("Small Arms");
   await skillTarget.click();

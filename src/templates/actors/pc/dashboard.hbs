@@ -73,12 +73,11 @@
             {{!-- TODO: not wired up yet. Should create a blank Archetype Item on this
                  Actor and open its sheet for editing, once the Archetype Item type
                  exists. --}}
-            <a
-              role="button"
-              tabindex="0"
+            <button
+              type="button"
               class="icon-button"
               aria-label="{{localize "DOS100.pc.dashboard.identity.archetype.add"}}"
-            ><i class="fa-solid fa-plus" inert></i></a>
+            ><i class="fa-solid fa-plus" inert></i></button>
           {{/if}}
           {{!-- TODO: not wired up yet — no replenishment system exists to trigger. --}}
           <button type="button" class="simple-button">{{localize "DOS100.pc.dashboard.rest"}}</button>
@@ -404,12 +403,11 @@
                 <span>
                   {{#if this.hasActions}}
                     {{!-- TODO: not wired up yet — no roll resolution exists. --}}
-                    <a
-                      role="button"
-                      tabindex="0"
+                    <button
+                      type="button"
                       class="icon-button"
                       aria-label="{{localize "DOS100.item.table.useActions" name=this.item.name}}"
-                    ><i class="fa-solid fa-dice-d10" inert></i></a>
+                    ><i class="fa-solid fa-dice-d10" inert></i></button>
                   {{/if}}
                 </span>
                 <span>

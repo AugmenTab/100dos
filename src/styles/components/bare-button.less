@@ -1,0 +1,37 @@
+/* Strips Foundry core's <button> element styling — fixed height, border,
+   radius, background, hover/focus colours, transition — so a real <button>
+   can read as plain inline content (an icon, a link-like label, a list
+   entry). A mixin rather than a class: each caller layers its own sizing
+   and hover feedback on top, and a nested &:hover after the call wins over
+   the one here by source order. Keyboard focus keeps a visible outline. */
+
+.bare-button() {
+  height: auto;
+  min-height: 0;
+  gap: 0;
+  padding: 0;
+  border: none;
+  border-radius: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  line-height: inherit;
+  text-align: inherit;
+  transition: none;
+  cursor: pointer;
+
+  &:hover {
+    background: none;
+    color: inherit;
+  }
+
+  &:focus {
+    outline: none;
+    box-shadow: none;
+  }
+
+  &:focus-visible {
+    outline: 2px solid currentColor;
+    outline-offset: 1px;
+  }
+}

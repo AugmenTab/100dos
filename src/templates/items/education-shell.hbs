@@ -80,14 +80,13 @@
             {{#each system.skills}}
               <li>
                 <span>{{this.name}}</span>
-                <a
-                  role="button"
-                  tabindex="0"
+                <button
+                  type="button"
                   class="icon-button"
                   data-action="deleteEducationSkill"
                   data-index="{{@index}}"
                   aria-label="{{localize "DOS100.item.education.deleteSkill" name=this.name}}"
-                ><i class="fa-solid fa-trash" inert></i></a>
+                ><i class="fa-solid fa-trash" inert></i></button>
               </li>
             {{/each}}
           </ul>

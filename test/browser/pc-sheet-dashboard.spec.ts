@@ -51,7 +51,7 @@ test("Dashboard renders identity, resources, Characteristics, DR, and dynamic co
   await expect(nameInput).toHaveValue("[Browser] PC");
 
   await expect(page.locator('select[name="system.archetype"]')).toHaveCount(0);
-  await expect(page.locator('.pc-dashboard-archetype-row a[role="button"]')).toBeVisible();
+  await expect(page.locator('.pc-dashboard-archetype-row button.icon-button')).toBeVisible();
 
   await expect(page.getByRole("group", { name: "Initiative" })).toContainText("0");
 

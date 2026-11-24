@@ -149,11 +149,11 @@ test.describe("Skills page", () => {
     const panel = await openSkillsTab(page, sheetId);
     const row = skillsTable(panel).locator("tbody tr").filter({ hasText: "Pilot (Ground)" });
 
-    const editControl = row.locator("a").filter({ has: page.locator("i.fa-pen-to-square") });
+    const editControl = row.locator("button").filter({ has: page.locator("i.fa-pen-to-square") });
     await expect(editControl).toHaveAttribute("data-identifier", "pilotGround");
     await expect(editControl).toHaveAttribute("aria-label", "Edit Skill: Pilot (Ground)");
 
-    const descriptionControl = row.locator("a").filter({ has: page.locator("i.fa-book-open") });
+    const descriptionControl = row.locator("button").filter({ has: page.locator("i.fa-book-open") });
     await expect(descriptionControl).toHaveAttribute("data-identifier", "pilotGround");
     await expect(descriptionControl).toHaveAttribute("aria-label", "View Skill Description: Pilot (Ground)");
 

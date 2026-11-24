@@ -12,13 +12,12 @@
   <ul>
     {{#each activeTargets}}
       <li>
-        <a
-          role="button"
-          tabindex="0"
+        <button
+          type="button"
           class="{{#if this.current}}current{{/if}}"
           data-action="pickTarget"
           data-target="{{this.target}}"
-        >{{this.label}}</a>
+        >{{this.label}}</button>
       </li>
     {{/each}}
   </ul>

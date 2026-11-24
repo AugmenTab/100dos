@@ -15,12 +15,11 @@
   <td>
     {{#if this.hasActions}}
       {{!-- TODO: not wired up yet — no roll resolution exists. --}}
-      <a
-        role="button"
-        tabindex="0"
+      <button
+        type="button"
         class="icon-button"
         aria-label="{{localize "DOS100.item.table.useActions" name=this.item.name}}"
-      ><i class="fa-solid fa-dice-d10" inert></i></a>
+      ><i class="fa-solid fa-dice-d10" inert></i></button>
     {{/if}}
   </td>
   <td>
@@ -29,9 +28,8 @@
     {{/if}}
   </td>
   <td>
-    <a
-      role="button"
-      tabindex="0"
+    <button
+      type="button"
       class="icon-button"
       data-action="toggleItemCarried"
       data-item-id="{{this.item.id}}"
@@ -43,12 +41,11 @@
       {{else}}
         <i class="fa-solid fa-times" inert></i>
       {{/if}}
-    </a>
+    </button>
   </td>
   <td>
-    <a
-      role="button"
-      tabindex="0"
+    <button
+      type="button"
       class="icon-button"
       data-action="toggleItemEquipped"
       data-item-id="{{this.item.id}}"
@@ -60,54 +57,48 @@
       {{else}}
         <i class="fa-solid fa-times" inert></i>
       {{/if}}
-    </a>
+    </button>
   </td>
   <td class="dense-table-value">{{localizeNumber this.item.system.weight.actual.total}} {{localize "DOS100.inventory.table.weightUnit"}}</td>
   <td class="dense-table-value">{{localizeNumber this.item.system.weight.felt.total}} {{localize "DOS100.inventory.table.weightUnit"}}</td>
   <td>
     {{!-- TODO: not wired up yet — no quantity update flow exists. --}}
-    <a
-      role="button"
-      tabindex="0"
+    <button
+      type="button"
       class="icon-button"
       aria-label="{{localize "DOS100.inventory.table.increaseQuantity" name=this.item.name}}"
-    ><i class="fa-solid fa-plus" inert></i></a>
-    <a
-      role="button"
-      tabindex="0"
+    ><i class="fa-solid fa-plus" inert></i></button>
+    <button
+      type="button"
       class="icon-button"
       aria-label="{{localize "DOS100.inventory.table.decreaseQuantity" name=this.item.name}}"
-    ><i class="fa-solid fa-minus" inert></i></a>
-    <a
-      role="button"
-      tabindex="0"
+    ><i class="fa-solid fa-minus" inert></i></button>
+    <button
+      type="button"
       class="icon-button"
       data-action="editItem"
       data-item-id="{{this.item.id}}"
       aria-label="{{localize "DOS100.item.table.edit" name=this.item.name}}"
-    ><i class="fa-solid fa-pen-to-square" inert></i></a>
-    <a
-      role="button"
-      tabindex="0"
+    ><i class="fa-solid fa-pen-to-square" inert></i></button>
+    <button
+      type="button"
       class="icon-button"
       data-action="duplicateItem"
       data-item-id="{{this.item.id}}"
       aria-label="{{localize "DOS100.item.table.duplicate" name=this.item.name}}"
-    ><i class="fa-solid fa-copy" inert></i></a>
+    ><i class="fa-solid fa-copy" inert></i></button>
     {{!-- TODO: not wired up yet — no gift/transfer flow exists. --}}
-    <a
-      role="button"
-      tabindex="0"
+    <button
+      type="button"
       class="icon-button"
       aria-label="{{localize "DOS100.inventory.table.gift" name=this.item.name}}"
-    ><i class="fa-solid fa-gift" inert></i></a>
-    <a
-      role="button"
-      tabindex="0"
+    ><i class="fa-solid fa-gift" inert></i></button>
+    <button
+      type="button"
       class="icon-button"
       data-action="deleteItem"
       data-item-id="{{this.item.id}}"
       aria-label="{{localize "DOS100.item.table.delete" name=this.item.name}}"
-    ><i class="fa-solid fa-trash" inert></i></a>
+    ><i class="fa-solid fa-trash" inert></i></button>
   </td>
 </tr>

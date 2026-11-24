@@ -33,7 +33,7 @@ test.describe("Action editor", () => {
     sheetId = await openItemSheet(page, actorId, itemId);
     const sheet = page.locator(`#${sheetId}`);
     await openTab(sheet, "details");
-    await sheet.locator('.tab[data-tab="details"].active').locator(`a[data-action="editAction"]`).click();
+    await sheet.locator('.tab[data-tab="details"].active').locator(`button[data-action="editAction"]`).click();
     await page.locator(".action-sheet").first().waitFor({ state: "visible" });
   });
 
@@ -69,7 +69,7 @@ test("The editor opens for the selected Action, not another row", async ({ found
   await openTab(sheet, "details");
   const panel = sheet.locator('.tab[data-tab="details"].active');
 
-  await panel.locator(`a[data-action="editAction"][data-identifier="${id2}"]`).click();
+  await panel.locator(`button[data-action="editAction"][data-identifier="${id2}"]`).click();
   const actionSheet = page.locator(".action-sheet");
   await expect(actionSheet).toBeVisible();
   await expect(actionSheet.locator(".window-header")).toContainText("Stab");

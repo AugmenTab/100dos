@@ -10,9 +10,8 @@
     <div class="pc-status-palette">
       {{#each statuses}}
         <div class="pc-status-button">
-          <a
-            role="button"
-            tabindex="0"
+          <button
+            type="button"
             data-action="toggleStatus"
             data-status-id="{{this.id}}"
             aria-pressed="{{this.active}}"
@@ -20,13 +19,12 @@
           >
             <img src="{{this.img}}" alt="" />
             <span>{{this.label}}</span>
-          </a>
+          </button>
           {{!-- TODO: not wired up yet — no rules-popup/journal dialog exists. --}}
-          <a
-            role="button"
-            tabindex="0"
+          <button
+            type="button"
             aria-label="{{localize "DOS100.effects.statuses.journal" name=this.label}}"
-          ><i class="fa-solid fa-book" inert></i></a>
+          ><i class="fa-solid fa-book" inert></i></button>
         </div>
       {{/each}}
     </div>
@@ -74,14 +72,13 @@
             <th scope="col">{{localize "DOS100.item.table.uses"}}</th>
             <th scope="col">{{localize "DOS100.effects.table.active"}}</th>
             <th scope="col">
-              <a
-                role="button"
-                tabindex="0"
+              <button
+                type="button"
                 class="icon-button"
                 data-action="createEffect"
                 data-group="permanent"
                 aria-label="{{localize "DOS100.effects.permanent.add"}}"
-              ><i class="fa-solid fa-plus" inert></i></a>
+              ><i class="fa-solid fa-plus" inert></i></button>
             </th>
           </tr>
         </thead>
@@ -111,14 +108,13 @@
             <th scope="col">{{localize "DOS100.item.table.uses"}}</th>
             <th scope="col">{{localize "DOS100.effects.table.active"}}</th>
             <th scope="col">
-              <a
-                role="button"
-                tabindex="0"
+              <button
+                type="button"
                 class="icon-button"
                 data-action="createEffect"
                 data-group="temporary"
                 aria-label="{{localize "DOS100.effects.temporary.add"}}"
-              ><i class="fa-solid fa-plus" inert></i></a>
+              ><i class="fa-solid fa-plus" inert></i></button>
             </th>
           </tr>
         </thead>
