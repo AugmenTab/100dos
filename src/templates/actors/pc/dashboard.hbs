@@ -108,7 +108,7 @@
               data-tooltip-html="{{contributionTooltipHtml (localize (concat "DOS100.characteristic." @key ".full")) (localizeNumber this.value) this.contributions}}"
             >{{localizeNumber this.value}}</button>
             <label class="pc-dashboard-characteristic-modifier">
-              <span aria-hidden="true">TEMP</span>
+              <span aria-hidden="true">{{localize "DOS100.characteristic.temporaryModifierAbbr"}}</span>
               <input
                 type="number"
                 name="system.characteristics.{{@key}}.temp"

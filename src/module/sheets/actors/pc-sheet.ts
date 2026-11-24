@@ -1058,7 +1058,11 @@ export class PcActorSheet extends Dos100ActorSheet {
       const trainingLabel = game.i18n.localize(`DOS100.educations.training.${education.training}`);
       Object.assign(
         update,
-        this.xpLedgerUpdate("refund", `${education.name}: Removed ${trainingLabel}`, result.xpAmount),
+        this.xpLedgerUpdate(
+          "refund",
+          game.i18n.format("DOS100.educations.ledger.removed", { name: education.name, training: trainingLabel }),
+          result.xpAmount,
+        ),
       );
     }
     await this.actor.update(update);

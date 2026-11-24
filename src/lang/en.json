@@ -512,6 +512,7 @@
     "characteristic": {
       "label": "Characteristics",
       "temporaryModifierFor": "Temporary modifier for {name}",
+      "temporaryModifierAbbr": "TEMP",
       "advancement": "Advancement",
       "str": {
         "abbr": "STR",
@@ -637,6 +638,9 @@
       "training": {
         "plus5": "+5",
         "plus10": "+10"
+      },
+      "ledger": {
+        "removed": "{name}: Removed {training}"
       }
     },
     "status": {
