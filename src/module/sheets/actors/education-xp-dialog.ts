@@ -1,7 +1,6 @@
 import { type EducationTraining, educationTrainingDelta } from "../../education.js";
 import { type EducationCost } from "../../items/education.js";
-
-const { HandlebarsApplicationMixin } = foundry.applications.api;
+import { PromptDialog } from "../prompt-dialog.js";
 
 export type EducationXpResult =
   | { action: "record"; xpAmount: number }
@@ -16,24 +15,21 @@ type InternalParams = {
   isRefund: boolean;
 };
 
-export class EducationXpDialog extends HandlebarsApplicationMixin(foundry.applications.api.ApplicationV2) {
+export class EducationXpDialog extends PromptDialog<EducationXpResult> {
+  protected override readonly cancelResult: EducationXpResult = { action: "cancel" };
   readonly #params: InternalParams;
-  #resolve: ((result: EducationXpResult) => void) | null;
 
   static async promptAcquire(
     educationName: string,
     cost: EducationCost,
   ): Promise<EducationXpResult> {
-    return new Promise(resolve => {
-      const dialog = new EducationXpDialog({
-        title: game.i18n.localize("DOS100.educationXp.acquisitionTitle"),
-        educationName,
-        subtitleLine: game.i18n.localize("DOS100.educations.training.plus5"),
-        defaultAmount: cost.plus5,
-        isRefund: false,
-      }, resolve);
-      void dialog.render(true);
-    });
+    return new EducationXpDialog({
+      title: game.i18n.localize("DOS100.educationXp.acquisitionTitle"),
+      educationName,
+      subtitleLine: game.i18n.localize("DOS100.educations.training.plus5"),
+      defaultAmount: cost.plus5,
+      isRefund: false,
+    }).wait();
   }
 
   static async promptTrainingChange(
@@ -43,26 +39,21 @@ export class EducationXpDialog extends HandlebarsApplicationMixin(foundry.applic
     cost: EducationCost,
   ): Promise<EducationXpResult> {
     const delta = educationTrainingDelta(previous, next, cost);
-    return new Promise(resolve => {
-      const dialog = new EducationXpDialog({
-        title: game.i18n.localize("DOS100.educationXp.trainingTitle"),
-        educationName,
-        subtitleLine: `${game.i18n.localize(`DOS100.educations.training.${previous}`)} → ${game.i18n.localize(`DOS100.educations.training.${next}`)}`,
-        defaultAmount: Math.abs(delta),
-        isRefund: delta < 0,
-      }, resolve);
-      void dialog.render(true);
-    });
+    return new EducationXpDialog({
+      title: game.i18n.localize("DOS100.educationXp.trainingTitle"),
+      educationName,
+      subtitleLine: `${game.i18n.localize(`DOS100.educations.training.${previous}`)} → ${game.i18n.localize(`DOS100.educations.training.${next}`)}`,
+      defaultAmount: Math.abs(delta),
+      isRefund: delta < 0,
+    }).wait();
   }
 
   constructor(
     params: InternalParams,
-    resolve: (result: EducationXpResult) => void,
     options?: Partial<Record<string, unknown>>,
   ) {
     super(options);
     this.#params = params;
-    this.#resolve = resolve;
   }
 
   static override DEFAULT_OPTIONS = {
@@ -72,7 +63,6 @@ export class EducationXpDialog extends HandlebarsApplicationMixin(foundry.applic
     actions: {
       record: EducationXpDialog.prototype._onRecord,
       skip: EducationXpDialog.prototype._onSkip,
-      cancelDialog: EducationXpDialog.prototype._onCancelDialog,
     },
   };
 
@@ -98,26 +88,10 @@ export class EducationXpDialog extends HandlebarsApplicationMixin(foundry.applic
   protected async _onRecord(_event: PointerEvent, _target: HTMLElement): Promise<void> {
     const input = this.element.querySelector<HTMLInputElement>("input[name='xpAmount']");
     const xpAmount = Math.trunc(Number(input?.value ?? 0));
-    this.#resolve?.({ action: "record", xpAmount });
-    this.#resolve = null;
-    await this.close();
+    await this.settle({ action: "record", xpAmount });
   }
 
   protected async _onSkip(_event: PointerEvent, _target: HTMLElement): Promise<void> {
-    this.#resolve?.({ action: "skip" });
-    this.#resolve = null;
-    await this.close();
-  }
-
-  protected async _onCancelDialog(_event: PointerEvent, _target: HTMLElement): Promise<void> {
-    this.#resolve?.({ action: "cancel" });
-    this.#resolve = null;
-    await this.close();
-  }
-
-  override async close(options?: Record<string, unknown>): Promise<this> {
-    this.#resolve?.({ action: "cancel" });
-    this.#resolve = null;
-    return super.close(options);
+    await this.settle({ action: "skip" });
   }
 }

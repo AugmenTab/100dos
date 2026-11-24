@@ -18,34 +18,26 @@ import {
   resolveConditionalNoteTargetLabel,
   type ConditionalNoteTargetCategoryId,
 } from "../../conditional-note-targets.js";
+import { PromptDialog } from "../prompt-dialog.js";
 
-const { HandlebarsApplicationMixin } = foundry.applications.api;
-
-export class ChangeTargetPickerDialog extends HandlebarsApplicationMixin(
-  foundry.applications.api.ApplicationV2,
-) {
+export class ChangeTargetPickerDialog extends PromptDialog<ChangeTarget | null> {
+  protected override readonly cancelResult: ChangeTarget | null = null;
   #current: string;
   #activeCategory: ChangeTargetCategoryId;
   #actor: ActorContext;
-  #resolve: ((result: ChangeTarget | null) => void) | null;
 
   static async prompt(current: string, actor: ActorContext = null): Promise<ChangeTarget | null> {
-    return new Promise(resolve => {
-      const dialog = new ChangeTargetPickerDialog(current, actor, resolve);
-      void dialog.render(true);
-    });
+    return new ChangeTargetPickerDialog(current, actor).wait();
   }
 
   constructor(
     current: string,
     actor: ActorContext,
-    resolve: (result: ChangeTarget | null) => void,
     options?: Partial<Record<string, unknown>>,
   ) {
     super(options);
     this.#current = current;
     this.#actor = actor;
-    this.#resolve = resolve;
     const localize = (key: string) => game.i18n.localize(key);
     const categories = buildChangeTargetCategories(localize, actor);
     const found = current ? findCategoryForTarget(current, categories) : null;
@@ -59,7 +51,6 @@ export class ChangeTargetPickerDialog extends HandlebarsApplicationMixin(
     actions: {
       switchCategory: ChangeTargetPickerDialog.prototype._onSwitchCategory,
       pickTarget: ChangeTargetPickerDialog.prototype._onPickTarget,
-      cancelDialog: ChangeTargetPickerDialog.prototype._onCancelDialog,
     },
   };
 
@@ -84,49 +75,28 @@ export class ChangeTargetPickerDialog extends HandlebarsApplicationMixin(
 
   protected async _onPickTarget(_event: PointerEvent, target: HTMLElement): Promise<void> {
     const value = target.dataset.target as ChangeTarget;
-    this.#resolve?.(value);
-    this.#resolve = null;
-    await this.close();
-  }
-
-  protected async _onCancelDialog(_event: PointerEvent, _target: HTMLElement): Promise<void> {
-    this.#resolve?.(null);
-    this.#resolve = null;
-    await this.close();
-  }
-
-  override async close(options?: Record<string, unknown>): Promise<this> {
-    this.#resolve?.(null);
-    this.#resolve = null;
-    return super.close(options);
+    await this.settle(value);
   }
 }
 
-export class ConditionalNoteTargetPickerDialog extends HandlebarsApplicationMixin(
-  foundry.applications.api.ApplicationV2,
-) {
+export class ConditionalNoteTargetPickerDialog extends PromptDialog<ConditionalNoteTarget | null> {
+  protected override readonly cancelResult: ConditionalNoteTarget | null = null;
   #current: string;
   #activeCategory: ConditionalNoteTargetCategoryId;
   #actor: ActorContext;
-  #resolve: ((result: ConditionalNoteTarget | null) => void) | null;
 
   static async prompt(current: string, actor: ActorContext = null): Promise<ConditionalNoteTarget | null> {
-    return new Promise(resolve => {
-      const dialog = new ConditionalNoteTargetPickerDialog(current, actor, resolve);
-      void dialog.render(true);
-    });
+    return new ConditionalNoteTargetPickerDialog(current, actor).wait();
   }
 
   constructor(
     current: string,
     actor: ActorContext,
-    resolve: (result: ConditionalNoteTarget | null) => void,
     options?: Partial<Record<string, unknown>>,
   ) {
     super(options);
     this.#current = current;
     this.#actor = actor;
-    this.#resolve = resolve;
     const localize = (key: string) => game.i18n.localize(key);
     const categories = buildConditionalNoteTargetCategories(localize, actor);
     const found = current ? findCategoryForConditionalNoteTarget(current, categories) : null;
@@ -140,7 +110,6 @@ export class ConditionalNoteTargetPickerDialog extends HandlebarsApplicationMixi
     actions: {
       switchCategory: ConditionalNoteTargetPickerDialog.prototype._onSwitchCategory,
       pickTarget: ConditionalNoteTargetPickerDialog.prototype._onPickTarget,
-      cancelDialog: ConditionalNoteTargetPickerDialog.prototype._onCancelDialog,
     },
   };
 
@@ -165,27 +134,12 @@ export class ConditionalNoteTargetPickerDialog extends HandlebarsApplicationMixi
 
   protected async _onPickTarget(_event: PointerEvent, target: HTMLElement): Promise<void> {
     const value = target.dataset.target as ConditionalNoteTarget;
-    this.#resolve?.(value);
-    this.#resolve = null;
-    await this.close();
-  }
-
-  protected async _onCancelDialog(_event: PointerEvent, _target: HTMLElement): Promise<void> {
-    this.#resolve?.(null);
-    this.#resolve = null;
-    await this.close();
-  }
-
-  override async close(options?: Record<string, unknown>): Promise<this> {
-    this.#resolve?.(null);
-    this.#resolve = null;
-    return super.close(options);
+    await this.settle(value);
   }
 }
 
-export class ChangeEditorDialog extends HandlebarsApplicationMixin(
-  foundry.applications.api.ApplicationV2,
-) {
+export class ChangeEditorDialog extends PromptDialog<ChangeData | ConditionalChangeData | null> {
+  protected override readonly cancelResult: ChangeData | ConditionalChangeData | null = null;
   #kind: "change" | "conditional";
   #id: string;
   #enabled: boolean;
@@ -195,19 +149,15 @@ export class ChangeEditorDialog extends HandlebarsApplicationMixin(
   #formula: string;
   #value: string;
   #actor: ActorContext;
-  #resolve: ((result: ChangeData | ConditionalChangeData | null) => void) | null;
 
   static async promptChange(
     data: ChangeData,
     titleKey: string,
     actor: ActorContext = null,
   ): Promise<ChangeData | null> {
-    return new Promise<ChangeData | ConditionalChangeData | null>(resolve => {
-      const dialog = new ChangeEditorDialog("change", data, actor, resolve, {
-        window: { title: titleKey },
-      });
-      void dialog.render(true);
-    }) as Promise<ChangeData | null>;
+    return new ChangeEditorDialog("change", data, actor, {
+      window: { title: titleKey },
+    }).wait() as Promise<ChangeData | null>;
   }
 
   static async promptConditional(
@@ -215,19 +165,15 @@ export class ChangeEditorDialog extends HandlebarsApplicationMixin(
     titleKey: string,
     actor: ActorContext = null,
   ): Promise<ConditionalChangeData | null> {
-    return new Promise<ChangeData | ConditionalChangeData | null>(resolve => {
-      const dialog = new ChangeEditorDialog("conditional", data, actor, resolve, {
-        window: { title: titleKey },
-      });
-      void dialog.render(true);
-    }) as Promise<ConditionalChangeData | null>;
+    return new ChangeEditorDialog("conditional", data, actor, {
+      window: { title: titleKey },
+    }).wait() as Promise<ConditionalChangeData | null>;
   }
 
   constructor(
     kind: "change" | "conditional",
     data: ChangeData | ConditionalChangeData,
     actor: ActorContext,
-    resolve: (result: ChangeData | ConditionalChangeData | null) => void,
     options?: Partial<Record<string, unknown>>,
   ) {
     super(options);
@@ -240,7 +186,6 @@ export class ChangeEditorDialog extends HandlebarsApplicationMixin(
     this.#formula = (data as ChangeData).formula ?? "";
     this.#value = (data as ConditionalChangeData).value ?? "";
     this.#actor = actor;
-    this.#resolve = resolve;
   }
 
   static override DEFAULT_OPTIONS = {
@@ -250,7 +195,6 @@ export class ChangeEditorDialog extends HandlebarsApplicationMixin(
     actions: {
       selectTarget: ChangeEditorDialog.prototype._onSelectTarget,
       saveAndClose: ChangeEditorDialog.prototype._onSaveAndClose,
-      cancelDialog: ChangeEditorDialog.prototype._onCancelDialog,
     },
   };
 
@@ -322,20 +266,6 @@ export class ChangeEditorDialog extends HandlebarsApplicationMixin(
             value: this.#value,
             source: this.#source,
           };
-    this.#resolve?.(result);
-    this.#resolve = null;
-    await this.close();
-  }
-
-  protected async _onCancelDialog(_event: PointerEvent, _target: HTMLElement): Promise<void> {
-    this.#resolve?.(null);
-    this.#resolve = null;
-    await this.close();
-  }
-
-  override async close(options?: Record<string, unknown>): Promise<this> {
-    this.#resolve?.(null);
-    this.#resolve = null;
-    return super.close(options);
+    await this.settle(result);
   }
 }

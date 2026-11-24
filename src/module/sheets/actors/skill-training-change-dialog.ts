@@ -1,6 +1,5 @@
 import { type SkillCost, type SkillTraining, trainingCostDelta } from "../../skill.js";
-
-const { HandlebarsApplicationMixin } = foundry.applications.api;
+import { PromptDialog } from "../prompt-dialog.js";
 
 export type TrainingChangeResult =
   | { action: "record"; xpAmount: number }
@@ -14,25 +13,20 @@ type Params = {
   cost: SkillCost;
 };
 
-export class SkillTrainingChangeDialog extends HandlebarsApplicationMixin(foundry.applications.api.ApplicationV2) {
+export class SkillTrainingChangeDialog extends PromptDialog<TrainingChangeResult> {
+  protected override readonly cancelResult: TrainingChangeResult = { action: "cancel" };
   readonly #params: Params;
-  #resolve: ((result: TrainingChangeResult) => void) | null;
 
   static async prompt(params: Params): Promise<TrainingChangeResult> {
-    return new Promise(resolve => {
-      const dialog = new SkillTrainingChangeDialog(params, resolve);
-      void dialog.render(true);
-    });
+    return new SkillTrainingChangeDialog(params).wait();
   }
 
   constructor(
     params: Params,
-    resolve: (result: TrainingChangeResult) => void,
     options?: Partial<Record<string, unknown>>,
   ) {
     super(options);
     this.#params = params;
-    this.#resolve = resolve;
   }
 
   static override DEFAULT_OPTIONS = {
@@ -42,7 +36,6 @@ export class SkillTrainingChangeDialog extends HandlebarsApplicationMixin(foundr
     actions: {
       record: SkillTrainingChangeDialog.prototype._onRecord,
       skip: SkillTrainingChangeDialog.prototype._onSkip,
-      cancelDialog: SkillTrainingChangeDialog.prototype._onCancelDialog,
     },
   };
 
@@ -66,26 +59,10 @@ export class SkillTrainingChangeDialog extends HandlebarsApplicationMixin(foundr
   protected async _onRecord(_event: PointerEvent, _target: HTMLElement): Promise<void> {
     const input = this.element.querySelector<HTMLInputElement>("input[name='xpAmount']");
     const xpAmount = Math.trunc(Number(input?.value ?? 0));
-    this.#resolve?.({ action: "record", xpAmount });
-    this.#resolve = null;
-    await this.close();
+    await this.settle({ action: "record", xpAmount });
   }
 
   protected async _onSkip(_event: PointerEvent, _target: HTMLElement): Promise<void> {
-    this.#resolve?.({ action: "skip" });
-    this.#resolve = null;
-    await this.close();
-  }
-
-  protected async _onCancelDialog(_event: PointerEvent, _target: HTMLElement): Promise<void> {
-    this.#resolve?.({ action: "cancel" });
-    this.#resolve = null;
-    await this.close();
-  }
-
-  override async close(options?: Record<string, unknown>): Promise<this> {
-    this.#resolve?.({ action: "cancel" });
-    this.#resolve = null;
-    return super.close(options);
+    await this.settle({ action: "skip" });
   }
 }

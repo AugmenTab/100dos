@@ -4,8 +4,7 @@ import { identifierProblemMessage } from "../../identifier.js";
 import { type EducationDefinition } from "../../education.js";
 import { type EducationSkill } from "../../items/education.js";
 import { type SkillData } from "../../items/skill.js";
-
-const { HandlebarsApplicationMixin } = foundry.applications.api;
+import { PromptDialog } from "../prompt-dialog.js";
 
 export type ActorEducationDialogResult =
   | { action: "save"; definition: EducationDefinition }
@@ -13,46 +12,37 @@ export type ActorEducationDialogResult =
 
 type DialogMode = "create" | "edit";
 
-export class ActorEducationDialog extends HandlebarsApplicationMixin(foundry.applications.api.ApplicationV2) {
+export class ActorEducationDialog extends PromptDialog<ActorEducationDialogResult> {
+  protected override readonly cancelResult: ActorEducationDialogResult = { action: "cancel" };
   readonly #mode: DialogMode;
   readonly #initial: Partial<EducationDefinition>;
   #skills: EducationSkill[];
-  #resolve: ((result: ActorEducationDialogResult) => void) | null;
 
   static async promptCreate(): Promise<ActorEducationDialogResult> {
-    return new Promise(resolve => {
-      const dialog = new ActorEducationDialog("create", {}, [], resolve);
-      void dialog.render(true);
-    });
+    return new ActorEducationDialog("create", {}, []).wait();
   }
 
   static async promptEdit(
     identifier: string,
     education: Omit<EducationDefinition, "identifier">,
   ): Promise<ActorEducationDialogResult> {
-    return new Promise(resolve => {
-      const dialog = new ActorEducationDialog(
-        "edit",
-        { ...education, identifier },
-        education.skills.map(s => ({ identifier: s.identifier, name: s.name })),
-        resolve,
-      );
-      void dialog.render(true);
-    });
+    return new ActorEducationDialog(
+      "edit",
+      { ...education, identifier },
+      education.skills.map(s => ({ identifier: s.identifier, name: s.name })),
+    ).wait();
   }
 
   constructor(
     mode: DialogMode,
     initial: Partial<EducationDefinition>,
     skills: EducationSkill[],
-    resolve: (result: ActorEducationDialogResult) => void,
     options?: Partial<Record<string, unknown>>,
   ) {
     super(options);
     this.#mode = mode;
     this.#initial = initial;
     this.#skills = skills;
-    this.#resolve = resolve;
   }
 
   static override DEFAULT_OPTIONS = {
@@ -61,7 +51,6 @@ export class ActorEducationDialog extends HandlebarsApplicationMixin(foundry.app
     window: { title: "DOS100.actorEducation.dialog.createTitle" },
     actions: {
       saveAndClose: ActorEducationDialog.prototype._onSaveAndClose,
-      cancelDialog: ActorEducationDialog.prototype._onCancelDialog,
       deleteEducationSkill: ActorEducationDialog.prototype._onDeleteEducationSkill,
     },
   };
@@ -187,20 +176,6 @@ export class ActorEducationDialog extends HandlebarsApplicationMixin(foundry.app
       identifier: identifierInput?.value.trim() ?? "",
     };
 
-    this.#resolve?.({ action: "save", definition });
-    this.#resolve = null;
-    await this.close();
-  }
-
-  protected async _onCancelDialog(_event: PointerEvent, _target: HTMLElement): Promise<void> {
-    this.#resolve?.({ action: "cancel" });
-    this.#resolve = null;
-    await this.close();
-  }
-
-  override async close(options?: Record<string, unknown>): Promise<this> {
-    this.#resolve?.({ action: "cancel" });
-    this.#resolve = null;
-    return super.close(options);
+    await this.settle({ action: "save", definition });
   }
 }

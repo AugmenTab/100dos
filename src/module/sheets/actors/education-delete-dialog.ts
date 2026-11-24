@@ -1,7 +1,6 @@
 import { type EducationTraining, educationRefund } from "../../education.js";
 import { type EducationCost } from "../../items/education.js";
-
-const { HandlebarsApplicationMixin } = foundry.applications.api;
+import { PromptDialog } from "../prompt-dialog.js";
 
 export type EducationDeleteResult =
   | { action: "refundAndDelete"; xpAmount: number }
@@ -14,25 +13,20 @@ type Params = {
   cost: EducationCost;
 };
 
-export class EducationDeleteDialog extends HandlebarsApplicationMixin(foundry.applications.api.ApplicationV2) {
+export class EducationDeleteDialog extends PromptDialog<EducationDeleteResult> {
+  protected override readonly cancelResult: EducationDeleteResult = { action: "cancel" };
   readonly #params: Params;
-  #resolve: ((result: EducationDeleteResult) => void) | null;
 
   static async prompt(params: Params): Promise<EducationDeleteResult> {
-    return new Promise(resolve => {
-      const dialog = new EducationDeleteDialog(params, resolve);
-      void dialog.render(true);
-    });
+    return new EducationDeleteDialog(params).wait();
   }
 
   constructor(
     params: Params,
-    resolve: (result: EducationDeleteResult) => void,
     options?: Partial<Record<string, unknown>>,
   ) {
     super(options);
     this.#params = params;
-    this.#resolve = resolve;
   }
 
   static override DEFAULT_OPTIONS = {
@@ -42,7 +36,6 @@ export class EducationDeleteDialog extends HandlebarsApplicationMixin(foundry.ap
     actions: {
       refundAndDelete: EducationDeleteDialog.prototype._onRefundAndDelete,
       deleteOnly: EducationDeleteDialog.prototype._onDeleteOnly,
-      cancelDialog: EducationDeleteDialog.prototype._onCancelDialog,
     },
   };
 
@@ -63,26 +56,10 @@ export class EducationDeleteDialog extends HandlebarsApplicationMixin(foundry.ap
   protected async _onRefundAndDelete(_event: PointerEvent, _target: HTMLElement): Promise<void> {
     const input = this.element.querySelector<HTMLInputElement>("input[name='xpAmount']");
     const xpAmount = Math.trunc(Number(input?.value ?? 0));
-    this.#resolve?.({ action: "refundAndDelete", xpAmount });
-    this.#resolve = null;
-    await this.close();
+    await this.settle({ action: "refundAndDelete", xpAmount });
   }
 
   protected async _onDeleteOnly(_event: PointerEvent, _target: HTMLElement): Promise<void> {
-    this.#resolve?.({ action: "delete" });
-    this.#resolve = null;
-    await this.close();
-  }
-
-  protected async _onCancelDialog(_event: PointerEvent, _target: HTMLElement): Promise<void> {
-    this.#resolve?.({ action: "cancel" });
-    this.#resolve = null;
-    await this.close();
-  }
-
-  override async close(options?: Record<string, unknown>): Promise<this> {
-    this.#resolve?.({ action: "cancel" });
-    this.#resolve = null;
-    return super.close(options);
+    await this.settle({ action: "delete" });
   }
 }

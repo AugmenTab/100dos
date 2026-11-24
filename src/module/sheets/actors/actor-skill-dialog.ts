@@ -7,8 +7,7 @@ import {
 } from "../../skill.js";
 import { CHARACTERISTIC_IDS, type CharacteristicId } from "../../characteristic.js";
 import { identifierProblemMessage } from "../../identifier.js";
-
-const { HandlebarsApplicationMixin } = foundry.applications.api;
+import { PromptDialog } from "../prompt-dialog.js";
 
 export type ActorSkillDialogResult =
   | { action: "save"; definition: ActorSkillDefinition }
@@ -16,35 +15,27 @@ export type ActorSkillDialogResult =
 
 type DialogMode = "create" | "edit";
 
-export class ActorSkillDialog extends HandlebarsApplicationMixin(foundry.applications.api.ApplicationV2) {
+export class ActorSkillDialog extends PromptDialog<ActorSkillDialogResult> {
+  protected override readonly cancelResult: ActorSkillDialogResult = { action: "cancel" };
   readonly #mode: DialogMode;
   readonly #initial: Partial<ActorSkillDefinition>;
-  #resolve: ((result: ActorSkillDialogResult) => void) | null;
 
   static async promptCreate(): Promise<ActorSkillDialogResult> {
-    return new Promise(resolve => {
-      const dialog = new ActorSkillDialog("create", {}, resolve);
-      void dialog.render(true);
-    });
+    return new ActorSkillDialog("create", {}).wait();
   }
 
   static async promptEdit(identifier: string, skill: Omit<ActorSkillDefinition, "identifier">): Promise<ActorSkillDialogResult> {
-    return new Promise(resolve => {
-      const dialog = new ActorSkillDialog("edit", { ...skill, identifier }, resolve);
-      void dialog.render(true);
-    });
+    return new ActorSkillDialog("edit", { ...skill, identifier }).wait();
   }
 
   constructor(
     mode: DialogMode,
     initial: Partial<ActorSkillDefinition>,
-    resolve: (result: ActorSkillDialogResult) => void,
     options?: Partial<Record<string, unknown>>,
   ) {
     super(options);
     this.#mode = mode;
     this.#initial = initial;
-    this.#resolve = resolve;
   }
 
   static override DEFAULT_OPTIONS = {
@@ -53,7 +44,6 @@ export class ActorSkillDialog extends HandlebarsApplicationMixin(foundry.applica
     window: { title: "DOS100.actorSkill.dialog.createTitle" },
     actions: {
       saveAndClose: ActorSkillDialog.prototype._onSaveAndClose,
-      cancelDialog: ActorSkillDialog.prototype._onCancelDialog,
     },
   };
 
@@ -142,20 +132,6 @@ export class ActorSkillDialog extends HandlebarsApplicationMixin(foundry.applica
       identifier: identifierInput?.value.trim() ?? "",
     };
 
-    this.#resolve?.({ action: "save", definition });
-    this.#resolve = null;
-    await this.close();
-  }
-
-  protected async _onCancelDialog(_event: PointerEvent, _target: HTMLElement): Promise<void> {
-    this.#resolve?.({ action: "cancel" });
-    this.#resolve = null;
-    await this.close();
-  }
-
-  override async close(options?: Record<string, unknown>): Promise<this> {
-    this.#resolve?.({ action: "cancel" });
-    this.#resolve = null;
-    return super.close(options);
+    await this.settle({ action: "save", definition });
   }
 }
