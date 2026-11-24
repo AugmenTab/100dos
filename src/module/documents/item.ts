@@ -206,7 +206,7 @@ export class Dos100Item extends Item {
   }
 
   /**
-   * Restores uses for all actions on this ability whose usage period matches
+   * Restores uses for all actions on this Item whose usage period matches
    * the given trigger, following the cascade rules in shouldRecharge. Also
    * restores the shared Actions pool if its period matches.
    */
@@ -221,7 +221,7 @@ export class Dos100Item extends Item {
    * Items can batch them into one updateEmbeddedDocuments call.
    */
   rechargeUpdates(period: UsagePeriod | "encounter"): Record<string, number> | null {
-    if (this.type !== "ability") return null;
+    if (!ACTIONS_ITEM_TYPES.has(this.type)) return null;
     const system = this.system as { actions: Actions };
 
     const updates: Record<string, number> = {};

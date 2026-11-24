@@ -183,8 +183,8 @@ Hooks.once("ready", (): void => {
   debug("Ready");
 });
 
-// Recharge per-encounter ability uses at both combat start and combat end,
-// so abilities are always fresh entering a fight and restored after one ends.
+// Recharge per-encounter Action uses at both combat start and combat end,
+// so they're always fresh entering a fight and restored after one ends.
 // GM-only to avoid simultaneous updates from multiple connected clients.
 // One updateEmbeddedDocuments per Actor rather than one update per Item, with
 // the Actors themselves updated in parallel. Deduplicated by uuid, since a

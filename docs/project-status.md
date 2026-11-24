@@ -269,11 +269,9 @@ sheet's own placeholders:
 
 ## 6. Inconsistencies and bugs found
 
-1. **Recharge skips most Action-bearing Items.** `ACTIONS_ITEM_TYPES` gives
-   Actions to ability, trait, effect, armor and gear, and `useAction()`
-   honors all five. But `rechargeUpdates()` returns `null` for anything
-   except `ability`, so encounter recharge never restores uses on Traits,
-   Effects, Armor or Gear (`src/module/documents/item.ts`).
+1. ~~**Recharge skips most Action-bearing Items.**~~ Fixed:
+   `rechargeUpdates()` now covers every `ACTIONS_ITEM_TYPES` Item, matching
+   `useAction()`, instead of `ability` only.
 2. **XP totals never move** (§4). The ledger and the summary disagree as
    soon as one purchase is recorded.
 3. **Armor and Gear Actions can't be edited from their own sheets**, even
@@ -300,7 +298,7 @@ pure-function-first and Vitest-covered:
 
    Make `base` and `advancement` editable (likely the Settings or Basics
    page) so a PC can be entered without a macro. This alone makes the sheet
-   usable for play. Fix §6.1 alongside it.
+   usable for play.
 2. **The d100 test and a chat card.** Wire the existing Skill, Education
    and Characteristic roll buttons. Crit thresholds come from the existing
    settings.
