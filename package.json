@@ -11,7 +11,8 @@
     "format:check": "prettier --check src/",
     "test": "vitest run",
     "test:ui": "playwright test",
-    "typecheck:e2e": "tsc --noEmit -p tsconfig.e2e.json"
+    "typecheck:e2e": "tsc --noEmit -p tsconfig.e2e.json",
+    "typecheck:browser": "tsc --noEmit -p tsconfig.browser.json"
   },
   "devDependencies": {
     "@playwright/test": "1.62.0",
