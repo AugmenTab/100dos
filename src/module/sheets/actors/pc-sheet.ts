@@ -46,27 +46,27 @@ declare global {
   }
 }
 
-type DrCategory = {
+export type DrCategory = {
   type: DamageResistanceLocationType;
   locations: (DamageResistanceLocation & { key: string })[];
 };
 
-type XpLedgerRow = ExperienceLedgerItem & {
+export type XpLedgerRow = ExperienceLedgerItem & {
   recordedByName: string;
   realTimeDisplay: string;
 };
 
-type FinanceLedgerRow = FinanceLedgerItem & {
+export type FinanceLedgerRow = FinanceLedgerItem & {
   recordedByName: string;
   realTimeDisplay: string;
 };
 
-type SkillRow = ActorSkill & {
+export type SkillRow = ActorSkill & {
   identifier: string;
   characteristicOptions: { value: CharacteristicId; label: string }[];
 };
 
-type EducationRow = ActorEducation & {
+export type EducationRow = ActorEducation & {
   identifier: string;
   targetOptions: { value: EducationTarget; label: string }[];
 };

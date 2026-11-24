@@ -5,35 +5,19 @@
 // only through the narrow selectOptions stand-in (render.ts) — none of the
 // migrated tests assert on option-list content, so these just need to be
 // valid, non-empty arrays, not exact parity with the real computed lists.
-export type Contribution = { label: string; value: number };
+import { type EducationRecord } from "../../../src/module/education.js";
+import { type EducationRow, type SkillRow } from "../../../src/module/sheets/actors/pc-sheet.js";
 
-export type SkillRowFixture = {
-  identifier: string;
-  name: string;
-  pinned?: boolean;
-  difficulty?: string;
-  type?: string[];
-  training?: string;
-  characteristic?: string;
-  characteristicOptions?: { value: string; label: string }[];
-  value?: number;
-  contributions?: Contribution[];
-};
+// Rows the sheet builds, minus the fields no migrated test reads; every
+// field a test does supply is checked against the sheet's real row type.
+export type SkillRowFixture = Pick<SkillRow, "identifier" | "name"> &
+  Partial<Pick<SkillRow, "pinned" | "difficulty" | "type" | "training" | "characteristic" | "characteristicOptions" | "value" | "contributions">>;
 
-export type EducationRowFixture = {
-  identifier: string;
-  name: string;
-  pinned?: boolean;
-  difficulty?: string;
-  training?: string;
-  selected?: string;
-  targetOptions?: { value: string; label: string }[];
-  value?: number;
-  contributions?: Contribution[];
-};
+export type EducationRowFixture = Pick<EducationRow, "identifier" | "name"> &
+  Partial<Pick<EducationRow, "pinned" | "difficulty" | "training" | "selected" | "targetOptions" | "value" | "contributions">>;
 
-const DEFAULT_CHARACTERISTIC_OPTIONS = [{ value: "agi", label: "AGI" }];
-const DEFAULT_TARGET_OPTIONS = [{ value: "int", label: "INT" }];
+const DEFAULT_CHARACTERISTIC_OPTIONS: SkillRow["characteristicOptions"] = [{ value: "agi", label: "AGI" }];
+const DEFAULT_TARGET_OPTIONS: EducationRow["targetOptions"] = [{ value: "int", label: "INT" }];
 
 export function buildSkillRow(row: SkillRowFixture): Required<SkillRowFixture> {
   return {
@@ -65,7 +49,7 @@ export function buildEducationRow(row: EducationRowFixture): Required<EducationR
 export function buildSkillsContext(overrides: {
   skillRows?: SkillRowFixture[];
   educationRows?: EducationRowFixture[];
-  education?: { value: number; max: number; contributions: Contribution[] };
+  education?: EducationRecord;
 } = {}) {
   return {
     sheetId: "browser-tier-sheet",

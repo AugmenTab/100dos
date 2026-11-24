@@ -2,32 +2,17 @@
 // type — same structure as ability-context.ts but with showCombatTab: false,
 // active defaulting to false (Effect's schema default), and a grantSource
 // field that may be null or { name, typeLabel }.
-import { type ActionItemFixture, type LinkedItemFixture } from "./ability-context.js";
+import { type EffectData } from "../../../src/module/items/effect.js";
+import { type LinkedItemFixture } from "./ability-context.js";
+import { type DeepPartial } from "./deep-partial.js";
 
+// Sheet context only (resolved from the granting Item), not stored data.
 export type GrantSourceFixture = { name: string; typeLabel: string };
 
 export type EffectItemFixture = {
   img?: string;
   name?: string;
-  system?: {
-    active?: boolean;
-    actions?: {
-      pinned?: boolean;
-      items?: Record<string, ActionItemFixture>;
-      uses?: { per: string; value: number; max: number; formula: string };
-      notes?: { effectNotes?: string[]; footnotes?: string[] };
-    };
-    tags?: string[];
-    identifier?: string;
-    deleteOnExpire?: boolean;
-    duration?: { formula?: string; unit?: string; expiration?: string | null };
-    stackingRule?: string;
-    description?: string;
-    changes?: {
-      computed?: { id: string; target: string; mode: string; formula: string }[];
-      conditional?: { id: string; target: string; value: string }[];
-    };
-  };
+  system?: DeepPartial<EffectData>;
   grantSource?: GrantSourceFixture | null;
   childItems?: LinkedItemFixture[];
   supplementItems?: LinkedItemFixture[];

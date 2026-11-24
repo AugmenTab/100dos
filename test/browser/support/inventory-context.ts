@@ -6,15 +6,18 @@
 // and stays real-Foundry; every migrated test only exercises the
 // item-type-less empty-wireframe partials, which render correctly with no
 // rows at all.
-export type EncumbranceBand = { labelKey: string; thresholdValue: number; fillPercent: number };
-export type Contribution = { label: string; value: number };
+import {
+  type Encumbrance,
+  type EncumbranceBand,
+  type EncumbranceThreshold,
+} from "../../../src/module/encumbrance.js";
 
-function zeroThreshold(): { value: number; contributions: Contribution[] } {
+function zeroThreshold(): EncumbranceThreshold {
   return { value: 0, contributions: [] };
 }
 
 export function buildInventoryContext(overrides: {
-  encumbrance?: { carried: number; felt: number; total: number };
+  encumbrance?: Pick<Encumbrance, "carried" | "felt" | "total">;
   encumbranceBands?: EncumbranceBand[];
   financesCarried?: number;
   thresholds?: { carry?: number; lift?: number; push?: number };

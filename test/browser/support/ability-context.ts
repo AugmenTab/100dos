@@ -5,37 +5,16 @@
 // _prepareTabs() output shape (id/label/active/cssClass per tab), hand-built
 // here rather than computed — that computation is ApplicationV2 machinery,
 // out of scope for this tier, so its RESULT shape is reproduced instead.
-export type LinkedItemFixture = { id: string; name: string; img: string };
+import { type AbilityData } from "../../../src/module/items/ability.js";
+import { type DeepPartial } from "./deep-partial.js";
 
-export type ActionItemFixture = {
-  id: string;
-  name: string;
-  uses: { per: string; value: number; max: number };
-};
+// Sheet context only (resolved from grant flags), not stored Item data.
+export type LinkedItemFixture = { id: string; name: string; img: string };
 
 export type AbilityItemFixture = {
   img?: string;
   name?: string;
-  system?: {
-    active?: boolean;
-    actions?: {
-      pinned?: boolean;
-      items?: Record<string, ActionItemFixture>;
-      uses?: { per: string; value: number; max: number; formula: string };
-      notes?: { effectNotes?: string[]; footnotes?: string[] };
-    };
-    showInCombatTab?: boolean;
-    tags?: string[];
-    identifier?: string;
-    xpCost?: number;
-    prerequisites?: string;
-    summary?: string;
-    description?: string;
-    changes?: {
-      computed?: { id: string; target: string; mode: string; formula: string }[];
-      conditional?: { id: string; target: string; value: string }[];
-    };
-  };
+  system?: DeepPartial<AbilityData>;
   childItems?: LinkedItemFixture[];
   supplementItems?: LinkedItemFixture[];
 };

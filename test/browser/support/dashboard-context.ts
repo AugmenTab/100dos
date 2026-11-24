@@ -7,10 +7,18 @@
 // these tests — archetype/movement-mode selects only appear in branches
 // none of the migrated tests take) or other unimplemented Foundry-core
 // helpers.
-export type Contribution = { label: string; value: number };
-export type ValueWithContributions = { value: number; contributions?: Contribution[] };
+import { type PcSystem } from "../../../src/module/actors/pc.js";
+import { type CharacteristicId, type Characteristic } from "../../../src/module/characteristic.js";
+import { type Contribution } from "../../../src/module/contribution.js";
+import {
+  type DamageResistanceLocation,
+  type DamageResistanceLocationType,
+} from "../../../src/module/damage-resistance.js";
+import { type DeepPartial } from "./deep-partial.js";
 
-const CHARACTERISTIC_IDS = ["str", "tou", "agi", "wfr", "wfm", "int", "per", "crg", "cha", "ldr"] as const;
+type ValueWithContributions = { value: number; contributions?: Contribution[] };
+
+const CHARACTERISTIC_IDS: readonly CharacteristicId[] = ["str", "tou", "agi", "wfr", "wfm", "int", "per", "crg", "cha", "ldr"];
 
 function zeroMovementStat(): ValueWithContributions {
   return { value: 0, contributions: [] };
@@ -31,24 +39,20 @@ function defaultMovementBase(): Record<string, unknown> {
   };
 }
 
-function defaultCharacteristics(): Record<string, { value: number; temp: number; advancement: number; contributions: Contribution[] }> {
-  const out: Record<string, { value: number; temp: number; advancement: number; contributions: Contribution[] }> = {};
+function defaultCharacteristics(): Partial<Record<CharacteristicId, DeepPartial<Characteristic>>> {
+  const out: Partial<Record<CharacteristicId, DeepPartial<Characteristic>>> = {};
   for (const id of CHARACTERISTIC_IDS) out[id] = { value: 0, temp: 0, advancement: 0, contributions: [] };
   return out;
 }
 
-export type DrLocationFixture = {
-  key: string;
-  type: string;
-  label: string;
-  value: number;
-  destroyed?: boolean;
-  contributions?: Contribution[];
-};
+export type DrLocationFixture = { key: string } & Pick<DamageResistanceLocation, "type" | "label" | "value"> &
+  Partial<Pick<DamageResistanceLocation, "destroyed" | "contributions">>;
+
+type DrCategoryFixture = { type: DamageResistanceLocationType; locations: DrLocationFixture[] };
 
 /** Groups locations by type, mirroring the real context's drCategories shape. */
-export function buildDrCategories(locations: DrLocationFixture[]): { type: string; locations: DrLocationFixture[] }[] {
-  const byType = new Map<string, DrLocationFixture[]>();
+export function buildDrCategories(locations: DrLocationFixture[]): DrCategoryFixture[] {
+  const byType = new Map<DamageResistanceLocationType, DrLocationFixture[]>();
   for (const rawLoc of locations) {
     const loc = { contributions: [], destroyed: false, ...rawLoc };
     const list = byType.get(loc.type) ?? [];
@@ -62,20 +66,9 @@ export type DashboardContextOverrides = {
   actor?: {
     img?: string;
     name?: string;
-    system?: Partial<{
-      xp: { tier: number; earned: number };
-      basic: { height: string; weight: number; age: number; gender: string };
-      archetype: string | null;
-      characteristics: Record<string, { value: number; temp: number; advancement: number; contributions: Contribution[] }>;
-      mythicCharacteristics: Record<string, ValueWithContributions>;
-      initiative: ValueWithContributions;
-      wounds: { value: number; max: number; temp: number; contributions: Contribution[] };
-      fatigue: { value: number; max: number; penalty: number; contributions: Contribution[] };
-      luck: { value: number; max: number; contributions: Contribution[] };
-      movement: { mode: string; base: Record<string, unknown> };
-    }>;
+    system?: DeepPartial<PcSystem>;
   };
-  drCategories?: { type: string; locations: DrLocationFixture[] }[];
+  drCategories?: DrCategoryFixture[];
   quickUseItems?: { id: string; name: string; img: string }[];
   pinnedSkills?: { name: string }[];
   pinnedEducations?: { name: string }[];

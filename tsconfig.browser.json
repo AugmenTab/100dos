@@ -7,5 +7,7 @@
     "types": ["node"],
     "lib": ["ES2022", "DOM"]
   },
-  "include": ["playwright.browser.config.ts", "test/browser/**/*"]
+  // src/types: fixtures import the system's own data types, and the src
+  // modules those live in are typed against these Foundry declarations.
+  "include": ["playwright.browser.config.ts", "test/browser/**/*", "src/types/**/*"]
 }

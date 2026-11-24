@@ -1,3 +1,8 @@
+// Foundry's global Handlebars is the same 4.x library pinned in devDependencies,
+// so it's typed by that package's own declarations rather than hand-rolled here
+// (which also keeps it compatible with the browser test tier's real import).
+/// <reference types="handlebars" />
+
 // Hand-rolled Foundry VTT v14 ambient declarations.
 // Add types here as APIs are introduced into the system codebase.
 // Extend Game via declaration merging in the relevant module, not here.
@@ -171,10 +176,6 @@ declare const CONFIG: {
   statusEffects: { id: string; name: string; img: string }[];
 };
 
-
-declare const Handlebars: {
-  registerHelper(name: string, fn: (...args: unknown[]) => unknown): void;
-};
 
 declare const Hooks: {
   once(hook: string, fn: (...args: unknown[]) => void): number;

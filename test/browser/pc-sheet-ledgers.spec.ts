@@ -9,7 +9,7 @@
 // harness doesn't reproduce; hand-feeding an already-resolved value would
 // make the fallback assertion vacuous. Both stay real-Foundry.
 import { expect, test } from "@playwright/test";
-import { buildFinancesContext, buildXpContext } from "./support/ledgers-context.js";
+import { buildFinancesContext, buildXpContext, type LedgerRowFixture } from "./support/ledgers-context.js";
 import { renderPage } from "./support/render.js";
 
 function renderXp(overrides: Parameters<typeof buildXpContext>[0] = {}): string {
@@ -70,8 +70,8 @@ test.describe("Finances ledger page", () => {
 });
 
 test("XP and Finances ledgers remain usable, without whole-sheet overflow, at representative sheet widths", async ({ page }) => {
-  const xpRow = { type: "reward", description: "Completed Investigation", value: 100 };
-  const financesRow = { type: "income", description: "Mission Payment", value: 1000 };
+  const xpRow: LedgerRowFixture = { type: "reward", description: "Completed Investigation", value: 100 };
+  const financesRow: LedgerRowFixture = { type: "income", description: "Mission Payment", value: 1000 };
 
   for (const width of [1000, 720, 360]) {
     for (const [html] of [
