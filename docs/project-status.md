@@ -284,14 +284,6 @@ sheet's own placeholders:
    `.local/project_state.md` and the race description assume all ten. If
    the three-Characteristic Mythic scope is the intended rule, the docs need
    updating, not the code. Worth confirming.
-6. **Docs drift:**
-   - `docs/ability-actions.md` still shows the old `ActionData` shape
-     (`uses` without the item/action charge costs) and says `useAction` and
-     `rechargeActions` are no-ops off abilities, which is now true only of
-     recharge.
-   - `docs/architecture.md`'s Testing section says Foundry behavior has no
-     automated coverage and that Playwright is deferred. Both Playwright
-     tiers now exist.
 
 ---
 

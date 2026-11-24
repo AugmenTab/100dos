@@ -145,11 +145,15 @@ The model carries no bonus type or stacking category. There is no Pathfinder-sty
 
 ## Testing
 
-The project uses two complementary testing strategies.
+The project uses three test tiers.
 
 **Vitest** covers pure TypeScript modules — code with no Foundry dependency. Tests live alongside the modules they cover as `*.test.ts` files and run inside the dev container via `./scripts/test`. They are also run as part of `./scripts/build`, so they are enforced on every build. Any new pure-logic module must have a corresponding test file that covers all exported functions and their edge cases.
 
-Foundry-integrated behavior (document initialization, data model defaults, sheet interactions) is not currently covered by automated tests — it requires a running Foundry instance and a browser context. Full UI automation via Playwright or a similar headless driver is tracked in sc-00146 and deferred for now.
+**Playwright browser tier** (`test/browser/`) covers 100DOS's own rendering: template output, markup structure, attributes, text, and CSS. Each test renders a real template from `src/templates/` through a local Handlebars instance with a hand-built context — no Foundry involved, so the tier runs in seconds. Fixture contexts are typed against the system's real data types and checked by `npm run typecheck:browser`, so a schema change surfaces as a type error rather than a stale render.
+
+**Playwright e2e tier** (`test/e2e/`) covers behavior that needs Foundry's runtime: click handlers that open ApplicationV2 windows, form persistence and Document re-render, ProseMirror, and window lifecycle. It runs against a dedicated Foundry instance and world, separate from the development instance, and is the slow tier — new tests here should share setup where they can.
+
+`scripts/ui-test` runs both Playwright tiers (the browser tier concurrently with Foundry startup); it is separate from `scripts/build`. See the README for running them, and `test/CLAUDE.md` for how to classify a new test into a tier.
 
 **Rule:** whenever a new data type or utility module is added to `src/module/`, a test file must be added alongside it before the story is considered complete. The test must cover every field default (for data models) or every exported function (for utility modules).
 
