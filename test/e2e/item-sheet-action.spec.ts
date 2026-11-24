@@ -43,7 +43,7 @@ test.describe("Action editor", () => {
 
   test("Tab switching works in the Action editor", async ({ foundryPage: page }) => {
     const actionSheet = page.locator(".action-sheet");
-    for (const tabId of ["usage", "action", "miscellaneous", "description"]) {
+    for (const tabId of ["usage", "action", "description"]) {
       await actionSheet.locator(`[role="tab"][data-group="primary"][data-tab="${tabId}"]`).click();
       await expect(actionSheet.locator(`.tab[data-tab="${tabId}"].active`)).toBeVisible();
     }

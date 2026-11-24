@@ -21,7 +21,7 @@ export type AbilityItemFixture = {
     actions?: {
       pinned?: boolean;
       items?: Record<string, ActionItemFixture>;
-      uses?: { per: string; value: number; max: number; formula: { max: string } };
+      uses?: { per: string; value: number; max: number; formula: string };
       notes?: { effectNotes?: string[]; footnotes?: string[] };
     };
     showInCombatTab?: boolean;
@@ -77,7 +77,7 @@ export function buildAbilityContext(
         actions: {
           pinned: item.system?.actions?.pinned ?? false,
           items: item.system?.actions?.items ?? {},
-          uses: item.system?.actions?.uses ?? { per: "unlimited", value: 0, max: 0, formula: { max: "" } },
+          uses: item.system?.actions?.uses ?? { per: "unlimited", value: 0, max: 0, formula: "" },
           notes: {
             effectNotes: item.system?.actions?.notes?.effectNotes ?? [],
             footnotes: item.system?.actions?.notes?.footnotes ?? [],

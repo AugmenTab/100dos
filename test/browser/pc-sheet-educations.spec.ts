@@ -33,7 +33,7 @@ test("a representative Education renders its stored schema data", async ({ page 
   const row = educationsTable(page).locator("tbody tr").filter({ hasText: "Engineering" });
   await expect(row).toHaveCount(1);
   await expect(row).toContainText("Advanced");
-  await expect(row).toContainText("+10");
+  await expect(row.locator('select[name="system.educations.engineering.training"]')).toHaveValue("plus10");
   await expect(row.locator("button.simple-button")).toHaveText("55");
 });
 

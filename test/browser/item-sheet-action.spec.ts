@@ -15,33 +15,34 @@ function renderSheet(overrides: Parameters<typeof buildActionContext>[0] = {}) {
   );
 }
 
-test("Action sheet renders exactly four tabs: Description, Usage, Action, Miscellaneous", async ({ page }) => {
+test("Action sheet renders exactly three tabs: Description, Usage, Action", async ({ page }) => {
   await page.setContent(renderSheet());
 
   const tabLabels = await page.locator('[role="tab"][data-group="primary"]').allTextContents();
-  expect(tabLabels).toEqual(["Description", "Usage", "Action", "Miscellaneous"]);
+  expect(tabLabels).toEqual(["Description", "Usage", "Action"]);
 });
 
-test("Conditional Modifiers tab is not present", async ({ page }) => {
+test("Conditional Modifiers and Miscellaneous tabs are not present", async ({ page }) => {
   await page.setContent(renderSheet());
 
   const tabLabels = await page.locator('[role="tab"][data-group="primary"]').allTextContents();
   expect(tabLabels).not.toContain("Conditional Modifiers");
+  expect(tabLabels).not.toContain("Miscellaneous");
 });
 
-test("Each tab panel displays its heading and the placeholder text", async ({ page }) => {
+test("Each tab controls exactly one panel, and only the active tab's panel is active", async ({ page }) => {
   await page.setContent(renderSheet());
 
-  const panels: Array<[string, string]> = [
-    ["description", "Description"],
-    ["usage", "Usage"],
-    ["action", "Action"],
-    ["miscellaneous", "Miscellaneous"],
-  ];
+  const panels = page.locator('.tab[data-group="primary"][role="tabpanel"]');
+  await expect(panels).toHaveCount(3);
 
-  for (const [tabId, heading] of panels) {
+  for (const tabId of ["description", "usage", "action"]) {
+    const tab = page.locator(`[role="tab"][data-group="primary"][data-tab="${tabId}"]`);
     const panel = page.locator(`.tab[data-group="primary"][data-tab="${tabId}"]`);
-    await expect(panel.locator("h1")).toHaveText(heading);
-    await expect(panel).toContainText("This feature is not yet implemented.");
+    await expect(panel).toHaveCount(1);
+    await expect(panel).toHaveAttribute("id", (await tab.getAttribute("aria-controls"))!);
+    await expect(panel).toHaveAttribute("aria-labelledby", (await tab.getAttribute("id"))!);
   }
+
+  await expect(page.locator('.tab[data-group="primary"].active')).toHaveAttribute("data-tab", "description");
 });

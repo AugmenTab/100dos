@@ -1,7 +1,7 @@
 // Context shape mirrors PcActorSheet._prepareContext()'s Skills/Educations
 // output (both live on the same actors/pc/skills.hbs template) closely
 // enough to render it faithfully for the portable Skills/Educations tests.
-// characteristicOptions/targetOptions/skillTrainingOptions are consumed
+// characteristicOptions/targetOptions/skill- and educationTrainingOptions are consumed
 // only through the narrow selectOptions stand-in (render.ts) — none of the
 // migrated tests assert on option-list content, so these just need to be
 // valid, non-empty arrays, not exact parity with the real computed lists.
@@ -80,6 +80,10 @@ export function buildSkillsContext(overrides: {
       { value: "trained", label: "Trained" },
       { value: "plus10", label: "+10" },
       { value: "plus20", label: "+20" },
+    ],
+    educationTrainingOptions: [
+      { value: "plus5", label: "+5" },
+      { value: "plus10", label: "+10" },
     ],
     skillRows: (overrides.skillRows ?? []).map(buildSkillRow),
     educationRows: (overrides.educationRows ?? []).map(buildEducationRow),

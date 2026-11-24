@@ -11,12 +11,11 @@ const TAB_DEFS = [
   { id: "description", label: "DOS100.item.actionSheet.tabs.description" },
   { id: "usage", label: "DOS100.item.actionSheet.tabs.usage" },
   { id: "action", label: "DOS100.item.actionSheet.tabs.action" },
-  { id: "miscellaneous", label: "DOS100.item.actionSheet.tabs.miscellaneous" },
 ] as const;
 
 export function buildActionContext(
   action: ActionFixture = {},
-  activeTab: "description" | "usage" | "action" | "miscellaneous" = "description",
+  activeTab: "description" | "usage" | "action" = "description",
 ) {
   const primaryTabs: Record<string, { id: string; label: string; active: boolean; cssClass: string }> = {};
   for (const def of TAB_DEFS) {

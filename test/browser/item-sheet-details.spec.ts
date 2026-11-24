@@ -73,7 +73,7 @@ test("unlimited uses shows only the period select, no value/max/formula fields",
 }) => {
   await page.setContent(
     renderDetails({
-      system: { actions: { uses: { per: "unlimited", value: 0, max: 0, formula: { max: "" } } } },
+      system: { actions: { uses: { per: "unlimited", value: 0, max: 0, formula: "" } } },
     }),
   );
 
@@ -81,13 +81,13 @@ test("unlimited uses shows only the period select, no value/max/formula fields",
   await expect(detailsPanel.locator('select[name="system.actions.uses.per"]')).toBeVisible();
   await expect(detailsPanel.locator('input[name="system.actions.uses.value"]')).toHaveCount(0);
   await expect(detailsPanel.locator(".dos100-uses-max")).toHaveCount(0);
-  await expect(detailsPanel.locator('input[name="system.actions.uses.formula.max"]')).toHaveCount(0);
+  await expect(detailsPanel.locator('input[name="system.actions.uses.formula"]')).toHaveCount(0);
 });
 
 test("finite uses shows value, max, period select, and formula field", async ({ page }) => {
   await page.setContent(
     renderDetails({
-      system: { actions: { uses: { per: "encounter", value: 2, max: 3, formula: { max: "@str / 2" } } } },
+      system: { actions: { uses: { per: "encounter", value: 2, max: 3, formula: "@str / 2" } } },
     }),
   );
 
@@ -95,7 +95,7 @@ test("finite uses shows value, max, period select, and formula field", async ({ 
   await expect(detailsPanel.locator('input[name="system.actions.uses.value"]')).toHaveValue("2");
   await expect(detailsPanel.locator(".dos100-uses-max")).toHaveText("3");
   await expect(detailsPanel.locator('select[name="system.actions.uses.per"]')).toBeVisible();
-  await expect(detailsPanel.locator('input[name="system.actions.uses.formula.max"]')).toHaveValue("@str / 2");
+  await expect(detailsPanel.locator('input[name="system.actions.uses.formula"]')).toHaveValue("@str / 2");
 });
 
 test("Effect Notes table is present with Add button and empty state when empty", async ({
@@ -171,7 +171,7 @@ test("Details tab remains usable, without overflow, at representative sheet widt
       system: {
         actions: {
           items: { a1: { id: "a1", name: "Frenzy", uses: { per: "encounter", value: 1, max: 3 } } },
-          uses: { per: "encounter", value: 1, max: 3, formula: { max: "" } },
+          uses: { per: "encounter", value: 1, max: 3, formula: "" },
           notes: { effectNotes: ["A note"], footnotes: [] },
         },
         tags: ["combat"],
