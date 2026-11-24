@@ -170,6 +170,12 @@ export class PcActorSheet extends Dos100ActorSheet {
     const movementModeOptions = this.movementModeOptions();
     const pinnedSkills = this.pinnedSkills();
     const pinnedEducations = this.pinnedEducations();
+    // Every per-type table reads from this one alphabetized bucketing of
+    // the owned Items, and every status list from this one palette, rather
+    // than each re-scanning the Actor on every render.
+    const items = this.itemsByType();
+    const effects = this.effectRowsByGroup(items.get("effect") ?? []);
+    const statuses = this.statusButtonRows();
     return {
       ...(await super._prepareContext(options)),
       sheetId: this.id,
@@ -183,15 +189,10 @@ export class PcActorSheet extends Dos100ActorSheet {
       // TODO: the Archetype Item type doesn't exist yet, so this is always
       // empty for now — the selector's data flow (options in, system.archetype
       // out) is still correct and needs no rework once that Item type arrives.
-      archetypeOptions: this.actor.items
-        .filter((item) => item.type === "archetype")
-        .map((item) => ({ value: item.uuid, label: item.name })),
+      archetypeOptions: (items.get("archetype") ?? []).map((item) => ({ value: item.uuid, label: item.name })),
       // TODO: always null until the Archetype Item type exists — nothing can
       // ever resolve archetypeOptions/system.archetype to a real Item yet.
-      selectedArchetype:
-        this.actor.items.filter(
-          (item) => item.uuid === this.system.archetype,
-        )[0] ?? null,
+      selectedArchetype: (items.get("archetype") ?? []).find((item) => item.uuid === this.system.archetype) ?? null,
       // An Effect's click behavior differs from an ordinary Item's (toggles
       // `active` rather than invoking an Action) — see onUseQuickItem below.
       quickUseItems: this.actor.items.filter(
@@ -202,28 +203,26 @@ export class PcActorSheet extends Dos100ActorSheet {
       pinnedSkills,
       pinnedEducations,
       hasNoPinnedSkillsOrEducations: pinnedSkills.length === 0 && pinnedEducations.length === 0,
-      statuses: this.statusButtonRows(),
-      activeStatuses: this.activeStatusRows(),
-      linkedEffects: this.effectRows("linked"),
-      permanentEffects: this.effectRows("permanent"),
-      temporaryEffects: this.effectRows("temporary"),
-      activeEffects: this.actor.items
-        .filter((item) => item.type === "effect" && (item.system as EffectData).active === true)
-        .map((item) => this.itemActionsRow(item as Dos100Item)),
+      statuses,
+      activeStatuses: this.activeStatusRows(statuses),
+      linkedEffects: effects.linked,
+      permanentEffects: effects.permanent,
+      temporaryEffects: effects.temporary,
+      activeEffects: effects.active,
       // TODO: no Template Item type exists yet — stays empty until one
       // does. The Miscellaneous section is the same: no Item type/source
       // has been implemented for it yet.
       templateItems: [],
-      abilityItems: this.itemActionsRows("ability"),
-      traitItems: this.itemActionsRows("trait"),
+      abilityItems: this.itemActionsRows(items, "ability"),
+      traitItems: this.itemActionsRows(items, "trait"),
       miscellaneousItems: [],
       // Inventory's Weapons, Equipment, Consumables, Miscellaneous, and
       // Containers sections have no implemented Item type yet, so they
       // stay wireframe-empty (no rows= passed to their partial in
       // inventory.hbs) until one does.
-      armorItems: this.itemActionsRows("armor"),
-      gearItems: this.itemActionsRows("gear"),
-      ammunitionItems: this.inventoryItemRows("ammunition"),
+      armorItems: this.itemActionsRows(items, "armor"),
+      gearItems: this.itemActionsRows(items, "gear"),
+      ammunitionItems: this.inventoryItemRows(items, "ammunition"),
       encumbranceBands: this.encumbranceBands(),
       // Render context, not persisted data: which movement modes this Actor
       // currently has available. "land" (system.movement.base) is always
@@ -395,25 +394,26 @@ export class PcActorSheet extends Dos100ActorSheet {
   // the same STATUS_IDS list, see status.ts) is the img source, so the
   // palette and Token HUD never disagree.
   private statusButtonRows(): StatusButtonRow[] {
+    const imgById = new Map(CONFIG.statusEffects.map((status) => [status.id, status.img]));
     return STATUS_IDS.map((id) => ({
       id,
       label: game.i18n.localize(`DOS100.status.${id}`),
-      img: CONFIG.statusEffects.find((status) => status.id === id)?.img ?? "",
+      img: imgById.get(id) ?? "",
       active: this.actor.statuses.has(id),
     }));
   }
 
-  // The Dashboard's informational subset of statusButtonRows(): only
+  // The Dashboard's informational subset of the status palette: only
   // statuses currently active, for display above the Active Effect Items
   // list. Duration is read from the underlying ActiveEffect, not stored
   // anywhere of our own.
-  private activeStatusRows(): {
+  private activeStatusRows(statuses: StatusButtonRow[]): {
     id: StatusId;
     label: string;
     img: string;
     duration: { value: number; unit: string } | null;
   }[] {
-    return this.statusButtonRows()
+    return statuses
       .filter((status) => status.active)
       .map(({ id, label, img }) => ({ id, label, img, duration: this.statusDuration(id) }));
   }
@@ -441,32 +441,47 @@ export class PcActorSheet extends Dos100ActorSheet {
     return (item.system as EffectData).deleteOnExpire ? "temporary" : "permanent";
   }
 
-  // Effect Items in the given lifecycle group, alphabetized — same sorting
-  // rationale as skillRows()/educationRows() above.
-  private effectRows(group: "linked" | "permanent" | "temporary"): ItemActionsRow[] {
-    return this.actor.items
-      .filter((item) => item.type === "effect")
-      .map((item) => item as Dos100Item)
-      .filter((item) => this.effectGroup(item) === group)
-      .sort((a, b) => a.name.localeCompare(b.name))
-      .map((item) => this.itemActionsRow(item));
+  // The (already alphabetized) Effect Items split into their lifecycle
+  // groups, plus the Dashboard's currently-active subset across all groups
+  // — one pass over the Effects rather than one scan per table.
+  private effectRowsByGroup(effects: Dos100Item[]): Record<
+    "linked" | "permanent" | "temporary" | "active",
+    ItemActionsRow[]
+  > {
+    const rows: Record<"linked" | "permanent" | "temporary" | "active", ItemActionsRow[]> = {
+      linked: [],
+      permanent: [],
+      temporary: [],
+      active: [],
+    };
+    for (const item of effects) {
+      const row = this.itemActionsRow(item);
+      rows[this.effectGroup(item)].push(row);
+      if ((item.system as EffectData).active) rows.active.push(row);
+    }
+    return rows;
   }
 
-  // Owned Items of the given type, alphabetized — shared by every page that
-  // groups owned Items into per-type tables (Features, Inventory).
-  private itemsOfType(type: string): Dos100Item[] {
-    return this.actor.items
-      .filter((item) => item.type === type)
-      .map((item) => item as Dos100Item)
-      .sort((a, b) => a.name.localeCompare(b.name));
+  // Owned Items bucketed by type in one pass, each bucket alphabetized —
+  // shared by every page that groups owned Items into per-type tables
+  // (Features, Inventory, Effects).
+  private itemsByType(): Map<string, Dos100Item[]> {
+    const buckets = new Map<string, Dos100Item[]>();
+    for (const item of this.actor.items) {
+      const bucket = buckets.get(item.type);
+      if (bucket) bucket.push(item as Dos100Item);
+      else buckets.set(item.type, [item as Dos100Item]);
+    }
+    for (const bucket of buckets.values()) bucket.sort((a, b) => a.name.localeCompare(b.name));
+    return buckets;
   }
 
   // Alphabetized rows for an Actions-bearing Item type — the Features
   // page's Ability/Trait tables, and Inventory's Armor/Gear tables.
   // Templates and Miscellaneous (Features) have no implemented Item
   // type/source yet, so their sections stay wireframe-empty until one does.
-  private itemActionsRows(type: string): ItemActionsRow[] {
-    return this.itemsOfType(type).map((item) => this.itemActionsRow(item));
+  private itemActionsRows(items: Map<string, Dos100Item[]>, type: string): ItemActionsRow[] {
+    return (items.get(type) ?? []).map((item) => this.itemActionsRow(item));
   }
 
   // Reduces one Item's Actions structure to what an Actions-bearing table
@@ -486,8 +501,8 @@ export class PcActorSheet extends Dos100ActorSheet {
   // Alphabetized rows for an Item type with no Actions structure at all
   // (Ammunition) — a bare wrapper rather than the Item itself, matching
   // every other row partial's `this.item.*` access pattern.
-  private inventoryItemRows(type: string): { item: Dos100Item }[] {
-    return this.itemsOfType(type).map((item) => ({ item }));
+  private inventoryItemRows(items: Map<string, Dos100Item[]>, type: string): { item: Dos100Item }[] {
+    return (items.get(type) ?? []).map((item) => ({ item }));
   }
 
   // Render context, not persisted data: whether a spellcasting subsystem
