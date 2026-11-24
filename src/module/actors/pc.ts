@@ -1,3 +1,17 @@
+import { type Characteristics } from "../characteristic.js";
+import { type MythicCharacteristics } from "../mythic-characteristic.js";
+import { type Initiative } from "../initiative.js";
+import { type Luck } from "../luck.js";
+import { type Wounds } from "../wounds.js";
+import { type Fatigue } from "../fatigue.js";
+import { type DamageResistanceLocations } from "../damage-resistance.js";
+import { type ActorMovement } from "../movement.js";
+import { type ExperienceLedger } from "../xp.js";
+import { type Finances } from "../finances.js";
+import { type Encumbrance } from "../encumbrance.js";
+import { type Basic } from "../basic.js";
+import { type ActorSkills } from "../skill.js";
+import { type ActorEducations, type EducationRecord } from "../education.js";
 import { characteristicsField } from "../characteristic.js";
 import { mythicCharacteristicsField } from "../mythic-characteristic.js";
 import { initiativeField } from "../initiative.js";
@@ -12,6 +26,30 @@ import { encumbranceField } from "../encumbrance.js";
 import { basicField } from "../basic.js";
 import { skillsField } from "../skill.js";
 import { educationField, educationsField } from "../education.js";
+
+// The prepared shape of a PC's `actor.system`, mirroring defineSchema()
+// below field for field — kept beside it so the two change together.
+export type PcSystem = {
+  archetype: string | null;
+  xp: ExperienceLedger;
+  finances: Finances;
+  basic: Basic;
+  biography: string;
+  notes: string;
+  characteristics: Characteristics;
+  mythicCharacteristics: MythicCharacteristics | null;
+  initiative: Initiative;
+  luck: Luck;
+  wounds: Wounds;
+  fatigue: Fatigue;
+  dr: DamageResistanceLocations;
+  movement: ActorMovement;
+  encumbrance: Encumbrance;
+  skills: ActorSkills;
+  education: EducationRecord;
+  educations: ActorEducations;
+  spells: object | null;
+};
 
 export class PcDataModel extends foundry.abstract.TypeDataModel {
   static override defineSchema() {

@@ -1,4 +1,5 @@
 import { Dos100ActorSheet } from "../actor-sheet.js";
+import { type PcSystem } from "../../actors/pc.js";
 import { Dos100Item, ACTIONS_ITEM_TYPES } from "../../documents/item.js";
 import { AbilityAcquisitionDialog } from "./ability-acquisition-dialog.js";
 import { ActorSkillDialog } from "./actor-skill-dialog.js";
@@ -6,22 +7,19 @@ import { ActorEducationDialog } from "./actor-education-dialog.js";
 import { EducationXpDialog } from "./education-xp-dialog.js";
 import { EducationDeleteDialog } from "./education-delete-dialog.js";
 import { SkillTrainingChangeDialog } from "./skill-training-change-dialog.js";
-import { type ActorMovement, type MovementMode } from "../../movement.js";
-import { type Encumbrance, type EncumbranceBand, encumbranceBands } from "../../encumbrance.js";
-import { type MythicCharacteristics } from "../../mythic-characteristic.js";
+import { type MovementMode } from "../../movement.js";
+import { type EncumbranceBand, encumbranceBands } from "../../encumbrance.js";
 import {
   DR_LOCATION_TYPES,
   type DamageResistanceLocation,
   type DamageResistanceLocationType,
-  type DamageResistanceLocations,
   sortLocationsForDisplay,
 } from "../../damage-resistance.js";
-import { type ExperienceLedger, type ExperienceLedgerItem, type ExperienceTransactionType } from "../../xp.js";
-import { type Finances, type FinanceLedgerItem } from "../../finances.js";
+import { type ExperienceLedgerItem, type ExperienceTransactionType } from "../../xp.js";
+import { type FinanceLedgerItem } from "../../finances.js";
 import {
   type ActorSkill,
   type ActorSkillDefinition,
-  type ActorSkills,
   type SkillTraining,
   SKILL_TRAININGS,
   createActorSkillRecord,
@@ -32,7 +30,6 @@ import { type CharacteristicId } from "../../characteristic.js";
 import { identifierProblemMessage } from "../../identifier.js";
 import {
   type ActorEducation,
-  type ActorEducations,
   type EducationDefinition,
   type EducationTarget,
   type EducationTraining,
@@ -163,6 +160,12 @@ export class PcActorSheet extends Dos100ActorSheet {
     spellSources: { tabs: [] },
   };
 
+  // Only ever registered for "pc" Actors (see index.ts), so the PC schema's
+  // shape is guaranteed.
+  private get system(): PcSystem {
+    return this.actor.system as PcSystem;
+  }
+
   override async _prepareContext(options: Record<string, unknown>): Promise<Record<string, unknown>> {
     const movementModeOptions = this.movementModeOptions();
     const pinnedSkills = this.pinnedSkills();
@@ -187,7 +190,7 @@ export class PcActorSheet extends Dos100ActorSheet {
       // ever resolve archetypeOptions/system.archetype to a real Item yet.
       selectedArchetype:
         this.actor.items.filter(
-          (item) => item.uuid === (this.actor.system as { archetype?: string | null }).archetype,
+          (item) => item.uuid === this.system.archetype,
         )[0] ?? null,
       // An Effect's click behavior differs from an ordinary Item's (toggles
       // `active` rather than invoking an Action) — see onUseQuickItem below.
@@ -247,7 +250,7 @@ export class PcActorSheet extends Dos100ActorSheet {
   // it's rendered directly via the existing localizeNumber helper, the
   // simplest available representation until a calendar system exists.
   private xpLedger(): XpLedgerRow[] {
-    const xp = (this.actor.system as { xp: ExperienceLedger }).xp;
+    const xp = this.system.xp;
     return xp.ledger.map((item) => ({
       ...item,
       recordedByName:
@@ -263,7 +266,7 @@ export class PcActorSheet extends Dos100ActorSheet {
   // separate method with the same shape rather than a shared abstraction
   // over two schema types that happen to currently look alike.
   private financesLedger(): FinanceLedgerRow[] {
-    const finances = (this.actor.system as { finances: Finances }).finances;
+    const finances = this.system.finances;
     return finances.ledger.map((item) => ({
       ...item,
       recordedByName:
@@ -280,7 +283,7 @@ export class PcActorSheet extends Dos100ActorSheet {
   // locations sorted for display; a category with zero locations is
   // omitted entirely rather than rendered as an empty cell.
   private drCategories(): DrCategory[] {
-    const dr = (this.actor.system as { dr: DamageResistanceLocations }).dr;
+    const dr = this.system.dr;
     const entries = Object.entries(dr).map(([key, location]) => ({ key, ...location }));
     const categories: DrCategory[] = [];
     for (const type of DR_LOCATION_TYPES) {
@@ -295,8 +298,7 @@ export class PcActorSheet extends Dos100ActorSheet {
   // (no Mythic Awakening yet); even once populated, a PC could still have all
   // three at 0, which should read the same as not having the table.
   private hasMythicCharacteristics(): boolean {
-    const mythic = (this.actor.system as { mythicCharacteristics: MythicCharacteristics | null })
-      .mythicCharacteristics;
+    const mythic = this.system.mythicCharacteristics;
     if (mythic === null) return false;
     return mythic.str.value > 0 || mythic.tou.value > 0 || mythic.agi.value > 0;
   }
@@ -307,7 +309,7 @@ export class PcActorSheet extends Dos100ActorSheet {
   // below (see dashboard.hbs). Derived from system.skills (see skill.ts)
   // rather than embedded Items.
   private pinnedSkills(): { identifier: string; name: string }[] {
-    return Object.entries((this.actor.system as { skills: ActorSkills }).skills)
+    return Object.entries(this.system.skills)
       .filter(([, skill]) => skill.pinned)
       .map(([identifier, skill]) => ({ identifier, name: skill.name }))
       .sort((a, b) => a.name.localeCompare(b.name));
@@ -318,7 +320,7 @@ export class PcActorSheet extends Dos100ActorSheet {
   // Derived from system.educations (see education.ts) rather than embedded
   // Items.
   private pinnedEducations(): { identifier: string; name: string }[] {
-    return Object.entries((this.actor.system as { educations: ActorEducations }).educations)
+    return Object.entries(this.system.educations)
       .filter(([, education]) => education.pinned)
       .map(([identifier, education]) => ({ identifier, name: education.name }))
       .sort((a, b) => a.name.localeCompare(b.name));
@@ -330,7 +332,7 @@ export class PcActorSheet extends Dos100ActorSheet {
   // is stable, so same-named rows keep their original system.skills
   // iteration order. No persisted ordering exists yet.
   private skillRows(): SkillRow[] {
-    const skills = (this.actor.system as { skills: ActorSkills }).skills;
+    const skills = this.system.skills;
     return Object.entries(skills)
       .map(([identifier, skill]) => ({
         ...skill,
@@ -359,7 +361,7 @@ export class PcActorSheet extends Dos100ActorSheet {
   // so the selector displays correctly even for Skills the Actor doesn't
   // possess. Rows are sorted alphabetically by name.
   private educationRows(): EducationRow[] {
-    const educations = (this.actor.system as { educations: ActorEducations }).educations;
+    const educations = this.system.educations;
     return Object.entries(educations)
       .map(([identifier, education]) => ({
         ...education,
@@ -495,7 +497,7 @@ export class PcActorSheet extends Dos100ActorSheet {
   // below, so the Spells tab and its panel are consistently absent
   // together.
   private hasSpells(): boolean {
-    return (this.actor.system as { spells: unknown }).spells !== null;
+    return this.system.spells !== null;
   }
 
   override _getTabsConfig(group: string): ApplicationTabsConfiguration | null {
@@ -509,12 +511,11 @@ export class PcActorSheet extends Dos100ActorSheet {
   // land/climb/burrow, swim, or fly) — see encumbranceBands() in
   // encumbrance.ts for the calculation itself.
   private encumbranceBands(): EncumbranceBand[] {
-    const system = this.actor.system as { encumbrance: Encumbrance; movement: ActorMovement };
-    return encumbranceBands(system.encumbrance, system.movement.mode);
+    return encumbranceBands(this.system.encumbrance, this.system.movement.mode);
   }
 
   private movementModeOptions(): { value: MovementMode; label: string }[] {
-    const movement = (this.actor.system as { movement: ActorMovement }).movement;
+    const movement = this.system.movement;
     const modes: MovementMode[] = ["land"];
     if (movement.climb !== null) modes.push("climb");
     if (movement.swim !== null) modes.push("swim");
@@ -630,7 +631,7 @@ export class PcActorSheet extends Dos100ActorSheet {
     const match = /^system\.skills\.(.+)\.training$/.exec(select.name);
     if (!match) return;
     const identifier = match[1];
-    const skills = (this.actor.system as { skills: ActorSkills }).skills;
+    const skills = this.system.skills;
     const skill = skills[identifier];
     if (!skill) return;
     const previous = skill.training;
@@ -666,7 +667,7 @@ export class PcActorSheet extends Dos100ActorSheet {
     const match = /^system\.educations\.(.+)\.training$/.exec(select.name);
     if (!match) return;
     const identifier = match[1];
-    const educations = (this.actor.system as { educations: ActorEducations }).educations;
+    const educations = this.system.educations;
     const education = educations[identifier];
     if (!education) return;
     const previous = education.training;
@@ -707,7 +708,7 @@ export class PcActorSheet extends Dos100ActorSheet {
     description: string,
     value: number,
   ): { "system.xp.ledger": ExperienceLedgerItem[] } {
-    const ledger = (this.actor.system as { xp: ExperienceLedger }).xp.ledger;
+    const ledger = this.system.xp.ledger;
     const entry: ExperienceLedgerItem = {
       id: foundry.utils.randomID(),
       type,
@@ -723,7 +724,7 @@ export class PcActorSheet extends Dos100ActorSheet {
   private async onTogglePinnedSkill(event: PointerEvent, target: HTMLElement): Promise<void> {
     const identifier = target.dataset.identifier;
     if (!identifier) return;
-    const skill = (this.actor.system as { skills: ActorSkills }).skills[identifier];
+    const skill = this.system.skills[identifier];
     if (!skill) return;
     await this.actor.update({ [`system.skills.${identifier}.pinned`]: !skill.pinned });
   }
@@ -732,7 +733,7 @@ export class PcActorSheet extends Dos100ActorSheet {
     const result = await ActorSkillDialog.promptCreate();
     if (result.action === "cancel") return;
     const { definition } = result;
-    const skills = (this.actor.system as { skills: ActorSkills }).skills;
+    const skills = this.system.skills;
     if (definition.identifier in skills) {
       ui.notifications?.warn(
         game.i18n.format("DOS100.actorSkill.notification.identifierCollision", { identifier: definition.identifier }),
@@ -745,7 +746,7 @@ export class PcActorSheet extends Dos100ActorSheet {
   private async onEditSkill(_event: PointerEvent, target: HTMLElement): Promise<void> {
     const identifier = target.dataset.identifier;
     if (!identifier) return;
-    const skills = (this.actor.system as { skills: ActorSkills }).skills;
+    const skills = this.system.skills;
     const skill = skills[identifier];
     if (!skill) return;
 
@@ -904,7 +905,7 @@ export class PcActorSheet extends Dos100ActorSheet {
       ui.notifications?.warn(identifierProblem);
       return;
     }
-    const skills = (this.actor.system as { skills: ActorSkills }).skills;
+    const skills = this.system.skills;
     if (identifier in skills) {
       ui.notifications?.warn(
         game.i18n.format("DOS100.actorSkill.notification.identifierCollision", { identifier }),
@@ -935,7 +936,7 @@ export class PcActorSheet extends Dos100ActorSheet {
       ui.notifications?.warn(identifierProblem);
       return;
     }
-    const educations = (this.actor.system as { educations: ActorEducations }).educations;
+    const educations = this.system.educations;
     if (identifier in educations) {
       ui.notifications?.warn(
         game.i18n.format("DOS100.actorEducation.notification.identifierCollision", { identifier }),
@@ -968,7 +969,7 @@ export class PcActorSheet extends Dos100ActorSheet {
   private async onTogglePinnedEducation(_event: PointerEvent, target: HTMLElement): Promise<void> {
     const identifier = target.dataset.identifier;
     if (!identifier) return;
-    const education = (this.actor.system as { educations: ActorEducations }).educations[identifier];
+    const education = this.system.educations[identifier];
     if (!education) return;
     await this.actor.update({ [`system.educations.${identifier}.pinned`]: !education.pinned });
   }
@@ -977,7 +978,7 @@ export class PcActorSheet extends Dos100ActorSheet {
     const result = await ActorEducationDialog.promptCreate();
     if (result.action === "cancel") return;
     const { definition } = result;
-    const educations = (this.actor.system as { educations: ActorEducations }).educations;
+    const educations = this.system.educations;
     if (definition.identifier in educations) {
       ui.notifications?.warn(
         game.i18n.format("DOS100.actorEducation.notification.identifierCollision", { identifier: definition.identifier }),
@@ -992,7 +993,7 @@ export class PcActorSheet extends Dos100ActorSheet {
   private async onEditEducation(_event: PointerEvent, target: HTMLElement): Promise<void> {
     const identifier = target.dataset.identifier;
     if (!identifier) return;
-    const educations = (this.actor.system as { educations: ActorEducations }).educations;
+    const educations = this.system.educations;
     const education = educations[identifier];
     if (!education) return;
 
@@ -1041,7 +1042,7 @@ export class PcActorSheet extends Dos100ActorSheet {
   private async onDeleteEducation(_event: PointerEvent, target: HTMLElement): Promise<void> {
     const identifier = target.dataset.identifier;
     if (!identifier) return;
-    const education = (this.actor.system as { educations: ActorEducations }).educations[identifier];
+    const education = this.system.educations[identifier];
     if (!education) return;
 
     const result = await EducationDeleteDialog.prompt({
