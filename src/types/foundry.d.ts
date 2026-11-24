@@ -104,6 +104,8 @@ declare class ActiveEffect {
 
 declare class Actor {
   readonly id: string;
+  readonly uuid: string;
+  readonly isOwner: boolean;
   readonly type: string;
   readonly name: string;
   readonly img: string;
@@ -131,6 +133,7 @@ declare class Actor {
 declare class Item {
   readonly id: string;
   readonly uuid: string;
+  readonly parent: Actor | null;
   readonly type: string;
   readonly name: string;
   readonly img: string;
@@ -282,7 +285,7 @@ declare namespace foundry {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         constructor(...args: any[]);
         static DEFAULT_OPTIONS: Record<string, unknown>;
-        static PARTS: Record<string, { template: string }>;
+        static PARTS: Record<string, { template: string; scrollable?: string[] }>;
         static TABS: Record<string, ApplicationTabsConfiguration>;
         get id(): string;
         get element(): HTMLElement;
@@ -324,6 +327,7 @@ declare namespace foundry {
         get document(): Actor;
         _prepareContext(options: Record<string, unknown>): Promise<Record<string, unknown>>;
         _onDrop(event: DragEvent): void | Promise<void>;
+        _onDropItem(event: DragEvent, item: Item): Promise<Item | null>;
       }
       class ItemSheetV2 extends api.ApplicationV2 {
         get item(): Item;

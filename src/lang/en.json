@@ -20,6 +20,10 @@
     "actor": {
       "name": "Name"
     },
+    "identifierValidation": {
+      "invalid": "Identifier \"{identifier}\" may only contain letters, numbers, hyphens, and underscores.",
+      "reserved": "Identifier \"{identifier}\" is reserved for a Characteristic."
+    },
     "item": {
       "name": "Name",
       "active": "Active",

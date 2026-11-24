@@ -6,6 +6,7 @@ import {
   type ActorSkillDefinition,
 } from "../../skill.js";
 import { CHARACTERISTIC_IDS, type CharacteristicId } from "../../characteristic.js";
+import { identifierProblemMessage } from "../../identifier.js";
 
 const { HandlebarsApplicationMixin } = foundry.applications.api;
 
@@ -109,6 +110,8 @@ export class ActorSkillDialog extends HandlebarsApplicationMixin(foundry.applica
   protected async _onSaveAndClose(_event: PointerEvent, _target: HTMLElement): Promise<void> {
     const form = this.element.querySelector<HTMLFormElement>("form");
     if (form === null) return;
+    const identifierInput = form.querySelector<HTMLInputElement>('[name="system.identifier"]');
+    identifierInput?.setCustomValidity(identifierProblemMessage(identifierInput.value.trim()) ?? "");
     if (!form.reportValidity()) return;
 
     const nameInput = form.querySelector<HTMLInputElement>('[name="name"]');
@@ -116,7 +119,6 @@ export class ActorSkillDialog extends HandlebarsApplicationMixin(foundry.applica
     const trainedInput = form.querySelector<HTMLInputElement>('[name="system.cost.trained"]');
     const plus10Input = form.querySelector<HTMLInputElement>('[name="system.cost.plus10"]');
     const plus20Input = form.querySelector<HTMLInputElement>('[name="system.cost.plus20"]');
-    const identifierInput = form.querySelector<HTMLInputElement>('[name="system.identifier"]');
 
     const type = Array.from(
       form.querySelectorAll<HTMLInputElement>("input[data-array-field='system.type']:checked"),

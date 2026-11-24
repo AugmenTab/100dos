@@ -1,5 +1,6 @@
 import { SKILL_DIFFICULTIES, type SkillDifficulty } from "../../skill.js";
 import { CHARACTERISTIC_IDS, type CharacteristicId } from "../../characteristic.js";
+import { identifierProblemMessage } from "../../identifier.js";
 import { type EducationDefinition } from "../../education.js";
 import { type EducationSkill } from "../../items/education.js";
 import { type SkillData } from "../../items/skill.js";
@@ -136,6 +137,11 @@ export class ActorEducationDialog extends HandlebarsApplicationMixin(foundry.app
       ui.notifications?.warn(game.i18n.localize("DOS100.actorSkill.notification.noIdentifier"));
       return;
     }
+    const identifierProblem = identifierProblemMessage(skillSys.identifier);
+    if (identifierProblem !== null) {
+      ui.notifications?.warn(identifierProblem);
+      return;
+    }
     if (this.#skills.some(s => s.identifier === skillSys.identifier)) {
       ui.notifications?.warn(
         game.i18n.format("DOS100.education.notification.duplicateSkill", { identifier: skillSys.identifier }),
@@ -155,13 +161,14 @@ export class ActorEducationDialog extends HandlebarsApplicationMixin(foundry.app
   protected async _onSaveAndClose(_event: PointerEvent, _target: HTMLElement): Promise<void> {
     const form = this.element.querySelector<HTMLFormElement>("form");
     if (form === null) return;
+    const identifierInput = form.querySelector<HTMLInputElement>('[name="system.identifier"]');
+    identifierInput?.setCustomValidity(identifierProblemMessage(identifierInput.value.trim()) ?? "");
     if (!form.reportValidity()) return;
 
     const nameInput = form.querySelector<HTMLInputElement>('[name="name"]');
     const difficultySelect = form.querySelector<HTMLSelectElement>('[name="system.difficulty"]');
     const plus5Input = form.querySelector<HTMLInputElement>('[name="system.cost.plus5"]');
     const plus10Input = form.querySelector<HTMLInputElement>('[name="system.cost.plus10"]');
-    const identifierInput = form.querySelector<HTMLInputElement>('[name="system.identifier"]');
 
     const characteristics = Array.from(
       form.querySelectorAll<HTMLInputElement>("input[data-array-field='system.characteristics']:checked"),

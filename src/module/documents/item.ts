@@ -1,5 +1,6 @@
 import { type GrantData } from "../items/grants.js";
 import { type Actions, type UsagePeriod, shouldRecharge } from "../items/action.js";
+import { CHARACTERISTIC_IDS } from "../characteristic.js";
 
 // Item types whose system data carries the shared Actions structure —
 // checked explicitly rather than duck-typed, since not every Item type
@@ -70,12 +71,15 @@ export class Dos100Item extends Item {
 
   private async _seedIdentifier(): Promise<void> {
     const base = toCamelCase(this.name ?? "");
-    const taken = new Set(
-      (this.actor?.items ?? ([] as Item[]))
+    // Characteristic IDs are reserved (see identifier.ts) — an Item named
+    // e.g. "Str" must not seed one.
+    const taken = new Set<string>([
+      ...CHARACTERISTIC_IDS,
+      ...(this.actor?.items ?? ([] as Item[]))
         .filter(i => i.id !== this.id && IDENTIFIER_ITEM_TYPES.has(i.type))
         .map(i => (i.system as { identifier?: string }).identifier)
         .filter((id): id is string => typeof id === "string" && id.length > 0),
-    );
+    ]);
     let slug = base;
     let counter = 2;
     while (taken.has(slug)) {

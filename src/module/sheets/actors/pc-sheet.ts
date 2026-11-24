@@ -16,7 +16,7 @@ import {
   type DamageResistanceLocations,
   sortLocationsForDisplay,
 } from "../../damage-resistance.js";
-import { type ExperienceLedger, type ExperienceLedgerItem } from "../../xp.js";
+import { type ExperienceLedger, type ExperienceLedgerItem, type ExperienceTransactionType } from "../../xp.js";
 import { type Finances, type FinanceLedgerItem } from "../../finances.js";
 import {
   type ActorSkill,
@@ -29,6 +29,7 @@ import {
 import { type SkillData } from "../../items/skill.js";
 import { type EducationData } from "../../items/education.js";
 import { type CharacteristicId } from "../../characteristic.js";
+import { identifierProblemMessage } from "../../identifier.js";
 import {
   type ActorEducation,
   type ActorEducations,
@@ -121,8 +122,13 @@ const RECORD_TABS: ApplicationTabConfig[] = [
 ];
 
 export class PcActorSheet extends Dos100ActorSheet {
+  // Every pin/toggle/select change re-renders the whole body part, so the
+  // tab content containers' scroll positions must be carried across it.
   static override PARTS = {
-    body: { template: "systems/100dos/templates/actors/pc.hbs" },
+    body: {
+      template: "systems/100dos/templates/actors/pc.hbs",
+      scrollable: [".primary-tab-content", ".record-tab-content"],
+    },
   };
 
   static override DEFAULT_OPTIONS = {
@@ -643,24 +649,17 @@ export class PcActorSheet extends Dos100ActorSheet {
       return;
     }
 
-    await this.actor.update({ [`system.skills.${identifier}.training`]: next });
-
+    const update: Record<string, unknown> = { [`system.skills.${identifier}.training`]: next };
     if (result.action === "record") {
-      const system = this.actor.system as { xp: ExperienceLedger };
       const prevLabel = game.i18n.localize(`DOS100.skills.training.${previous}`);
       const nextLabel = game.i18n.localize(`DOS100.skills.training.${next}`);
       const isRefund = SKILL_TRAININGS.indexOf(next) < SKILL_TRAININGS.indexOf(previous);
-      const entry: ExperienceLedgerItem = {
-        id: foundry.utils.randomID(),
-        type: isRefund ? "refund" : "purchase",
-        description: `${skill.name}: ${prevLabel} → ${nextLabel}`,
-        value: result.xpAmount,
-        recordedBy: game.user?.id ?? null,
-        worldTime: null,
-        realTime: Date.now(),
-      };
-      await this.actor.update({ "system.xp.ledger": [...system.xp.ledger, entry] });
+      Object.assign(
+        update,
+        this.xpLedgerUpdate(isRefund ? "refund" : "purchase", `${skill.name}: ${prevLabel} → ${nextLabel}`, result.xpAmount),
+      );
     }
+    await this.actor.update(update);
   }
 
   private async _onEducationTrainingChange(select: HTMLSelectElement): Promise<void> {
@@ -686,25 +685,39 @@ export class PcActorSheet extends Dos100ActorSheet {
       return;
     }
 
-    await this.actor.update({ [`system.educations.${identifier}.training`]: next });
-
+    const update: Record<string, unknown> = { [`system.educations.${identifier}.training`]: next };
     if (result.action === "record") {
       const isRefund = previous === "plus10" && next === "plus5";
       const prevLabel = game.i18n.localize(`DOS100.educations.training.${previous}`);
       const nextLabel = game.i18n.localize(`DOS100.educations.training.${next}`);
-      const description = `${education.name}: ${prevLabel} → ${nextLabel}`;
-      const system = this.actor.system as { xp: ExperienceLedger };
-      const entry: ExperienceLedgerItem = {
-        id: foundry.utils.randomID(),
-        type: isRefund ? "refund" : "purchase",
-        description,
-        value: result.xpAmount,
-        recordedBy: game.user?.id ?? null,
-        worldTime: null,
-        realTime: Date.now(),
-      };
-      await this.actor.update({ "system.xp.ledger": [...system.xp.ledger, entry] });
+      Object.assign(
+        update,
+        this.xpLedgerUpdate(isRefund ? "refund" : "purchase", `${education.name}: ${prevLabel} → ${nextLabel}`, result.xpAmount),
+      );
     }
+    await this.actor.update(update);
+  }
+
+  // The `system.xp.ledger` update that appends one entry — returned rather
+  // than applied, so callers merge it into the same actor.update() as the
+  // change it records: one write, one re-render, and no half-applied state
+  // if either part fails.
+  private xpLedgerUpdate(
+    type: ExperienceTransactionType,
+    description: string,
+    value: number,
+  ): { "system.xp.ledger": ExperienceLedgerItem[] } {
+    const ledger = (this.actor.system as { xp: ExperienceLedger }).xp.ledger;
+    const entry: ExperienceLedgerItem = {
+      id: foundry.utils.randomID(),
+      type,
+      description,
+      value,
+      recordedBy: game.user?.id ?? null,
+      worldTime: null,
+      realTime: Date.now(),
+    };
+    return { "system.xp.ledger": [...ledger, entry] };
   }
 
   private async onTogglePinnedSkill(event: PointerEvent, target: HTMLElement): Promise<void> {
@@ -843,33 +856,26 @@ export class PcActorSheet extends Dos100ActorSheet {
     await item?.delete();
   }
 
-  // Read the drag-and-drop data synchronously before the event clears it,
-  // then handle ability drops ourselves. All other item types go through
-  // the base class's own createEmbeddedDocuments path; non-Item drops
-  // (e.g. actor drags) are fully delegated to super.
-  override _onDrop(event: DragEvent): void | Promise<void> {
-    const raw = event.dataTransfer?.getData("text/plain") ?? "";
-    let data: { type?: string; uuid?: string };
-    try {
-      data = JSON.parse(raw) as { type?: string; uuid?: string };
-    } catch {
-      return super._onDrop(event);
+  // Hooks in below core's _onDrop, so its dropActorSheetData hook still
+  // fires. Abilities, Skills, and Educations get their own acquisition
+  // flows; everything else — and any drop the core path must own (a
+  // non-owner's drop, or an Item already on this Actor, which core treats
+  // as a sort rather than a copy) — goes through super.
+  override async _onDropItem(event: DragEvent, item: Item): Promise<Item | null> {
+    if (!this.actor.isOwner || item.parent?.uuid === this.actor.uuid) return super._onDropItem(event, item);
+    switch (item.type) {
+      case "ability":
+        await this._onDropAbility(item as Dos100Item);
+        return null;
+      case "skill":
+        await this._onDropSkill(item);
+        return null;
+      case "education":
+        await this._onDropEducation(item);
+        return null;
+      default:
+        return super._onDropItem(event, item);
     }
-    if (data.type !== "Item" || !data.uuid) return super._onDrop(event);
-    const { uuid } = data;
-    return (async () => {
-      const source = await fromUuid<Item>(uuid);
-      if (!source) return;
-      if (source.type === "ability") {
-        await this._onDropAbility(source as Dos100Item);
-      } else if (source.type === "skill") {
-        await this._onDropSkill(source);
-      } else if (source.type === "education") {
-        await this._onDropEducation(source);
-      } else {
-        await this.actor.createEmbeddedDocuments("Item", [source.toObject()]);
-      }
-    })();
   }
 
   private async _onDropAbility(source: Dos100Item): Promise<void> {
@@ -877,17 +883,13 @@ export class PcActorSheet extends Dos100ActorSheet {
     if (result.action === "cancel") return;
     const [created] = await this.actor.createEmbeddedDocuments("Item", [source.toObject()]);
     if (!created || result.action === "skip") return;
-    const system = this.actor.system as { xp: ExperienceLedger };
-    const entry: ExperienceLedgerItem = {
-      id: foundry.utils.randomID(),
-      type: "purchase",
-      description: `${source.name} (${game.i18n.localize(`TYPES.Item.${source.type}`)})`,
-      value: result.xpCost,
-      recordedBy: game.user?.id ?? null,
-      worldTime: null,
-      realTime: Date.now(),
-    };
-    await this.actor.update({ "system.xp.ledger": [...system.xp.ledger, entry] });
+    await this.actor.update(
+      this.xpLedgerUpdate(
+        "purchase",
+        `${source.name} (${game.i18n.localize(`TYPES.Item.${source.type}`)})`,
+        result.xpCost,
+      ),
+    );
   }
 
   private async _onDropSkill(source: Item): Promise<void> {
@@ -895,6 +897,11 @@ export class PcActorSheet extends Dos100ActorSheet {
     const identifier = sys.identifier;
     if (!identifier) {
       ui.notifications?.warn(game.i18n.localize("DOS100.actorSkill.notification.noIdentifier"));
+      return;
+    }
+    const identifierProblem = identifierProblemMessage(identifier);
+    if (identifierProblem !== null) {
+      ui.notifications?.warn(identifierProblem);
       return;
     }
     const skills = (this.actor.system as { skills: ActorSkills }).skills;
@@ -923,6 +930,11 @@ export class PcActorSheet extends Dos100ActorSheet {
       ui.notifications?.warn(game.i18n.localize("DOS100.actorEducation.notification.noIdentifier"));
       return;
     }
+    const identifierProblem = identifierProblemMessage(identifier);
+    if (identifierProblem !== null) {
+      ui.notifications?.warn(identifierProblem);
+      return;
+    }
     const educations = (this.actor.system as { educations: ActorEducations }).educations;
     if (identifier in educations) {
       ui.notifications?.warn(
@@ -943,24 +955,14 @@ export class PcActorSheet extends Dos100ActorSheet {
       description: sys.description,
       cost: { plus5: sys.cost.plus5, plus10: sys.cost.plus10 },
     };
-    await this.actor.update({
+    const update: Record<string, unknown> = {
       [`system.educations.${identifier}`]: createActorEducationFromDefinition(definition),
-    });
-
+    };
     if (xpResult.action === "record") {
-      const system = this.actor.system as { xp: ExperienceLedger };
       const plus5Label = game.i18n.localize("DOS100.educations.training.plus5");
-      const entry: ExperienceLedgerItem = {
-        id: foundry.utils.randomID(),
-        type: "purchase",
-        description: `${source.name ?? ""}: ${plus5Label}`,
-        value: xpResult.xpAmount,
-        recordedBy: game.user?.id ?? null,
-        worldTime: null,
-        realTime: Date.now(),
-      };
-      await this.actor.update({ "system.xp.ledger": [...system.xp.ledger, entry] });
+      Object.assign(update, this.xpLedgerUpdate("purchase", `${source.name ?? ""}: ${plus5Label}`, xpResult.xpAmount));
     }
+    await this.actor.update(update);
   }
 
   private async onTogglePinnedEducation(_event: PointerEvent, target: HTMLElement): Promise<void> {
@@ -1049,24 +1051,17 @@ export class PcActorSheet extends Dos100ActorSheet {
     });
     if (result.action === "cancel") return;
 
-    if (result.action === "refundAndDelete") {
-      const system = this.actor.system as { xp: ExperienceLedger };
-      const trainingLabel = game.i18n.localize(`DOS100.educations.training.${education.training}`);
-      const entry: ExperienceLedgerItem = {
-        id: foundry.utils.randomID(),
-        type: "refund",
-        description: `${education.name}: Removed ${trainingLabel}`,
-        value: result.xpAmount,
-        recordedBy: game.user?.id ?? null,
-        worldTime: null,
-        realTime: Date.now(),
-      };
-      await this.actor.update({ "system.xp.ledger": [...system.xp.ledger, entry] });
-    }
-
-    await this.actor.update({
+    const update: Record<string, unknown> = {
       [`system.educations.${identifier}`]: new foundry.data.operators.ForcedDeletion(),
-    });
+    };
+    if (result.action === "refundAndDelete") {
+      const trainingLabel = game.i18n.localize(`DOS100.educations.training.${education.training}`);
+      Object.assign(
+        update,
+        this.xpLedgerUpdate("refund", `${education.name}: Removed ${trainingLabel}`, result.xpAmount),
+      );
+    }
+    await this.actor.update(update);
   }
 
   // Permanent/Temporary Effects each get their own manual Add control —
