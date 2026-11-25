@@ -140,10 +140,6 @@ Represents a temporary or conditional modifier — a buff, debuff, spell effect,
 
 Effects have an active/inactive toggle that can be set manually. Optionally time-based: when a duration expires, the effect de-activates automatically. Duration tracking ties into the Foundry combat tracker and system clock.
 
-### outlier
-
-A character-specific modifier item that applies bonuses via the Changes system. Unlike standard abilities, Outliers can cost Luck (in addition to or instead of XP). Whether this is a standalone item type or a subtype of a more generic item is undecided.
-
 ### spell
 
 Spells are a confirmed Item type. Fields are not yet fully specified.

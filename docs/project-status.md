@@ -252,7 +252,7 @@ sheet's own placeholders:
   (mobility, crew, 5-location armor and breakpoints, weapon points,
   conceal/sensor), and `companion` and `group` (both still undesigned).
 - **Item types.**
-  - Named in the rules reference: race, soldierType, outlier, spell.
+  - Named in the rules reference: race, soldierType, spell.
   - Referenced by the sheet: Archetype and Template (the Dashboard and
     Features assume both exist).
   - Weapons, Equipment, Consumables, Containers and Miscellaneous (each
