@@ -93,13 +93,16 @@ export const test = base.extend<Record<never, never>, { foundryPage: Page; fixtu
     { scope: "worker" },
   ],
   foundryPage: [
-    async ({ browser, fixtureLane }, use) => {
+    async ({ browser, fixtureLane }, use, workerInfo) => {
       // No shared storageState: each worker joins as its own dedicated
       // [E2E] Gamemaster N user (provisioned once in global-setup.ts).
       // Concurrent workers sharing one authenticated session previously
       // collided on that single user's session slot on the /join screen.
+      // This context is built by hand, so a project's own viewport (the
+      // simulations project plays at a full-HD desk) has to be passed on.
       const context = await browser.newContext({
         ...devices["Desktop Chrome"],
+        ...(workerInfo.project.use.viewport ? { viewport: workerInfo.project.use.viewport } : {}),
       });
       // Foundry's game canvas re-renders continuously, and with no GPU here
       // Chromium does that WebGL work in software: each idle client burned

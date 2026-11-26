@@ -10,6 +10,8 @@ Every test must be classified before it is written. There are exactly two tiers:
 
 When in doubt, ask: "Does this assertion require Foundry to run JavaScript?" If no, it's browser-tier.
 
+**Player simulations** (`test/simulations/*.sim.ts`) are not a third tier for feature tests. Each one is a single long journey a player commonly makes (prepare content, build a character, play an encounter), driven through the UI from the sidebar onward. Add a beat to an existing journey only when the feature is something players do in most sessions, and add a new journey only for a new common journey. Follow the rules in `docs/adr-0001-player-simulations.md`.
+
 ## E2E tests are expensive
 
 The e2e suite runs against a live Foundry instance with a shared worker-scoped session. Each new e2e test that opens a sheet, opens a dialog, or performs a Foundry API call adds real wall-clock seconds to the suite. The full suite runs in about 40s (80 tests, 3 workers) — do not regress it carelessly. Most of that speed comes from `support/session.ts` disabling Foundry's game canvas, which renders in software here; never re-enable it unless a test genuinely needs the canvas.

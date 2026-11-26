@@ -106,6 +106,15 @@ For each document type below, create a fresh document and run through the verify
 
 After completing the checklist, open the browser developer console and confirm there are no errors or unhandled warnings from the `100dos` system. Warnings from Foundry core or third-party modules can be ignored.
 
+## Player simulations
+
+`test/simulations/` holds scripted player journeys: preparing content,
+building a character, playing an encounter. They drive the real UI from the
+sidebar onward and run with the E2E suite (alone with
+`--project=simulations`). Each run keeps a trace for replay. See
+[ADR 0001](adr-0001-player-simulations.md) for the technique, the philosophy
+and the catalog of journeys, including the ones still waiting on features.
+
 ## Future automated coverage
 
 Move a checklist item above into `test/e2e/` once its sheet grows real

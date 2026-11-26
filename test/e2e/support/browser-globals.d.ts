@@ -17,7 +17,7 @@ interface E2EItemDocument {
   readonly img: string;
   readonly system: Record<string, unknown> & E2EItemSystem;
   readonly actor: E2EActorDocument | null;
-  readonly sheet: { id: string; render(force?: boolean): Promise<unknown> };
+  readonly sheet: { id: string; rendered: boolean; render(force?: boolean): Promise<unknown> };
   getFlag(scope: string, key: string): unknown;
   update(data: Record<string, unknown>): Promise<unknown>;
   delete(): Promise<unknown>;
@@ -38,11 +38,14 @@ interface E2EActorDocument {
   readonly system: Record<string, unknown>;
   readonly sheet: {
     id: string;
+    rendered: boolean;
     render(force?: boolean): Promise<unknown>;
     _onDrop(event: object): unknown;
   };
+  readonly statuses: Set<string>;
   readonly items: {
     get(id: string): E2EItemDocument | undefined;
+    getName(name: string): E2EItemDocument | undefined;
     map<T>(fn: (item: E2EItemDocument) => T): T[];
   };
   getFlag(scope: string, key: string): unknown;
@@ -93,7 +96,27 @@ declare const game: {
   actors: {
     filter(fn: (actor: E2EActorDocument) => boolean): E2EActorDocument[];
     get(id: string): E2EActorDocument | undefined;
+    getName(name: string): E2EActorDocument | undefined;
   };
+  items: {
+    filter(fn: (item: E2EItemDocument) => boolean): E2EItemDocument[];
+    getName(name: string): E2EItemDocument | undefined;
+  };
+  combats: {
+    filter(fn: (combat: E2ECombatDocument) => boolean): E2ECombatDocument[];
+  };
+};
+
+interface E2ECombatDocument {
+  readonly id: string;
+  getFlag(scope: string, key: string): unknown;
+  createEmbeddedDocuments(type: "Combatant", data: object[]): Promise<unknown[]>;
+  startCombat(): Promise<unknown>;
+  delete(): Promise<unknown>;
+}
+
+declare const Combat: {
+  create(data: object): Promise<E2ECombatDocument | undefined>;
 };
 
 declare const ui: {
@@ -101,7 +124,7 @@ declare const ui: {
 };
 
 interface E2EApplication {
-  setPosition(position: { width?: number; height?: number }): void;
+  setPosition(position: { width?: number; height?: number; left?: number; top?: number }): void;
 }
 
 declare const foundry: {

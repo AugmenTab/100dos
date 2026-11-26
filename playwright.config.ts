@@ -1,7 +1,6 @@
 import { defineConfig, devices } from "@playwright/test";
 
 export default defineConfig({
-  testDir: "test/e2e",
   fullyParallel: true,
   // Each worker joins Foundry as its own dedicated [E2E] Gamemaster N user
   // (support/e2e-users.ts, support/session.ts) instead of sharing one
@@ -29,7 +28,26 @@ export default defineConfig({
   projects: [
     {
       name: "chromium",
+      testDir: "test/e2e",
       use: { ...devices["Desktop Chrome"] },
+    },
+    {
+      // Player journeys (docs/adr-0001-player-simulations.md). They run
+      // with everything else, and alone with --project=simulations. Every
+      // run keeps a full trace, so any journey can be replayed step by step
+      // in `npx playwright show-trace`; SIMULATION_SLOW_MO=<ms> slows the
+      // browser down to watch one live with --headed.
+      name: "simulations",
+      testDir: "test/simulations",
+      testMatch: "**/*.sim.ts",
+      use: {
+        ...devices["Desktop Chrome"],
+        // A player's desk, not the 1280x720 default: at that size a PC sheet
+        // covers the sidebar a journey drags from.
+        viewport: { width: 1920, height: 1080 },
+        trace: "on",
+        launchOptions: { slowMo: Number(process.env.SIMULATION_SLOW_MO ?? 0) },
+      },
     },
   ],
 });
