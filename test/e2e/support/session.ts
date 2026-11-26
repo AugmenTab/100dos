@@ -101,6 +101,15 @@ export const test = base.extend<Record<never, never>, { foundryPage: Page; fixtu
       const context = await browser.newContext({
         ...devices["Desktop Chrome"],
       });
+      // Foundry's game canvas re-renders continuously, and with no GPU here
+      // Chromium does that WebGL work in software: each idle client burned
+      // over two cores, which, not Foundry's server, capped how many
+      // workers could run at once. No test touches the canvas (the system
+      // doesn't either), so turn it off with Foundry's own client setting
+      // ("Disable Game Canvas", stored in localStorage) before the page boots.
+      await context.addInitScript(() => {
+        window.localStorage.setItem("core.noCanvas", "true");
+      });
       const page = await context.newPage();
       let joined = false;
       await ensureCleanJoin(page, async () => {

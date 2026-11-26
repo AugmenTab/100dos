@@ -118,10 +118,10 @@ test("Race and Soldier Type foundational editors persist through their modals, a
   foundryPage: page,
   fixtureLane,
 }) => {
-  // One shared fixture and two sheet opens drive every editor, rather than
-  // a reset per editor — so this single test needs more than the default
-  // 60s budget under three concurrent workers.
-  test.setTimeout(120_000);
+  // One shared fixture and two sheet opens drive every editor, rather than a
+  // reset per editor. Each modal is waited out of the DOM, not just out of
+  // sight, before the next opens: a closing dialog lingers through its
+  // close transition, and the next one's locator would match both.
   const { actorId, ids } = await resetCompositionFixtures(page, fixtureLane);
 
   // ── Race: required Base Characteristics, Mythic, Body Locations, Advances
@@ -134,7 +134,7 @@ test("Race and Soldier Type foundational editors persist through their modals, a
   await expect(charDialog).toBeVisible();
   await charDialog.locator('input[name="str"]').fill("50");
   await charDialog.locator('button[data-action="cancelDialog"]').click();
-  await expect(charDialog).not.toBeVisible();
+  await expect(charDialog).toHaveCount(0);
   expect((await itemSystem(page, actorId, ids.race!)).baseCharacteristics).toBeNull();
 
   await details(sheet).locator('button[data-action="editBaseCharacteristics"]').click();
@@ -146,7 +146,7 @@ test("Race and Soldier Type foundational editors persist through their modals, a
   expect((await itemSystem(page, actorId, ids.race!)).baseCharacteristics).toBeNull();
   await charDialog.locator('input[name="ldr"]').fill(LINEUP[9]!);
   await charDialog.locator('button[data-action="saveAndClose"]').click();
-  await expect(charDialog).not.toBeVisible();
+  await expect(charDialog).toHaveCount(0);
   await expect
     .poll(async () => (await itemSystem(page, actorId, ids.race!)).baseCharacteristics)
     .toEqual(Object.fromEntries(CHARACTERISTIC_IDS.map((id, i) => [id, Number(LINEUP[i])])));
@@ -161,6 +161,7 @@ test("Race and Soldier Type foundational editors persist through their modals, a
   await mythicDialog.locator('input[name="agi"]').fill("0");
   await expect(mythicDialog.locator('input[name="tou"]')).toBeDisabled();
   await mythicDialog.locator('button[data-action="saveAndClose"]').click();
+  await expect(mythicDialog).toHaveCount(0);
   await expect
     .poll(async () => (await itemSystem(page, actorId, ids.race!)).baseMythicCharacteristics)
     .toEqual({ str: 2, tou: null, agi: 0 });
@@ -173,6 +174,7 @@ test("Race and Soldier Type foundational editors persist through their modals, a
   await locationDialog.locator('select[name="type"]').selectOption("wing");
   await locationDialog.locator('select[name="placement"]').selectOption("left");
   await locationDialog.locator('button[data-action="saveAndClose"]').click();
+  await expect(locationDialog).toHaveCount(0);
   await expect
     .poll(async () => (await itemSystem(page, actorId, ids.race!)).bodyLocations)
     .toEqual({ leftWing: { type: "wing", label: "Left Wing", placement: "left", order: 0 } });
@@ -182,6 +184,7 @@ test("Race and Soldier Type foundational editors persist through their modals, a
   await expect(locationDialog.locator('input[name="identifier"]')).toHaveAttribute("readonly", "");
   await locationDialog.locator('input[name="label"]').fill("Port Wing");
   await locationDialog.locator('button[data-action="saveAndClose"]').click();
+  await expect(locationDialog).toHaveCount(0);
   await expect
     .poll(async () => Object.keys((await itemSystem(page, actorId, ids.race!)).bodyLocations as object))
     .toEqual(["leftWing"]);
@@ -220,6 +223,7 @@ test("Race and Soldier Type foundational editors persist through their modals, a
   await locationDialog.locator('input[name="identifier"]').fill("head");
   await locationDialog.locator('input[name="label"]').fill("Head");
   await locationDialog.locator('button[data-action="saveAndClose"]').click();
+  await expect(locationDialog).toHaveCount(0);
   await expect.poll(async () => (await itemSystem(page, actorId, ids.soldierType!)).bodyLocations).not.toBeNull();
   await details(sheet).locator('button[data-action="deleteBodyLocation"][data-identifier="head"]').click();
   await expect.poll(async () => (await itemSystem(page, actorId, ids.soldierType!)).bodyLocations).toBeNull();
@@ -265,13 +269,14 @@ test("dropping Races and Soldier Types records XP once, and the Dashboard select
     await expect(dialog).toContainText("[E2E] Human");
     await expect(dialog.locator("input[name='xpCost']")).toHaveValue("100");
     await dialog.locator("button[data-action='cancelDialog']").click();
-    await expect(dialog).not.toBeVisible();
+    await expect(dialog).toHaveCount(0);
     expect(await itemStates(page, actorId)).toEqual([]);
     expect(await xpLedger(page, actorId)).toEqual([]);
 
     // Create: the Race is acquired active, its child Trait granted, XP recorded.
     await fireDrop(page, actorId, human);
     await dialog.locator("button[data-action='create']").click();
+    await expect(dialog).toHaveCount(0);
     await expect.poll(() => activeNames(page, actorId, "race")).toEqual(["[E2E] Human"]);
     await expect.poll(() => activeNames(page, actorId, "trait")).toEqual(["[E2E] Human Trait"]);
     expect(await xpLedger(page, actorId)).toMatchObject([{ type: "purchase", value: 100 }]);
@@ -281,12 +286,14 @@ test("dropping Races and Soldier Types records XP once, and the Dashboard select
     // is its child Trait.
     await fireDrop(page, actorId, elf);
     await dialog.locator("button[data-action='create']").click();
+    await expect(dialog).toHaveCount(0);
     await expect.poll(() => activeNames(page, actorId, "race")).toEqual(["[E2E] Elf"]);
     await expect.poll(() => activeNames(page, actorId, "trait")).toEqual([]);
 
     // Skip acquires a Soldier Type without a ledger entry; Race is unaffected.
     await fireDrop(page, actorId, marine);
     await dialog.locator("button[data-action='skip']").click();
+    await expect(dialog).toHaveCount(0);
     await expect.poll(() => activeNames(page, actorId, "soldierType")).toEqual(["[E2E] Marine"]);
     expect(await activeNames(page, actorId, "race")).toEqual(["[E2E] Elf"]);
     expect(await xpLedger(page, actorId)).toHaveLength(2);

@@ -12,7 +12,7 @@ When in doubt, ask: "Does this assertion require Foundry to run JavaScript?" If 
 
 ## E2E tests are expensive
 
-The e2e suite runs against a live Foundry instance with a shared worker-scoped session. Each new e2e test that opens a sheet, opens a dialog, or performs a Foundry API call adds real wall-clock seconds to the suite. A performance pass was done to bring the suite to ~190s — do not regress it carelessly.
+The e2e suite runs against a live Foundry instance with a shared worker-scoped session. Each new e2e test that opens a sheet, opens a dialog, or performs a Foundry API call adds real wall-clock seconds to the suite. The full suite runs in about 40s (80 tests, 3 workers) — do not regress it carelessly. Most of that speed comes from `support/session.ts` disabling Foundry's game canvas, which renders in software here; never re-enable it unless a test genuinely needs the canvas.
 
 Before adding an e2e test:
 - Confirm it cannot be a browser-tier test.
