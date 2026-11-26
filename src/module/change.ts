@@ -1,5 +1,8 @@
 export type ChangeMode = "add" | "set";
 
+// A Change never touches a current value, only a maximum or other derived
+// value. Resource targets therefore mean the maximum: "wounds" is max
+// Wounds, "luck" is max Luck, "fatigue" is max Fatigue.
 export type StaticChangeTarget =
   // Characteristic Tests
   | "allCharacteristicTests"
