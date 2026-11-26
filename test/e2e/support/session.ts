@@ -16,15 +16,21 @@ const CLEAN_JOIN_ATTEMPTS = 5;
  * This client then permanently lacks those Items, and every later update to
  * them throws "Cannot read properties of undefined (reading '_source')" in
  * core's #handleUpdateDocuments — failing whichever unrelated test is
- * running on this page at the time. A boot that replayed no document
- * modifications can't be affected, so reload until one replays none.
+ * running on this page at the time.
+ *
+ * Replays themselves are routine while other workers are writing, so only a
+ * boot that replayed document modifications is checked, and only for this
+ * damage: an Actor this client holds lacking an Item the server has for it.
+ * The server is read directly (a non-broadcast "get"). Another worker can
+ * create an Item between that read and the comparison, so a missing Item
+ * counts only if it is still missing on a second look a moment later —
+ * genuine damage persists for the life of the page. Damage means reload.
  */
 async function ensureCleanJoin(page: Page, join: () => Promise<void>): Promise<void> {
   for (let attempt = 1; ; attempt++) {
     let replayed = 0;
     const onConsole = (msg: ConsoleMessage): void => {
-      // Only document modifications can desynchronize the world data;
-      // other buffered traffic (user activity and the like) is harmless.
+      // Other buffered traffic (user activity and the like) is harmless.
       if (/^Applying buffered socket event: modifyDocument/.test(msg.text())) replayed++;
     };
     page.on("console", onConsole);
@@ -34,14 +40,38 @@ async function ensureCleanJoin(page: Page, join: () => Promise<void>): Promise<v
       page.off("console", onConsole);
     }
     if (replayed === 0) return;
+    const missing = await itemsMissingLocally(page);
+    if (missing.length === 0) return;
+    await page.waitForTimeout(1_000);
+    const again = new Set(await itemsMissingLocally(page));
+    const persistent = missing.filter((key) => again.has(key));
+    if (persistent.length === 0) return;
     if (attempt === CLEAN_JOIN_ATTEMPTS) {
       throw new Error(
-        `Foundry replayed buffered socket events on each of ${CLEAN_JOIN_ATTEMPTS} joins; ` +
-          "this client's world data may be inconsistent.",
+        `After ${CLEAN_JOIN_ATTEMPTS} joins this client still lacks Items the server holds: ${persistent.join(", ")}`,
       );
     }
     await page.reload();
   }
+}
+
+/** "actorId.itemId" for every server-side Item the client's copy of its Actor lacks. */
+async function itemsMissingLocally(page: Page): Promise<string[]> {
+  return page.evaluate(async () => {
+    const backend = (globalThis as unknown as {
+      CONFIG: { DatabaseBackend: { get(cls: unknown, op: object): Promise<Array<{ id: string; items: Iterable<{ id: string }> }>> } };
+    }).CONFIG.DatabaseBackend;
+    const serverActors = await backend.get(Actor, { query: {} });
+    const missing: string[] = [];
+    for (const serverActor of serverActors) {
+      const local = game.actors.get(serverActor.id);
+      if (!local) continue;
+      for (const item of serverActor.items) {
+        if (!local.items.get(item.id)) missing.push(`${serverActor.id}.${item.id}`);
+      }
+    }
+    return missing;
+  });
 }
 
 /**
