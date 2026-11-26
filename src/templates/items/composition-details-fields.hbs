@@ -1,0 +1,219 @@
+<hr />
+
+{{#with composition.foundation as |foundation|}}
+  <div class="dos100-form-group">
+    <label for="{{@root.sheetId}}-xp-cost">{{localize "DOS100.item.xpCost"}}</label>
+    <input type="number" id="{{@root.sheetId}}-xp-cost" name="system.xpCost" value="{{foundation.xpCost}}" min="0" step="1" />
+  </div>
+{{/with}}
+
+{{!-- Characteristic Advances: only nonzero entries are rows. Each row's
+     Characteristic selector offers its own Characteristic plus the unused
+     ones, so no Characteristic can appear twice. --}}
+<div class="dense-table-wrap dos100-advances">
+  <table class="dense-table">
+    <thead>
+      <tr>
+        <th scope="col" class="dense-table-flexible">{{localize "DOS100.advances.characteristic"}}</th>
+        <th scope="col">{{localize "DOS100.advances.level"}}</th>
+        <th scope="col">
+          {{#if composition.advances.canAdd}}
+            <button type="button" class="icon-button" data-action="addAdvance" aria-label="{{localize "DOS100.advances.add"}}">
+              <i class="fa-solid fa-plus" inert></i>
+            </button>
+          {{/if}}
+        </th>
+      </tr>
+    </thead>
+    <tbody>
+      {{#each composition.advances.rows}}
+        <tr data-advance-characteristic="{{this.id}}">
+          <td class="dense-table-flexible">
+            <select
+              data-advance-row="{{this.id}}"
+              aria-label="{{localize "DOS100.advances.characteristicFor" name=(localize (concat "DOS100.characteristic." this.id ".full"))}}"
+            >
+              {{#each this.characteristicOptions}}
+                <option value="{{this.value}}"{{#if this.selected}} selected{{/if}}>{{localize this.labelKey}}</option>
+              {{/each}}
+            </select>
+          </td>
+          <td>
+            <select
+              name="system.advances.{{this.id}}"
+              aria-label="{{localize "DOS100.advances.levelFor" name=(localize (concat "DOS100.characteristic." this.id ".full"))}}"
+            >
+              {{#each this.levelOptions}}
+                <option value="{{this.value}}"{{#if this.selected}} selected{{/if}}>{{localize this.labelKey}}</option>
+              {{/each}}
+            </select>
+          </td>
+          <td>
+            <button
+              type="button"
+              class="icon-button"
+              data-action="deleteAdvance"
+              data-characteristic="{{this.id}}"
+              aria-label="{{localize "DOS100.advances.delete" name=(localize (concat "DOS100.characteristic." this.id ".full"))}}"
+            ><i class="fa-solid fa-trash" inert></i></button>
+          </td>
+        </tr>
+      {{else}}
+        <tr>
+          <td colspan="3" class="dense-table-empty-state">{{localize "DOS100.advances.empty"}}</td>
+        </tr>
+      {{/each}}
+    </tbody>
+  </table>
+</div>
+
+{{#with composition.foundation as |foundation|}}
+
+  {{!-- Base Characteristics: the full ten-Characteristic lineup, edited as
+       a whole in a modal. A Race's lineup is required — it can be set and
+       edited, never deleted. --}}
+  <div class="dense-table-wrap dos100-base-characteristics">
+    <table class="dense-table">
+      <caption class="eyebrow-label">{{localize "DOS100.foundation.baseCharacteristics.label"}}</caption>
+      {{#if foundation.baseCharacteristics}}
+        <thead>
+          <tr>
+            {{#each foundation.baseCharacteristics}}
+              <th scope="col">{{localize (concat "DOS100.characteristic." this.id ".abbr")}}</th>
+            {{/each}}
+            <th scope="col"></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            {{#each foundation.baseCharacteristics}}
+              <td data-base-characteristic="{{this.id}}">{{this.value}}</td>
+            {{/each}}
+            <td>
+              <button type="button" class="icon-button" data-action="editBaseCharacteristics" aria-label="{{localize "DOS100.foundation.baseCharacteristics.edit"}}"><i class="fa-solid fa-pen-to-square" inert></i></button>
+              {{#unless foundation.required}}
+                <button type="button" class="icon-button" data-action="deleteBaseCharacteristics" aria-label="{{localize "DOS100.foundation.baseCharacteristics.delete"}}"><i class="fa-solid fa-trash" inert></i></button>
+              {{/unless}}
+            </td>
+          </tr>
+        </tbody>
+      {{else}}
+        <tbody>
+          <tr>
+            <td class="dense-table-empty-state dense-table-flexible">
+              {{#if foundation.required}}{{localize "DOS100.foundation.required"}}{{else}}{{localize "DOS100.foundation.notSupplied"}}{{/if}}
+            </td>
+            <td>
+              <button type="button" class="icon-button" data-action="editBaseCharacteristics" aria-label="{{localize "DOS100.foundation.baseCharacteristics.add"}}"><i class="fa-solid fa-plus" inert></i></button>
+            </td>
+          </tr>
+        </tbody>
+      {{/if}}
+    </table>
+  </div>
+
+  {{!-- Base Mythic Characteristics: optional as a whole and per value; an
+       absent value reads "Absent", distinct from a present zero. --}}
+  <div class="dense-table-wrap dos100-base-mythic-characteristics">
+    <table class="dense-table">
+      <caption class="eyebrow-label">{{localize "DOS100.foundation.baseMythicCharacteristics.label"}}</caption>
+      {{#if foundation.baseMythicCharacteristics}}
+        <thead>
+          <tr>
+            {{#each foundation.baseMythicCharacteristics}}
+              <th scope="col">{{localize (concat "DOS100.characteristic." this.id ".abbr")}}</th>
+            {{/each}}
+            <th scope="col"></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            {{#each foundation.baseMythicCharacteristics}}
+              {{#if (eq this.value null)}}
+                <td data-base-mythic-characteristic="{{this.id}}" class="dos100-absent">{{localize "DOS100.foundation.baseMythicCharacteristics.absent"}}</td>
+              {{else}}
+                <td data-base-mythic-characteristic="{{this.id}}">{{this.value}}</td>
+              {{/if}}
+            {{/each}}
+            <td>
+              <button type="button" class="icon-button" data-action="editBaseMythicCharacteristics" aria-label="{{localize "DOS100.foundation.baseMythicCharacteristics.edit"}}"><i class="fa-solid fa-pen-to-square" inert></i></button>
+              <button type="button" class="icon-button" data-action="deleteBaseMythicCharacteristics" aria-label="{{localize "DOS100.foundation.baseMythicCharacteristics.delete"}}"><i class="fa-solid fa-trash" inert></i></button>
+            </td>
+          </tr>
+        </tbody>
+      {{else}}
+        <tbody>
+          <tr>
+            <td class="dense-table-empty-state dense-table-flexible">{{localize "DOS100.foundation.notSupplied"}}</td>
+            <td>
+              <button type="button" class="icon-button" data-action="editBaseMythicCharacteristics" aria-label="{{localize "DOS100.foundation.baseMythicCharacteristics.add"}}"><i class="fa-solid fa-plus" inert></i></button>
+            </td>
+          </tr>
+        </tbody>
+      {{/if}}
+    </table>
+  </div>
+
+  {{!-- Base Size: required on a Race; on a Soldier Type the blank option
+       clears it back to "not supplied". --}}
+  <div class="dos100-form-group dos100-base-size">
+    <label for="{{@root.sheetId}}-base-size">{{localize "DOS100.foundation.baseSize.label"}}</label>
+    <select id="{{@root.sheetId}}-base-size" name="system.baseSize">
+      {{#if foundation.sizeNullable}}
+        <option value="">{{localize "DOS100.foundation.notSupplied"}}</option>
+      {{/if}}
+      {{#each foundation.sizeOptions}}
+        <option value="{{this.value}}"{{#if this.selected}} selected{{/if}}>{{localize this.labelKey}}</option>
+      {{/each}}
+    </select>
+  </div>
+
+  {{!-- Body Locations: an arbitrary anatomy, sorted for display by
+       category, then order, then placement. --}}
+  <div class="dense-table-wrap dos100-body-locations">
+    <table class="dense-table">
+      <caption class="eyebrow-label">{{localize "DOS100.foundation.bodyLocations.label"}}</caption>
+      <thead>
+        <tr>
+          <th scope="col" class="dense-table-flexible">{{localize "DOS100.foundation.bodyLocations.locationLabel"}}</th>
+          <th scope="col">{{localize "DOS100.foundation.bodyLocations.type"}}</th>
+          <th scope="col">{{localize "DOS100.foundation.bodyLocations.placement"}}</th>
+          <th scope="col">{{localize "DOS100.foundation.bodyLocations.order"}}</th>
+          <th scope="col">
+            <button type="button" class="icon-button" data-action="addBodyLocation" aria-label="{{localize "DOS100.foundation.bodyLocations.add"}}"><i class="fa-solid fa-plus" inert></i></button>
+            {{#if foundation.bodyLocationsSupplied}}
+              {{#unless foundation.required}}
+                <button type="button" class="icon-button" data-action="removeBodyLocations" aria-label="{{localize "DOS100.foundation.bodyLocations.remove"}}"><i class="fa-solid fa-trash" inert></i></button>
+              {{/unless}}
+            {{/if}}
+          </th>
+        </tr>
+      </thead>
+      <tbody>
+        {{#if foundation.bodyLocationsSupplied}}
+          {{#each foundation.bodyLocations}}
+            <tr data-body-location-id="{{this.key}}">
+              <td class="dense-table-flexible">{{this.label}}</td>
+              <td>{{localize (concat "DOS100.damageResistance.categories." this.type)}}</td>
+              <td>{{localize (concat "DOS100.foundation.bodyLocations.placements." this.placement)}}</td>
+              <td>{{this.order}}</td>
+              <td>
+                <button type="button" class="icon-button" data-action="editBodyLocation" data-identifier="{{this.key}}" aria-label="{{localize "DOS100.foundation.bodyLocations.edit" name=this.label}}"><i class="fa-solid fa-pen-to-square" inert></i></button>
+                <button type="button" class="icon-button" data-action="deleteBodyLocation" data-identifier="{{this.key}}" aria-label="{{localize "DOS100.foundation.bodyLocations.delete" name=this.label}}"><i class="fa-solid fa-trash" inert></i></button>
+              </td>
+            </tr>
+          {{else}}
+            <tr>
+              <td colspan="5" class="dense-table-empty-state">{{localize "DOS100.foundation.bodyLocations.empty"}}</td>
+            </tr>
+          {{/each}}
+        {{else}}
+          <tr>
+            <td colspan="5" class="dense-table-empty-state">{{localize "DOS100.foundation.notSupplied"}}</td>
+          </tr>
+        {{/if}}
+      </tbody>
+    </table>
+  </div>
+
+{{/with}}

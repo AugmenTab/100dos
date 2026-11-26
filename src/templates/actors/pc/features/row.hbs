@@ -21,6 +21,15 @@
     {{/if}}
   </td>
   <td>
+    {{#if showActiveToggle}}
+      <input
+        type="checkbox"
+        data-action="toggleItemActive"
+        data-item-id="{{this.item.id}}"
+        {{#if this.item.system.active}}checked{{/if}}
+        aria-label="{{localize "DOS100.item.table.toggleActive" name=this.item.name}}"
+      />
+    {{/if}}
     <button
       type="button"
       class="icon-button"

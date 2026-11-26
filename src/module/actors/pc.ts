@@ -30,7 +30,6 @@ import { educationField, educationsField } from "../education.js";
 // The prepared shape of a PC's `actor.system`, mirroring defineSchema()
 // below field for field — kept beside it so the two change together.
 export type PcSystem = {
-  archetype: string | null;
   xp: ExperienceLedger;
   finances: Finances;
   basic: Basic;
@@ -53,11 +52,11 @@ export type PcSystem = {
 
 export class PcDataModel extends foundry.abstract.TypeDataModel {
   static override defineSchema() {
-    const { DocumentUUIDField, HTMLField, ObjectField } = foundry.data.fields;
+    const { HTMLField, ObjectField } = foundry.data.fields;
     return {
-      // TODO: references an embedded Item, but the Archetype Item type
-      // doesn't exist yet — will always be null until it does.
-      archetype: new DocumentUUIDField({ type: "Item", embedded: true, nullable: true, initial: null }),
+      // No selected Race/Soldier Type reference lives here: each owned
+      // Item's own system.active is the selection (see
+      // exclusive-activation.ts).
       xp: experienceLedgerField(),
       finances: financesField(),
       basic: basicField(),

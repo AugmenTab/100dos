@@ -190,6 +190,7 @@ declare namespace foundry {
     function randomID(length?: number): string;
     function escapeHTML(value: unknown): string;
     function hasProperty(object: object, key: string): boolean;
+    function setProperty(object: object, key: string, value: unknown): boolean;
   }
   namespace abstract {
     class TypeDataModel {
@@ -240,16 +241,7 @@ declare namespace foundry {
         constructor(options?: { required?: boolean; nullable?: boolean; initial?: object | null });
       }
       class TypedObjectField extends ObjectField {
-        constructor(element: DataField, options?: { required?: boolean; initial?: object });
-      }
-      class DocumentUUIDField extends StringField {
-        constructor(options?: {
-          required?: boolean;
-          nullable?: boolean;
-          initial?: string | null;
-          type?: string;
-          embedded?: boolean;
-        });
+        constructor(element: DataField, options?: { required?: boolean; nullable?: boolean; initial?: object | null });
       }
     }
   }

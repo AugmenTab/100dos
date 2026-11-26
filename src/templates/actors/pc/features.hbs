@@ -15,10 +15,11 @@
             <th scope="col">{{localize "DOS100.item.table.actions"}}</th>
             <th scope="col">{{localize "DOS100.item.table.uses"}}</th>
             <th scope="col">
-              {{!-- TODO: not wired up yet — no Template Item type exists. --}}
               <button
                 type="button"
                 class="icon-button"
+                data-action="createOwnedItem"
+                data-type="template"
                 aria-label="{{localize "DOS100.features.templates.add"}}"
               ><i class="fa-solid fa-plus" inert></i></button>
             </th>
@@ -26,8 +27,10 @@
         </thead>
         <tbody>
           {{#if templateItems.length}}
+            {{!-- Templates activate independently of one another (any
+                 number may be active), so each row carries its own toggle. --}}
             {{#each templateItems}}
-              {{> "systems/100dos/templates/actors/pc/features/row.hbs"}}
+              {{> "systems/100dos/templates/actors/pc/features/row.hbs" showActiveToggle=true}}
             {{/each}}
           {{else}}
             <tr>

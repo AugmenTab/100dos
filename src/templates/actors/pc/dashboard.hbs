@@ -52,33 +52,32 @@
             <input type="text" name="system.basic.gender" value="{{actor.system.basic.gender}}" />
           </label>
         </div>
-        <div class="pc-dashboard-archetype-row">
-          {{#if selectedArchetype}}
-            <div class="pc-dashboard-archetype-select-group">
-              {{!-- TODO: icon does not render — investigate before relying on
-                   this once a real Archetype Item exists to test against. --}}
-              <img src="{{selectedArchetype.img}}" alt="" />
-              {{!-- TODO: archetypeOptions is always empty until the Archetype Item type exists. --}}
-              <select
-                name="system.archetype"
-                aria-label="{{localize "DOS100.archetype"}}"
-              >
-                {{selectOptions archetypeOptions selected=actor.system.archetype blank=(localize "DOS100.pc.dashboard.identity.archetype.none")}}
-              </select>
+        <div class="pc-dashboard-composition-row">
+          {{!-- Race and Soldier Type: independent selectors, each listing the
+               Actor's owned Items of that type. The selection is whichever
+               one is active; the selects deliberately have no `name`, since
+               a change is applied by the sheet as an exclusive activation
+               update rather than submitted as Actor data. --}}
+          {{#each compositionSelectors}}
+            <div class="pc-dashboard-composition-select-group" data-composition-type="{{this.type}}">
+              <label class="eyebrow-label" for="{{../sheetId}}-composition-{{this.type}}">{{this.label}}</label>
+              <div>
+                {{#if this.selectedImg}}
+                  <img src="{{this.selectedImg}}" alt="" />
+                {{/if}}
+                <select id="{{../sheetId}}-composition-{{this.type}}" data-composition-select="{{this.type}}">
+                  {{selectOptions this.options selected=this.selectedId blank=this.noneLabel}}
+                </select>
+                <button
+                  type="button"
+                  class="icon-button"
+                  data-action="createOwnedItem"
+                  data-type="{{this.type}}"
+                  aria-label="{{this.addLabel}}"
+                ><i class="fa-solid fa-plus" inert></i></button>
+              </div>
             </div>
-            {{!-- TODO: reserved space for a future Item tag system (e.g. Archetype-derived tags). Intentionally empty until that system exists. --}}
-            <div class="pc-dashboard-tags"></div>
-          {{else}}
-            <span class="eyebrow-label">{{localize "DOS100.archetype"}}</span>
-            {{!-- TODO: not wired up yet. Should create a blank Archetype Item on this
-                 Actor and open its sheet for editing, once the Archetype Item type
-                 exists. --}}
-            <button
-              type="button"
-              class="icon-button"
-              aria-label="{{localize "DOS100.pc.dashboard.identity.archetype.add"}}"
-            ><i class="fa-solid fa-plus" inert></i></button>
-          {{/if}}
+          {{/each}}
           {{!-- TODO: not wired up yet — no replenishment system exists to trigger. --}}
           <button type="button" class="simple-button">{{localize "DOS100.pc.dashboard.rest"}}</button>
         </div>

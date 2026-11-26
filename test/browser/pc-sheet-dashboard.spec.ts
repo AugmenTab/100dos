@@ -50,8 +50,8 @@ test("Dashboard renders identity, resources, Characteristics, DR, and dynamic co
   const nameInput = page.locator('input[name="name"]');
   await expect(nameInput).toHaveValue("[Browser] PC");
 
-  await expect(page.locator('select[name="system.archetype"]')).toHaveCount(0);
-  await expect(page.locator('.pc-dashboard-archetype-row button.icon-button')).toBeVisible();
+  await expect(page.locator(".pc-dashboard-archetype-row")).toHaveCount(0);
+  await expect(page.locator("[data-composition-select]")).toHaveCount(2);
 
   await expect(page.getByRole("group", { name: "Initiative" })).toContainText("0");
 

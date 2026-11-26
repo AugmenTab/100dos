@@ -159,6 +159,65 @@ The project uses three test tiers.
 
 ---
 
+## Character composition: Race, Soldier Type, Template
+
+Sourcebooks build characters differently. Some (Mythic) let a Soldier Type
+define the whole foundational profile. Others (Empires and Orders) take
+the base Characteristics from a Race and add supplemental benefits from a
+Soldier Type. One data model covers both, with no setting-specific code. The
+planned single `archetype` Item type was dropped in favor of this model.
+
+**Item types.** All three build on `AbstractItemData` (Changes, Actions,
+child links, tags, identifier, `active`) and share `CompositionItemSheet`:
+
+| Field | Template | Race | Soldier Type |
+|---|---|---|---|
+| `advances` (count 0–5 per Characteristic) | yes | yes | yes |
+| `xpCost` | — | yes | yes |
+| `baseCharacteristics` (all ten, explicit) | — | required | nullable |
+| `baseMythicCharacteristics` (each nullable) | — | nullable | nullable |
+| `baseSize` | — | required | nullable |
+| `bodyLocations` (keyed `BodyLocation`s) | — | required | nullable |
+
+Shared structures each live in their own module with a schema-field
+constructor: `advances.ts`, `base-characteristics.ts`,
+`base-mythic-characteristics.ts`, `size.ts`, and `body-location.ts`. Damage
+Resistance composes `BodyLocation` with its per-Actor state (`destroyed`,
+`value`, `contributions`).
+
+**Absence is never zero.** A zero Characteristic is real (usually an injured
+character), so `baseCharacteristics` is null until it is first authored, even
+on a Race. The sheet won't save a partial lineup, and a Race's lineup can be
+edited but never cleared. A Mythic value of `null` means the character
+doesn't have it, which is different from `0`.
+
+**Selection is activation.** An Actor may own any number of each type. At
+most one Race and at most one Soldier Type are active, independently of each
+other. Any number of Templates may be active. The Item's `system.active` is
+the only record of the selection; there is no reference field on the Actor.
+`Dos100Item` enforces the rule however an Item is activated (Dashboard
+selector, Item sheet checkbox, acquisition, duplicate): the most recently
+activated one wins, and its siblings are deactivated, so their child links
+follow. The pure logic lives in `exclusive-activation.ts`.
+
+**Acquisition.** Dropping a Race or Soldier Type from outside the Actor goes
+through the same XP acquisition dialog as Abilities (Create / Skip /
+Cancel), records to the XP ledger from the Item's `xpCost`, and creates the
+Item active. Switching between owned Items is never an acquisition and never
+charges XP.
+
+**Future derivation contract** (not implemented). Foundational properties
+resolve from the active Race first and fall back to the active Soldier Type.
+Base Characteristics and Body Locations resolve as whole structures; Mythic
+Characteristics resolve one value at a time, respecting null. Advances,
+Changes and child Traits come from every active Race, Soldier Type and
+Template. The Characteristic increase from Advances is
+`5 * clamp(0, 5, sum of every source's count)`, without mutating the
+sources. An Actor with no resolved Base Characteristics, Size or anatomy is
+incomplete but may exist and be edited.
+
+---
+
 ## Character creation wizard is post-MVP
 
 No interactive character creation flow is planned during skeleton or initial sheet development. Characters are created by filling in sheet fields directly. A guided wizard may be added after the core sheet and data model are stable.

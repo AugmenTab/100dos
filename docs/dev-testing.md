@@ -34,7 +34,7 @@ and proves:
 - Primary and Record navigation remain usable — without clipped or
   overlapping controls — at representative wide, medium, and narrow sheet
   widths.
-- The PC Dashboard renders the Actor portrait, name, Archetype selector,
+- The PC Dashboard renders the Actor portrait, name, Race and Soldier Type selectors,
   Initiative, Luck, Wounds, Fatigue, all six Damage Resistance locations, all
   ten Characteristics (in order, each with an accessible full name and a
   working temporary-modifier input), and stable empty states for the

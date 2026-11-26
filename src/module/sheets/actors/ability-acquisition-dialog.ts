@@ -1,5 +1,4 @@
 import { Dos100Item } from "../../documents/item.js";
-import { type AbilityData } from "../../items/ability.js";
 import { PromptDialog } from "../prompt-dialog.js";
 
 export type AcquisitionResult =
@@ -7,6 +6,9 @@ export type AcquisitionResult =
   | { action: "skip" }
   | { action: "cancel" };
 
+// The XP acquisition prompt for any Item that carries its own
+// system.xpCost (Ability, Race, Soldier Type). Named for the first type that
+// used it; its window title names the dropped Item's own type.
 export class AbilityAcquisitionDialog extends PromptDialog<AcquisitionResult> {
   protected override readonly cancelResult: AcquisitionResult = { action: "cancel" };
   readonly #item: Dos100Item;
@@ -37,8 +39,14 @@ export class AbilityAcquisitionDialog extends PromptDialog<AcquisitionResult> {
     form: { template: "systems/100dos/templates/actors/dialogs/ability-acquisition.hbs" },
   };
 
+  get title(): string {
+    return game.i18n.format("DOS100.abilityAcquisition.title", {
+      type: game.i18n.localize(`TYPES.Item.${this.#item.type}`),
+    });
+  }
+
   override async _prepareContext(_options: Record<string, unknown>): Promise<Record<string, unknown>> {
-    const system = this.#item.system as AbilityData;
+    const system = this.#item.system as { xpCost: number };
     return {
       question: game.i18n.format("DOS100.abilityAcquisition.question", { name: this.#item.name }),
       xpCost: system.xpCost,

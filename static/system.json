@@ -36,7 +36,10 @@
       "gear": {},
       "ammunition": {},
       "skill": {},
-      "education": {}
+      "education": {},
+      "template": {},
+      "race": {},
+      "soldierType": {}
     }
   },
   "socket": false,

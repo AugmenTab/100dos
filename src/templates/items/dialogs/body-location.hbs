@@ -1,0 +1,40 @@
+<form class="dos100-foundation-form">
+  <div class="dos100-form-group">
+    <label for="{{sheetId}}-identifier">{{localize "DOS100.foundation.bodyLocations.identifier"}}</label>
+    <input
+      type="text"
+      id="{{sheetId}}-identifier"
+      name="identifier"
+      value="{{identifier}}"
+      {{#if editing}}readonly{{else}}required{{/if}}
+    />
+  </div>
+  <div class="dos100-form-group">
+    <label for="{{sheetId}}-label">{{localize "DOS100.foundation.bodyLocations.locationLabel"}}</label>
+    <input type="text" id="{{sheetId}}-label" name="label" value="{{label}}" required />
+  </div>
+  <div class="dos100-form-group">
+    <label for="{{sheetId}}-type">{{localize "DOS100.foundation.bodyLocations.type"}}</label>
+    <select id="{{sheetId}}-type" name="type">
+      {{#each types}}
+        <option value="{{value}}"{{#if selected}} selected{{/if}}>{{label}}</option>
+      {{/each}}
+    </select>
+  </div>
+  <div class="dos100-form-group">
+    <label for="{{sheetId}}-placement">{{localize "DOS100.foundation.bodyLocations.placement"}}</label>
+    <select id="{{sheetId}}-placement" name="placement">
+      {{#each placements}}
+        <option value="{{value}}"{{#if selected}} selected{{/if}}>{{label}}</option>
+      {{/each}}
+    </select>
+  </div>
+  <div class="dos100-form-group">
+    <label for="{{sheetId}}-order">{{localize "DOS100.foundation.bodyLocations.order"}}</label>
+    <input type="number" id="{{sheetId}}-order" name="order" value="{{order}}" step="1" required />
+  </div>
+  <footer>
+    <button type="button" data-action="saveAndClose">{{localize "DOS100.foundation.save"}}</button>
+    <button type="button" data-action="cancelDialog">{{localize "DOS100.foundation.cancel"}}</button>
+  </footer>
+</form>

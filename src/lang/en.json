@@ -13,7 +13,10 @@
       "gear": "Gear",
       "ammunition": "Ammunition",
       "skill": "Skill",
-      "education": "Education"
+      "education": "Education",
+      "template": "Template",
+      "race": "Race",
+      "soldierType": "Soldier Type"
     }
   },
   "DOS100": {
@@ -36,7 +39,8 @@
         "edit": "Edit {name}",
         "duplicate": "Duplicate {name}",
         "delete": "Delete {name}",
-        "useActions": "Use Actions: {name}"
+        "useActions": "Use Actions: {name}",
+        "toggleActive": "Toggle {name} active"
       },
       "tabs": {
         "description": "Description",
@@ -411,7 +415,6 @@
         "extend": "Extend"
       }
     },
-    "archetype": "Archetype",
     "resource": {
       "label": "Resources",
       "current": "Current",
@@ -477,7 +480,7 @@
     },
     "damageResistance": {
       "label": "Damage Resistance",
-      "empty": "This character has no hit locations defined. Select an Archetype with hit locations or set them yourself on the Medical tab.",
+      "empty": "This character has no hit locations defined. Select a Race or Soldier Type with hit locations or set them yourself on the Medical tab.",
       "categories": {
         "head": "Head",
         "torso": "Torso",
@@ -700,7 +703,8 @@
       "templates": {
         "label": "Templates",
         "empty": "No Templates recorded yet.",
-        "add": "Add Template"
+        "add": "Add Template",
+        "newName": "New Template"
       },
       "abilities": {
         "label": "Abilities",
@@ -798,7 +802,7 @@
       }
     },
     "abilityAcquisition": {
-      "title": "Add Ability",
+      "title": "Add {type}",
       "question": "Do you want to record {name} as an XP purchase?",
       "xpCost": "XP Cost",
       "create": "Create",
@@ -852,9 +856,17 @@
       "dashboard": {
         "identity": {
           "portraitAlt": "Character portrait",
-          "archetype": {
+          "race": {
+            "label": "Race",
             "none": "None",
-            "add": "Add Archetype"
+            "add": "Add Race",
+            "newName": "New Race"
+          },
+          "soldierType": {
+            "label": "Soldier Type",
+            "none": "None",
+            "add": "Add Soldier Type",
+            "newName": "New Soldier Type"
           }
         },
         "rest": "Rest",
@@ -1052,6 +1064,91 @@
           "addTitle": "Add Opposed Test",
           "editTitle": "Edit Opposed Test",
           "save": "Save"
+        }
+      }
+    },
+    "advances": {
+      "label": "Characteristic Advances",
+      "characteristic": "Characteristic",
+      "level": "Advances",
+      "add": "Add Characteristic Advance",
+      "delete": "Delete {name} Advance",
+      "characteristicFor": "Characteristic for row {name}",
+      "levelFor": "Advances for {name}",
+      "empty": "No Characteristic Advances recorded yet.",
+      "levels": {
+        "none": "None",
+        "simple": "Simple",
+        "rookie": "Rookie",
+        "intermediate": "Intermediate",
+        "proficient": "Proficient",
+        "mastery": "Mastery"
+      }
+    },
+    "size": {
+      "label": "Size",
+      "mini": "Mini",
+      "small": "Small",
+      "normal": "Normal",
+      "large": "Large",
+      "huge": "Huge",
+      "hulking": "Hulking",
+      "giant": "Giant",
+      "immense": "Immense",
+      "massive": "Massive",
+      "great": "Great",
+      "monumental": "Monumental",
+      "colossal": "Colossal",
+      "vast": "Vast",
+      "unscalable": "Unscalable"
+    },
+    "foundation": {
+      "notSupplied": "Not supplied",
+      "required": "Required, not yet set",
+      "invalidValues": "Enter a whole number of zero or more for: {names}",
+      "save": "Save",
+      "cancel": "Cancel",
+      "baseCharacteristics": {
+        "label": "Base Characteristics",
+        "add": "Add Base Characteristics",
+        "edit": "Edit Base Characteristics",
+        "delete": "Delete Base Characteristics",
+        "addTitle": "Add Base Characteristics",
+        "editTitle": "Edit Base Characteristics"
+      },
+      "baseMythicCharacteristics": {
+        "label": "Base Mythic Characteristics",
+        "add": "Add Base Mythic Characteristics",
+        "edit": "Edit Base Mythic Characteristics",
+        "delete": "Delete Base Mythic Characteristics",
+        "addTitle": "Add Base Mythic Characteristics",
+        "editTitle": "Edit Base Mythic Characteristics",
+        "present": "Present",
+        "presentFor": "{name} is present",
+        "absent": "Absent"
+      },
+      "baseSize": {
+        "label": "Base Size"
+      },
+      "bodyLocations": {
+        "label": "Body Locations",
+        "add": "Add Body Location",
+        "edit": "Edit {name}",
+        "delete": "Delete {name}",
+        "remove": "Remove Body Locations",
+        "empty": "No Body Locations defined yet. A complete anatomy needs at least one.",
+        "identifier": "Identifier",
+        "locationLabel": "Label",
+        "type": "Type",
+        "placement": "Placement",
+        "order": "Order",
+        "addTitle": "Add Body Location",
+        "editTitle": "Edit Body Location",
+        "duplicate": "A Body Location with identifier \"{identifier}\" already exists.",
+        "placements": {
+          "left": "Left",
+          "right": "Right",
+          "none": "None"
         }
       }
     }

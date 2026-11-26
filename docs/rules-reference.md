@@ -58,6 +58,8 @@ Five resource types appear on actor sheets.
 | **Credits (cR)** | Currency. |
 | **Support Points (SP)** | Discrete resource consumed during play. Replenishment mechanism is setting-specific. |
 
+**Changes and resources**: A Change never affects a resource's current value, only its maximum or another derived value. A Change targeting Luck lowers or raises maximum Luck; current Luck moves only through spending and recovery.
+
 **Item-owned resources**: Many item types (not only abilities) carry current/maximum counters for setting-specific pools or limited-use tracking. The replenishment model is configurable per item:
 
 - **Period-based**: Automatically replenishes on a defined trigger (per encounter, daily, per rest, etc.)
@@ -114,13 +116,21 @@ Covers the biological baseline of a character.
 
 Fields: Base Characteristics (all ten), Mythic Characteristics, a flag controlling whether Mythic Characteristics advance for NPCs of this race, race-granted Abilities and Educations, Tier, XP Cost.
 
-Settings with sub-races represent them as separate Race items rather than nested structures.
+Implemented fields: Base Characteristics, Base Mythic Characteristics, Base Size, Body Locations, Characteristic Advances, XP Cost, plus the shared Changes and child links (granted Traits). Not yet modeled: the NPC Mythic-advancement flag, granted Educations, and Tier.
+
+Subraces are Templates layered on a Race. Castes can be Races with the right adjustments. Where an active Race and an active Soldier Type both supply a foundational property, the Race's wins (see docs/architecture.md, "Character composition").
 
 ### soldierType
 
 Covers the faction or occupation framework through which a character advances.
 
 Fields: Characteristic Advancements by tier (Simple through Mastery), faction/occupation-granted Abilities and Educations, Training (weapon training categories granted), Tier, XP Cost.
+
+Implemented with the same fields as race, each foundational property independently optional, so a Soldier Type can be a complete foundation on its own (Mythic) or a supplement to a Race (Empires and Orders). Not yet modeled: Training, granted Educations, and Tier.
+
+### template
+
+Additional modifications layered on a character without establishing foundational properties: Characteristic Advances, Changes, and granted Traits. Any number may be active at once.
 
 ### ability
 

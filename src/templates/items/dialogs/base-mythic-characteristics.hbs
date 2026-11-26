@@ -1,0 +1,31 @@
+<form class="dos100-foundation-form">
+  <ul class="dos100-mythic-rows">
+    {{#each characteristics}}
+      <li>
+        <label class="dos100-item-checkbox">
+          <input
+            type="checkbox"
+            data-present-for="{{id}}"
+            {{#if present}}checked{{/if}}
+            aria-label="{{localize "DOS100.foundation.baseMythicCharacteristics.presentFor" name=full}}"
+          />
+          <span>{{full}}</span>
+        </label>
+        <input
+          type="number"
+          name="{{id}}"
+          value="{{value}}"
+          min="0"
+          step="1"
+          required
+          {{#unless present}}disabled{{/unless}}
+          aria-label="{{full}}"
+        />
+      </li>
+    {{/each}}
+  </ul>
+  <footer>
+    <button type="button" data-action="saveAndClose">{{localize "DOS100.foundation.save"}}</button>
+    <button type="button" data-action="cancelDialog">{{localize "DOS100.foundation.cancel"}}</button>
+  </footer>
+</form>

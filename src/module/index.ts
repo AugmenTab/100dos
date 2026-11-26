@@ -14,6 +14,9 @@ import { GearItemSheet } from "./sheets/items/gear-sheet.js";
 import { AmmunitionItemSheet } from "./sheets/items/ammunition-sheet.js";
 import { SkillItemSheet } from "./sheets/items/skill-sheet.js";
 import { EducationItemSheet } from "./sheets/items/education-sheet.js";
+import { TemplateItemSheet } from "./sheets/items/template-sheet.js";
+import { RaceItemSheet } from "./sheets/items/race-sheet.js";
+import { SoldierTypeItemSheet } from "./sheets/items/soldier-type-sheet.js";
 import { AbilityDataModel } from "./items/ability.js";
 import { EffectDataModel } from "./items/effect.js";
 import { TraitDataModel } from "./items/trait.js";
@@ -22,6 +25,9 @@ import { GearDataModel } from "./items/gear.js";
 import { AmmunitionDataModel } from "./items/ammunition.js";
 import { SkillDataModel } from "./items/skill.js";
 import { EducationDataModel } from "./items/education.js";
+import { TemplateDataModel } from "./items/template.js";
+import { RaceDataModel } from "./items/race.js";
+import { SoldierTypeDataModel } from "./items/soldier-type.js";
 import { registerStatusEffects } from "./status.js";
 
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
@@ -68,12 +74,16 @@ Hooks.once("init", (): void => {
     "systems/100dos/templates/items/shell/details-tab.hbs",
     "systems/100dos/templates/items/ability-details-fields.hbs",
     "systems/100dos/templates/items/effect-details-fields.hbs",
+    "systems/100dos/templates/items/composition-details-fields.hbs",
     "systems/100dos/templates/items/shell/changes-tab.hbs",
     "systems/100dos/templates/items/shell/links-tab.hbs",
     "systems/100dos/templates/items/dialogs/tags-editor.hbs",
     "systems/100dos/templates/items/dialogs/change-editor.hbs",
     "systems/100dos/templates/items/dialogs/change-target-picker.hbs",
     "systems/100dos/templates/items/dialogs/damage-type-dialog.hbs",
+    "systems/100dos/templates/items/dialogs/base-characteristics.hbs",
+    "systems/100dos/templates/items/dialogs/base-mythic-characteristics.hbs",
+    "systems/100dos/templates/items/dialogs/body-location.hbs",
     "systems/100dos/templates/actors/dialogs/ability-acquisition.hbs",
     "systems/100dos/templates/actors/dialogs/actor-skill.hbs",
     "systems/100dos/templates/actors/dialogs/actor-education.hbs",
@@ -138,6 +148,9 @@ Hooks.once("init", (): void => {
   CONFIG.Item.dataModels["ammunition"] = AmmunitionDataModel;
   CONFIG.Item.dataModels["skill"] = SkillDataModel;
   CONFIG.Item.dataModels["education"] = EducationDataModel;
+  CONFIG.Item.dataModels["template"] = TemplateDataModel;
+  CONFIG.Item.dataModels["race"] = RaceDataModel;
+  CONFIG.Item.dataModels["soldierType"] = SoldierTypeDataModel;
   foundry.documents.collections.Items.registerSheet(game.system.id, AbilityItemSheet, {
     types: ["ability"],
     makeDefault: true,
@@ -168,6 +181,18 @@ Hooks.once("init", (): void => {
   });
   foundry.documents.collections.Items.registerSheet(game.system.id, EducationItemSheet, {
     types: ["education"],
+    makeDefault: true,
+  });
+  foundry.documents.collections.Items.registerSheet(game.system.id, TemplateItemSheet, {
+    types: ["template"],
+    makeDefault: true,
+  });
+  foundry.documents.collections.Items.registerSheet(game.system.id, RaceItemSheet, {
+    types: ["race"],
+    makeDefault: true,
+  });
+  foundry.documents.collections.Items.registerSheet(game.system.id, SoldierTypeItemSheet, {
+    types: ["soldierType"],
     makeDefault: true,
   });
 

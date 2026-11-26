@@ -9,12 +9,8 @@ import { EducationDeleteDialog } from "./education-delete-dialog.js";
 import { SkillTrainingChangeDialog } from "./skill-training-change-dialog.js";
 import { type MovementMode } from "../../movement.js";
 import { type EncumbranceBand, encumbranceBands } from "../../encumbrance.js";
-import {
-  DR_LOCATION_TYPES,
-  type DamageResistanceLocation,
-  type DamageResistanceLocationType,
-  sortLocationsForDisplay,
-} from "../../damage-resistance.js";
+import { type DamageResistanceLocation } from "../../damage-resistance.js";
+import { BODY_LOCATION_TYPES, type BodyLocationType, sortLocationsForDisplay } from "../../body-location.js";
 import { type ExperienceLedgerItem, type ExperienceTransactionType } from "../../xp.js";
 import { type FinanceLedgerItem } from "../../finances.js";
 import {
@@ -39,6 +35,7 @@ import {
 import { type Actions } from "../../items/action.js";
 import { type EffectData } from "../../items/effect.js";
 import { type StatusId, STATUS_IDS } from "../../status.js";
+import { EXCLUSIVE_ITEM_TYPES, exclusiveActivationUpdates, selectedItemId } from "../../exclusive-activation.js";
 
 declare global {
   interface Game {
@@ -47,7 +44,7 @@ declare global {
 }
 
 export type DrCategory = {
-  type: DamageResistanceLocationType;
+  type: BodyLocationType;
   locations: (DamageResistanceLocation & { key: string })[];
 };
 
@@ -97,6 +94,34 @@ type ItemActionsRow = {
   uses: { value: number; max: number } | null;
 };
 
+// The Dashboard's independent, exclusive selectors, in display order.
+const COMPOSITION_SELECTOR_TYPES = ["race", "soldierType"] as const;
+type CompositionSelectorType = (typeof COMPOSITION_SELECTOR_TYPES)[number];
+
+// One Dashboard selector: the owned Items of one exclusive type as options,
+// with the active one (if any) selected. selectedId is "" for None.
+export type CompositionSelector = {
+  type: CompositionSelectorType;
+  label: string;
+  noneLabel: string;
+  addLabel: string;
+  options: { value: string; label: string }[];
+  selectedId: string;
+  selectedImg: string | null;
+};
+
+// Item types the sheet can create blank (and open for editing) from an Add
+// control, and the localized default name each gets.
+const CREATABLE_ITEM_NAMES: Record<string, string> = {
+  template: "DOS100.features.templates.newName",
+  race: "DOS100.pc.dashboard.identity.race.newName",
+  soldierType: "DOS100.pc.dashboard.identity.soldierType.newName",
+};
+
+// Item types acquired through the XP acquisition dialog when dropped onto
+// the sheet: each carries its own system.xpCost.
+const XP_ACQUIRED_ITEM_TYPES = new Set(["ability", "race", "soldierType"]);
+
 const PRIMARY_TABS: ApplicationTabConfig[] = [
   { id: "dashboard", label: "DOS100.pc.nav.primary.dashboard" },
   { id: "record", label: "DOS100.pc.nav.primary.record" },
@@ -140,7 +165,9 @@ export class PcActorSheet extends Dos100ActorSheet {
       deleteEducation: PcActorSheet.prototype.onDeleteEducation,
       toggleStatus: PcActorSheet.prototype.onToggleStatus,
       toggleItemPinned: PcActorSheet.prototype.onToggleItemPinned,
-      toggleEffectActive: PcActorSheet.prototype.onToggleEffectActive,
+      toggleEffectActive: PcActorSheet.prototype.onToggleItemActive,
+      toggleItemActive: PcActorSheet.prototype.onToggleItemActive,
+      createOwnedItem: PcActorSheet.prototype.onCreateOwnedItem,
       toggleItemCarried: PcActorSheet.prototype.onToggleItemCarried,
       toggleItemEquipped: PcActorSheet.prototype.onToggleItemEquipped,
       editItem: PcActorSheet.prototype.onEditItem,
@@ -184,15 +211,7 @@ export class PcActorSheet extends Dos100ActorSheet {
         record: this._prepareTabs("record"),
       },
       hasSpells: this.hasSpells(),
-      // Available choices for the Archetype selector. Render context, not
-      // persisted data: derived fresh from owned Items on every render.
-      // TODO: the Archetype Item type doesn't exist yet, so this is always
-      // empty for now — the selector's data flow (options in, system.archetype
-      // out) is still correct and needs no rework once that Item type arrives.
-      archetypeOptions: (items.get("archetype") ?? []).map((item) => ({ value: item.uuid, label: item.name })),
-      // TODO: always null until the Archetype Item type exists — nothing can
-      // ever resolve archetypeOptions/system.archetype to a real Item yet.
-      selectedArchetype: (items.get("archetype") ?? []).find((item) => item.uuid === this.system.archetype) ?? null,
+      compositionSelectors: COMPOSITION_SELECTOR_TYPES.map((type) => this.compositionSelector(items, type)),
       // An Effect's click behavior differs from an ordinary Item's (toggles
       // `active` rather than invoking an Action) — see onUseQuickItem below.
       quickUseItems: this.actor.items.filter(
@@ -209,10 +228,9 @@ export class PcActorSheet extends Dos100ActorSheet {
       permanentEffects: effects.permanent,
       temporaryEffects: effects.temporary,
       activeEffects: effects.active,
-      // TODO: no Template Item type exists yet — stays empty until one
-      // does. The Miscellaneous section is the same: no Item type/source
-      // has been implemented for it yet.
-      templateItems: [],
+      // TODO: the Miscellaneous section has no Item type/source
+      // implemented yet, so it stays empty.
+      templateItems: this.itemActionsRows(items, "template"),
       abilityItems: this.itemActionsRows(items, "ability"),
       traitItems: this.itemActionsRows(items, "trait"),
       miscellaneousItems: [],
@@ -285,7 +303,7 @@ export class PcActorSheet extends Dos100ActorSheet {
     const dr = this.system.dr;
     const entries = Object.entries(dr).map(([key, location]) => ({ key, ...location }));
     const categories: DrCategory[] = [];
-    for (const type of DR_LOCATION_TYPES) {
+    for (const type of BODY_LOCATION_TYPES) {
       const locations = sortLocationsForDisplay(entries.filter((location) => location.type === type));
       if (locations.length > 0) categories.push({ type, locations });
     }
@@ -476,10 +494,32 @@ export class PcActorSheet extends Dos100ActorSheet {
     return buckets;
   }
 
+  // Render context, not persisted data: one Dashboard selector for an
+  // exclusive composition type. Its options are the Actor's owned Items of
+  // that type (already alphabetized), and its selection is whichever of
+  // them is active — there is no separate selected-Item reference.
+  private compositionSelector(items: Map<string, Dos100Item[]>, type: CompositionSelectorType): CompositionSelector {
+    const owned = items.get(type) ?? [];
+    const selectedId = selectedItemId(
+      owned.map((item) => ({ id: item.id, type: item.type, active: (item.system as { active?: boolean }).active === true })),
+      type,
+    );
+    const selected = owned.find((item) => item.id === selectedId) ?? null;
+    return {
+      type,
+      label: game.i18n.localize(`DOS100.pc.dashboard.identity.${type}.label`),
+      noneLabel: game.i18n.localize(`DOS100.pc.dashboard.identity.${type}.none`),
+      addLabel: game.i18n.localize(`DOS100.pc.dashboard.identity.${type}.add`),
+      options: owned.map((item) => ({ value: item.id, label: item.name })),
+      selectedId: selectedId ?? "",
+      selectedImg: selected?.img ?? null,
+    };
+  }
+
   // Alphabetized rows for an Actions-bearing Item type — the Features
-  // page's Ability/Trait tables, and Inventory's Armor/Gear tables.
-  // Templates and Miscellaneous (Features) have no implemented Item
-  // type/source yet, so their sections stay wireframe-empty until one does.
+  // page's Template/Ability/Trait tables, and Inventory's Armor/Gear
+  // tables. Miscellaneous (Features) has no implemented Item type/source
+  // yet, so its section stays wireframe-empty until one does.
   private itemActionsRows(items: Map<string, Dos100Item[]>, type: string): ItemActionsRow[] {
     return (items.get(type) ?? []).map((item) => this.itemActionsRow(item));
   }
@@ -624,6 +664,12 @@ export class PcActorSheet extends Dos100ActorSheet {
 
   override _onRender(context: Record<string, unknown>, options: Record<string, unknown>): void {
     super._onRender(context, options);
+    for (const select of Array.from(this.element.querySelectorAll<HTMLSelectElement>("select[data-composition-select]"))) {
+      select.addEventListener("change", (event) => {
+        event.stopImmediatePropagation();
+        void this._onCompositionSelect(select);
+      });
+    }
     for (const select of Array.from(
       this.element.querySelectorAll<HTMLSelectElement>("select[name^='system.skills.'][name$='.training']"),
     )) {
@@ -825,12 +871,46 @@ export class PcActorSheet extends Dos100ActorSheet {
     await item.update({ "system.actions.pinned": !pinned });
   }
 
-  private async onToggleEffectActive(event: PointerEvent, target: HTMLElement): Promise<void> {
+  // Shared by every row-level Active toggle (Effects, Templates). Toggling
+  // a Race or Soldier Type on still deactivates its siblings — that is
+  // enforced by the Item itself (Dos100Item#_enforceExclusiveActivation).
+  private async onToggleItemActive(event: PointerEvent, target: HTMLElement): Promise<void> {
     const itemId = target.dataset.itemId;
     const item = itemId ? this.actor.items.get(itemId) : undefined;
     if (!item) return;
-    const active = (item.system as EffectData).active;
+    const active = (item.system as { active?: boolean }).active;
+    if (active === undefined) return;
     await item.update({ "system.active": !active });
+  }
+
+  // An Add control for a composition Item type: creates a blank Item of
+  // that type on this Actor (no XP — nothing is being acquired from a
+  // source with a cost) and opens its sheet for authoring. A new Race or
+  // Soldier Type starts active, so it also becomes the selection.
+  private async onCreateOwnedItem(event: PointerEvent, target: HTMLElement): Promise<void> {
+    const type = target.dataset.type;
+    const nameKey = type ? CREATABLE_ITEM_NAMES[type] : undefined;
+    if (!type || !nameKey) return;
+    const [created] = await this.actor.createEmbeddedDocuments("Item", [
+      { name: game.i18n.localize(nameKey), type },
+    ]);
+    created?.sheet?.render(true);
+  }
+
+  // A Dashboard selector change: one batched update that leaves the chosen
+  // Item as the only active one of its type ("" = None deactivates all).
+  // Nothing is created, deleted, or charged — switching between owned
+  // Items is never a new acquisition.
+  private async _onCompositionSelect(select: HTMLSelectElement): Promise<void> {
+    const type = select.dataset.compositionSelect;
+    if (!type || !EXCLUSIVE_ITEM_TYPES.has(type)) return;
+    const candidates = Array.from(this.actor.items).map((item) => ({
+      id: item.id,
+      type: item.type,
+      active: (item.system as { active?: boolean }).active === true,
+    }));
+    const updates = exclusiveActivationUpdates(candidates, type, select.value || null);
+    if (updates.length) await this.actor.updateEmbeddedDocuments("Item", updates);
   }
 
   // Shared by any inventory Item's Carried/Equipped checkbox — Armor, Gear,
@@ -873,16 +953,18 @@ export class PcActorSheet extends Dos100ActorSheet {
   }
 
   // Hooks in below core's _onDrop, so its dropActorSheetData hook still
-  // fires. Abilities, Skills, and Educations get their own acquisition
-  // flows; everything else — and any drop the core path must own (a
-  // non-owner's drop, or an Item already on this Actor, which core treats
-  // as a sort rather than a copy) — goes through super.
+  // fires. XP-costed Items (Abilities, Races, Soldier Types), Skills, and
+  // Educations get their own acquisition flows; everything else — and any
+  // drop the core path must own (a non-owner's drop, or an Item already on
+  // this Actor, which core treats as a sort rather than a copy, so
+  // re-dropping an owned Race never charges XP again) — goes through super.
   override async _onDropItem(event: DragEvent, item: Item): Promise<Item | null> {
     if (!this.actor.isOwner || item.parent?.uuid === this.actor.uuid) return super._onDropItem(event, item);
+    if (XP_ACQUIRED_ITEM_TYPES.has(item.type)) {
+      await this._onDropXpItem(item as Dos100Item);
+      return null;
+    }
     switch (item.type) {
-      case "ability":
-        await this._onDropAbility(item as Dos100Item);
-        return null;
       case "skill":
         await this._onDropSkill(item);
         return null;
@@ -894,10 +976,18 @@ export class PcActorSheet extends Dos100ActorSheet {
     }
   }
 
-  private async _onDropAbility(source: Dos100Item): Promise<void> {
+  // The acquisition flow for any XP-costed Item: the dialog is answered
+  // before anything is written, so Cancel leaves no Item, no child
+  // documents, and no ledger entry behind. An acquired Race or Soldier
+  // Type is created active — acquiring one is choosing it — and the Item
+  // deactivates any previously active one of its type on creation. Its
+  // grants (child Traits) are created by the Item's own _onCreate.
+  private async _onDropXpItem(source: Dos100Item): Promise<void> {
     const result = await AbilityAcquisitionDialog.prompt(source);
     if (result.action === "cancel") return;
-    const [created] = await this.actor.createEmbeddedDocuments("Item", [source.toObject()]);
+    const data = source.toObject();
+    if (EXCLUSIVE_ITEM_TYPES.has(source.type)) foundry.utils.setProperty(data, "system.active", true);
+    const [created] = await this.actor.createEmbeddedDocuments("Item", [data]);
     if (!created || result.action === "skip") return;
     await this.actor.update(
       this.xpLedgerUpdate(

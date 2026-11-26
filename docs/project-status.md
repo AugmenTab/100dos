@@ -4,6 +4,20 @@ Snapshot as of 2026-11-24, taken from `sheet-review-fixes` at `e6ef3ec`. It
 supersedes the July snapshot in `.local/project_state.md`. It will go stale;
 cross-check against the source before relying on specifics.
 
+**Update (2026-11-25, `project-status-analysis`): character composition.**
+Template, Race and Soldier Type Item types now exist, replacing the planned
+Archetype (removed: schema field, Dashboard selector, strings). See
+docs/architecture.md, "Character composition". They are authorable (Advances,
+Base Characteristics, Base Mythic Characteristics, Base Size, Body Locations,
+XP Cost, plus the shared Changes/Links), selectable from independent Race and
+Soldier Type Dashboard selectors (at most one active of each), acquirable by
+drop through the XP ledger, and Templates are wired into Features. None of
+it is derived onto the Actor yet. Body Locations were split out of Damage
+Resistance (`body-location.ts`). The e2e tier was run for the first time
+since the review-fix branch, using `docker run --network host` (see
+.local/phase-01-handoff.md); four pre-existing e2e failures are listed
+there.
+
 The short version: the **PC sheet and the Item editors are far along as
 authoring and record-keeping tools**, but **the system computes almost
 nothing**. `Dos100Actor.prepareDerivedData()` still dispatches to three empty
@@ -148,8 +162,8 @@ special rule or opposed test (see §4).
 ### Infrastructure
 
 - Vite build, strict TypeScript, ESLint and Prettier.
-- 267 Vitest unit tests.
-- Two Playwright tiers: 68 browser-tier template tests and 77 e2e tests
+- 337 Vitest unit tests.
+- Two Playwright tiers: 88 browser-tier template tests and 80 e2e tests
   against live Foundry.
 - Three typecheck configs: `typecheck`, `typecheck:e2e` and
   `typecheck:browser`.
@@ -162,11 +176,11 @@ special rule or opposed test (see §4).
 
 | Where | What's inert |
 |---|---|
-| Dashboard | Rest button (no replenishment trigger); Add Archetype button; Archetype select (no Archetype Item type, so the options are always empty); Characteristic and Initiative roll buttons; reserved tag area; one icon that doesn't render (TODO in `dashboard.hbs`). |
+| Dashboard | Rest button (no replenishment trigger); Characteristic and Initiative roll buttons. (The Race and Soldier Type selectors and their Add controls are wired.) |
 | Record → Basics | Placeholder page. |
 | Record → XP / Finances | Ledgers display, but there's no Add-transaction modal and no delete. XP rows are only ever appended by Skill, Education and Ability XP prompts. **Finance rows have no creation path at all.** |
 | Combat, Medical, Settings, Spells | Placeholder pages ("This page doesn't have any content yet"). `spellSources` is an empty tab group extension point. |
-| Features | Templates, Abilities, Traits and Miscellaneous tables render owned Items. Every Add button is inert (no Template or Miscellaneous Item type; no add flow). Row roll icons are inert. |
+| Features | Templates, Abilities, Traits and Miscellaneous tables render owned Items. The Template Add button creates a blank Template and opens it; the Ability, Trait and Miscellaneous Add buttons are inert (no add flow, no Miscellaneous Item type). Row roll icons are inert. |
 | Inventory | Weapons, Equipment, Consumables, Miscellaneous and Containers tables render permanently empty (no such Item types). Row roll, quantity and gift/transfer buttons are inert. |
 | Skills / Educations | Description popups and roll buttons are inert. |
 | Effects | Each status's rules/journal icon is inert. |
@@ -252,9 +266,8 @@ sheet's own placeholders:
   (mobility, crew, 5-location armor and breakpoints, weapon points,
   conceal/sensor), and `companion` and `group` (both still undesigned).
 - **Item types.**
-  - Named in the rules reference: race, soldierType, spell.
-  - Referenced by the sheet: Archetype and Template (the Dashboard and
-    Features assume both exist).
+  - Named in the rules reference: spell. (Race, Soldier Type and Template
+    now exist; Archetype was dropped.)
   - Weapons, Equipment, Consumables, Containers and Miscellaneous (each
     already has an empty Inventory table).
 - **Actor fields from the rules reference.** Characteristic Active and
@@ -312,4 +325,4 @@ pure-function-first and Vitest-covered:
 5. **Combat execution:** attacks, damage and opposed tests, from the
    already-authored Action data.
 6. **Breadth:** Armor DR values, the remaining Inventory Item types,
-   Archetype and Template, and the NPC and Vehicle schemas.
+   and the NPC and Vehicle schemas.

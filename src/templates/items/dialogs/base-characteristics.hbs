@@ -1,0 +1,23 @@
+<form class="dos100-foundation-form">
+  <div class="dos100-foundation-grid">
+    {{#each characteristics}}
+      <label for="{{../sheetId}}-{{id}}">
+        <span class="eyebrow-label" aria-hidden="true">{{abbr}}</span>
+        <input
+          type="number"
+          id="{{../sheetId}}-{{id}}"
+          name="{{id}}"
+          value="{{value}}"
+          min="0"
+          step="1"
+          required
+          aria-label="{{full}}"
+        />
+      </label>
+    {{/each}}
+  </div>
+  <footer>
+    <button type="button" data-action="saveAndClose">{{localize "DOS100.foundation.save"}}</button>
+    <button type="button" data-action="cancelDialog">{{localize "DOS100.foundation.cancel"}}</button>
+  </footer>
+</form>

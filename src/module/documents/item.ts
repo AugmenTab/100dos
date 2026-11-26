@@ -2,18 +2,24 @@ import { type GrantData } from "../items/grants.js";
 import { type Actions, type UsagePeriod, shouldRecharge } from "../items/action.js";
 import { CHARACTERISTIC_IDS } from "../characteristic.js";
 import { uniqueIdentifier } from "../identifier.js";
+import { EXCLUSIVE_ITEM_TYPES, exclusiveActivationUpdates } from "../exclusive-activation.js";
+
+// Character-composition Item types: built on the shared AbstractItemData
+// (Changes, Actions, child links, activation) but not themselves linkable
+// as another Item's children/supplements.
+export const COMPOSITION_ITEM_TYPES = new Set(["template", "race", "soldierType"]);
 
 // Item types whose system data carries the shared Actions structure —
 // checked explicitly rather than duck-typed, since not every Item type
 // has (or will have) one.
-export const ACTIONS_ITEM_TYPES = new Set(["ability", "trait", "effect", "armor", "gear"]);
+export const ACTIONS_ITEM_TYPES = new Set(["ability", "trait", "effect", "armor", "gear", ...COMPOSITION_ITEM_TYPES]);
 
 // Item types that can be linked as children/supplements in the Link tab.
 export const ABSTRACT_ITEM_TYPES = new Set(["ability", "trait", "effect"]);
 
 // All item types that carry system.identifier and receive automatic seeding
 // on creation (superset of ABSTRACT_ITEM_TYPES).
-const IDENTIFIER_ITEM_TYPES = new Set([...ABSTRACT_ITEM_TYPES, "skill", "education"]);
+const IDENTIFIER_ITEM_TYPES = new Set([...ABSTRACT_ITEM_TYPES, ...COMPOSITION_ITEM_TYPES, "skill", "education"]);
 
 export function toCamelCase(str: string): string {
   const words = str.split(/[^a-zA-Z0-9]+/).filter(w => w.length > 0);
@@ -94,6 +100,7 @@ export class Dos100Item extends Item {
   protected override _onCreate(data: object, options: object, userId: string): void {
     super._onCreate(data, options, userId);
     if (game.user?.id !== userId || !this.actor) return;
+    this._enforceExclusiveActivation();
     const grants = (this.system as { grants?: GrantData[] }).grants;
     if (!grants?.length) return;
     void this._createGrants(grants);
@@ -103,6 +110,7 @@ export class Dos100Item extends Item {
     super._onUpdate(data, options, userId);
     if (game.user?.id !== userId || !this.actor) return;
     if (!foundry.utils.hasProperty(data, "system.active")) return;
+    this._enforceExclusiveActivation();
     const childIds = this.getFlag(game.system.id, "childItemIds") as string[] | undefined;
     if (!childIds?.length) return;
     const active = (this.system as { active?: boolean }).active;
@@ -119,6 +127,25 @@ export class Dos100Item extends Item {
       if (childIds?.length) void this.actor.deleteEmbeddedDocuments("Item", childIds);
     }
     super._onDelete(options, userId);
+  }
+
+  // When an exclusive-type Item (Race, Soldier Type) becomes active on an
+  // Actor — however that happened: the Dashboard selector, the Item
+  // sheet's own Active checkbox, an acquisition, a duplicate — every other
+  // Item of the same type on that Actor is deactivated, so the most
+  // recently activated one is the selection. Each deactivated Item's own
+  // _onUpdate then propagates to its children as usual. A no-op when the
+  // batch that activated this Item already deactivated the others.
+  private _enforceExclusiveActivation(): void {
+    if (!this.actor || !EXCLUSIVE_ITEM_TYPES.has(this.type)) return;
+    if ((this.system as { active?: boolean }).active !== true) return;
+    const candidates = Array.from(this.actor.items).map((item) => ({
+      id: item.id,
+      type: item.type,
+      active: (item.system as { active?: boolean }).active === true,
+    }));
+    const updates = exclusiveActivationUpdates(candidates, this.type, this.id);
+    if (updates.length) void this.actor.updateEmbeddedDocuments("Item", updates);
   }
 
   private async _createGrants(grants: GrantData[]): Promise<void> {
