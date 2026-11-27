@@ -89,7 +89,7 @@ test.describe("Skills page", () => {
     expect(skill?.contributions).toEqual(PILOT_GROUND.contributions);
   });
 
-  test("the Training selector offers the four fixed options with the stored value selected, and updates only training through normal binding", async ({
+  test("the Training selector offers the four fixed options with the stored value selected, and updates only training once the XP prompt is skipped", async ({
     foundryPage: page,
     fixtureLane,
   }) => {
@@ -104,7 +104,12 @@ test.describe("Skills page", () => {
     expect(optionLabels).toEqual(["None", "Trained", "+10", "+20"]);
     await expect(trainingSelect).toHaveValue("plus10");
 
+    // A training change asks whether to record its XP (see
+    // _onSkillTrainingChange); skipping applies the training alone.
     await trainingSelect.selectOption("plus20");
+    const prompt = page.locator(".ability-acquisition-dialog");
+    await prompt.locator('button[data-action="skip"]').click();
+    await expect(prompt).toHaveCount(0);
     await expect
       .poll(async () => (await getSkill(page, actorId, "pilotGround"))?.training)
       .toBe("plus20");
@@ -112,6 +117,11 @@ test.describe("Skills page", () => {
     const skill = await getSkill(page, actorId, "pilotGround");
     expect(skill?.value).toBe(62);
     expect(skill?.characteristic).toBe("int");
+    const ledger = await page.evaluate(
+      (actorId) => (game.actors.get(actorId)?.system as { xp: { ledger: unknown[] } } | undefined)?.xp.ledger,
+      actorId,
+    );
+    expect(ledger).toEqual([]);
   });
 
   test("the pin control reflects and toggles the persisted pinned state", async ({ foundryPage: page, fixtureLane }) => {

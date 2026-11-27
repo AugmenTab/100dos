@@ -115,7 +115,39 @@ export class Table {
    */
   async drag(directory: Directory, name: string, target: Locator): Promise<void> {
     await this.openDirectory(directory);
-    await this.directoryEntry(directory, name).dragTo(target);
+    const source = this.directoryEntry(directory, name);
+    const id = await source.getAttribute("data-entry-id");
+    await expect(source).toBeVisible();
+    await expect(target).toBeVisible();
+    const box = await target.boundingBox();
+    if (!box) throw new Error(`Can't drag "${name}": the target isn't on screen.`);
+
+    // The HTML5 drag events are dispatched here, not produced by moving
+    // Playwright's mouse. Chromium's own drag session proved unreliable
+    // under parallel load: a drop sometimes came with no dragend, the
+    // session stayed open, and the next drag dropped the previous one's
+    // data. Dispatching the events still runs the real code on both ends.
+    // Foundry's own dragstart handler on the sidebar entry fills the
+    // DataTransfer, and the drop goes to whatever element is on top at the
+    // target's centre, so a dialog covering the sheet blocks it as it
+    // would block a hand.
+    const dropped = await source.evaluate(
+      (entry, { x, y }) => {
+        const data = new DataTransfer();
+        const at = { bubbles: true, cancelable: true, composed: true, dataTransfer: data, clientX: x, clientY: y };
+        entry.dispatchEvent(new DragEvent("dragstart", { ...at, clientX: 0, clientY: 0 }));
+        const under = document.elementFromPoint(x, y);
+        if (under) {
+          under.dispatchEvent(new DragEvent("dragenter", at));
+          under.dispatchEvent(new DragEvent("dragover", at));
+          under.dispatchEvent(new DragEvent("drop", at));
+        }
+        entry.dispatchEvent(new DragEvent("dragend", { ...at, clientX: 0, clientY: 0 }));
+        return data.getData("text/plain");
+      },
+      { x: box.x + box.width / 2, y: box.y + box.height / 2 },
+    );
+    expect(dropped, `dragging "${name}" should carry it`).toContain(String(id));
   }
 
   // ── Sheets ─────────────────────────────────────────────────────────────

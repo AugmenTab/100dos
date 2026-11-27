@@ -3,16 +3,18 @@ import { resetFixtures } from "./support/fixtures.js";
 import { openPcSheet, resizePcSheet } from "./support/pc-sheet.js";
 import { type Locator, type Page } from "@playwright/test";
 
-// Representative populated Education — a Skill-identifier option list
-// including an identifier the fixture Actor doesn't actually have (see the
-// missing-target test below), plus a real Skill so the resolved-label path
-// is also exercised.
+// Representative populated Education. Its target options are its own
+// stored definition: Characteristic IDs plus Skills snapshotted as
+// {identifier, name} when it was created (see education.ts), so a Skill's
+// label never depends on the Actor having that Skill.
 const ENGINEERING = {
   name: "Engineering",
   difficulty: "advanced",
   training: "plus10",
   selected: "int",
-  options: ["int", "per", "pilotGround"],
+  characteristics: ["int", "per"],
+  skills: [{ identifier: "pilotGround", name: "Pilot (Ground)" }],
+  cost: { plus5: 50, plus10: 75 },
   value: 55,
   pinned: true,
   description: "<p>Designing and building mechanical and structural systems.</p>",
@@ -114,7 +116,7 @@ test.describe("Educations section", () => {
     expect(values.map(Number)).toEqual([25, 55]);
   });
 
-  test("the Characteristic/Skill selector offers only that Education's own options, resolving a Characteristic ID to its abbreviation and a Skill identifier to the Actor's Skill name, with the stored value selected", async ({
+  test("the Characteristic/Skill selector offers only that Education's own options, labelling a Characteristic by its abbreviation and a Skill by its stored name, with the stored value selected", async ({
     foundryPage: page,
     fixtureLane,
   }) => {
@@ -142,7 +144,7 @@ test.describe("Educations section", () => {
     expect(education?.contributions).toEqual(ENGINEERING.contributions);
   });
 
-  test("a Skill-identifier option with no matching Actor Skill falls back to the raw identifier rather than being hidden or mutated", async ({
+  test("a Skill option the Actor doesn't have still shows the Education's stored Skill name, not its raw identifier, and is neither hidden nor mutated", async ({
     foundryPage: page,
     fixtureLane,
   }) => {
@@ -152,7 +154,8 @@ test.describe("Educations section", () => {
         ...ENGINEERING,
         name: "Military History",
         selected: "survival",
-        options: ["int", "survival"],
+        characteristics: ["int"],
+        skills: [{ identifier: "survival", name: "Survival" }],
       },
     });
     const sheetId = await openPcSheet(page, actorId);
@@ -161,11 +164,12 @@ test.describe("Educations section", () => {
 
     const targetSelect = row.locator('select[name="system.educations.militaryHistory.selected"]');
     const optionLabels = await targetSelect.locator("option").allTextContents();
-    expect(optionLabels).toEqual(["INT", "survival"]);
+    expect(optionLabels).toEqual(["INT", "Survival"]);
     await expect(targetSelect).toHaveValue("survival");
 
     const education = await getEducation(page, actorId, "militaryHistory");
-    expect(education?.options).toEqual(["int", "survival"]);
+    expect(education?.characteristics).toEqual(["int"]);
+    expect(education?.skills).toEqual([{ identifier: "survival", name: "Survival" }]);
   });
 
   test("the value control shows the stored value via a simple button with the existing Contributions tooltip", async ({

@@ -34,7 +34,7 @@ Add a fourth kind of Playwright test: the **player simulation**. A simulation is
 - opening a sheet by clicking its directory entry;
 - typing into a field and leaving it;
 - choosing from a select;
-- dragging an entry from the sidebar onto a sheet with Playwright's real mouse drag, which fires Chromium's native HTML5 drag events, so Foundry's own `dragstart` builds the payload and the sheet's own drop handler receives it;
+- dragging an entry from the sidebar onto a sheet. `table.drag` dispatches the HTML5 drag events itself: `dragstart` on the sidebar entry, so Foundry's own handler builds the payload, then `drop` on whatever element is on top at the target's centre, so the sheet's own drop handler receives it and a covering dialog still blocks it. It doesn't move Playwright's mouse, because Chromium's drag session proved unreliable under parallel load: drops were lost, or carried the previous drag's data. It also checks that the drop carried the dragged document;
 - answering a dialog.
 
 `test/simulations/support/table.ts` and `sheets.ts` turn these into verbs (`table.create`, `table.drag`, `pc.acquire`, `sheet.addAction`) so a journey reads like a description of play. Locators prefer what the player reads, such as accessible names like `Edit Power Strike` and `Add Temporary Effect`, over internal structure.
