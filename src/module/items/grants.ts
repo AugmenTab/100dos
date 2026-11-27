@@ -7,6 +7,7 @@ export type GrantData = {
   kind: GrantKind;
   type: string;
   name: string;
+  img: string;
   system: Record<string, unknown>;
 };
 
@@ -17,6 +18,7 @@ export function grantsField(): foundry.data.fields.ArrayField {
       kind: new StringField({ required: true, initial: "child", choices: ["child", "supplement"] }),
       type: new StringField({ required: true, initial: "" }),
       name: new StringField({ required: true, initial: "" }),
+      img: new StringField({ required: true, initial: "" }),
       system: new ObjectField({ required: true, initial: {} }),
     }),
   );

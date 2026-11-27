@@ -9,7 +9,7 @@ import { type AbilityData } from "../../../src/module/items/ability.js";
 import { type DeepPartial } from "./deep-partial.js";
 
 // Sheet context only (resolved from grant flags), not stored Item data.
-export type LinkedItemFixture = { id: string; name: string; img: string };
+export type LinkedItemFixture = { id: string; name: string; img: string; stored?: boolean };
 
 export type AbilityItemFixture = {
   img?: string;

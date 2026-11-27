@@ -103,6 +103,25 @@ test("rows display Item image, name, and Edit/Delete controls when childItems an
   await expect(childButtons.nth(1)).toHaveAttribute("data-action", "deleteLinkedItem");
 });
 
+test("a stored grant on a world Item shows only a Delete control, since there's no Item to open", async ({ page }) => {
+  const html = renderPage(
+    "items/shell/item-shell.hbs",
+    buildAbilityContext(
+      { childItems: [{ id: "g1", name: "Stored Grant", img: "icons/svg/item-bag.svg", stored: true }] },
+      "links",
+      "children",
+    ),
+    { partials: ITEM_SHELL_PARTIALS },
+  );
+  await page.setContent(html);
+
+  const row = page.locator('.tab[data-group="links"][data-tab="children"].active table.dense-table tbody tr').nth(0);
+  await expect(row).toContainText("Stored Grant");
+  const buttons = row.locator("button.icon-button");
+  await expect(buttons).toHaveCount(1);
+  await expect(buttons.nth(0)).toHaveAttribute("data-action", "deleteLinkedItem");
+});
+
 test("Links tab remains usable, without overflow, at representative sheet widths", async ({ page }) => {
   const html = renderPage(
     "items/shell/item-shell.hbs",

@@ -1,5 +1,6 @@
 import { Dos100Item, ABSTRACT_ITEM_TYPES, toCamelCase } from "../../documents/item.js";
 import { type ActionData, USAGE_PERIODS } from "../../items/action.js";
+import { type GrantData, type GrantKind } from "../../items/grants.js";
 import { ActionSheet } from "./action-sheet.js";
 import { type ChangeData, type ConditionalChangeData, type ChangeTarget, type ConditionalNoteTarget } from "../../change.js";
 import { resolveTargetLabel, type ActorContext } from "../../change-targets.js";
@@ -83,6 +84,10 @@ export abstract class AbstractItemSheet extends HandlebarsApplicationMixin(ItemS
     return null;
   }
 
+  private get _grants(): GrantData[] {
+    return (this.item.system as { grants?: GrantData[] }).grants ?? [];
+  }
+
   override async _prepareContext(options: Record<string, unknown>): Promise<Record<string, unknown>> {
     const item = this.item as Dos100Item;
     const sysId = game.system.id;
@@ -92,6 +97,15 @@ export abstract class AbstractItemSheet extends HandlebarsApplicationMixin(ItemS
       const granted = item.actor?.items.get(id) as Dos100Item | undefined;
       return granted ? { id: granted.id, name: granted.name, img: granted.img } : null;
     };
+    // A world Item has no siblings to link to, so its Links tab lists the
+    // grants it will create on whichever Actor acquires it. They are stored
+    // copies, not Documents, so there's nothing to open.
+    const grantRows = (kind: GrantKind) =>
+      item.actor
+        ? null
+        : this._grants
+            .filter(g => g.kind === kind)
+            .map(g => ({ id: g.id, name: g.name, img: g.img || "icons/svg/item-bag.svg", stored: true }));
     const grantingItem = item.grantingItem;
     const grantSource = grantingItem
       ? { name: grantingItem.name, typeLabel: game.i18n.localize(`TYPES.Item.${grantingItem.type}`) }
@@ -128,8 +142,8 @@ export abstract class AbstractItemSheet extends HandlebarsApplicationMixin(ItemS
       typeDetailsPartial: this._typeDetailsPartial,
       grantSource,
       usagePeriods: USAGE_PERIODS,
-      childItems: childIds.flatMap(id => { const r = toRow(id); return r ? [r] : []; }),
-      supplementItems: supplementIds.flatMap(id => { const r = toRow(id); return r ? [r] : []; }),
+      childItems: grantRows("child") ?? childIds.flatMap(id => { const r = toRow(id); return r ? [r] : []; }),
+      supplementItems: grantRows("supplement") ?? supplementIds.flatMap(id => { const r = toRow(id); return r ? [r] : []; }),
       resolvedChanges,
       resolvedConditionals,
     };
@@ -377,15 +391,30 @@ export abstract class AbstractItemSheet extends HandlebarsApplicationMixin(ItemS
     if (dropData.type !== "Item" || !dropData.uuid) return;
 
     const item = this.item as Dos100Item;
-    if (!item.actor) return;
-
     const source = await fromUuid<Item>(dropData.uuid);
     if (!source || !ABSTRACT_ITEM_TYPES.has(source.type)) return;
-    if (source.id === item.id) return;
+    if (source.uuid === item.uuid) return;
 
     const sysId = game.system.id;
     const tab = section.dataset.tab;
     if (tab !== "children" && tab !== "supplements") return;
+
+    // A world or compendium Item stores a copy of the dropped Item; its
+    // _onCreate turns each copy into a linked Item on the acquiring Actor.
+    if (!item.actor) {
+      const kind: GrantKind = tab === "children" ? "child" : "supplement";
+      const data = source.toObject() as { name: string; type: string; img?: string; system: Record<string, unknown> };
+      const grant: GrantData = {
+        id: foundry.utils.randomID(),
+        kind,
+        type: data.type,
+        name: data.name,
+        img: data.img ?? "",
+        system: data.system,
+      };
+      await item.update({ "system.grants": [...this._grants, grant] });
+      return;
+    }
 
     const isFromSameActor = source.actor?.id === item.actor.id;
     let grantedId: string;
@@ -411,7 +440,11 @@ export abstract class AbstractItemSheet extends HandlebarsApplicationMixin(ItemS
   protected async _onDeleteLinkedItem(_event: PointerEvent, target: HTMLElement): Promise<void> {
     const item = this.item as Dos100Item;
     const id = target.dataset.identifier;
-    if (!id || !item.actor) return;
+    if (!id) return;
+    if (!item.actor) {
+      await item.update({ "system.grants": this._grants.filter(g => g.id !== id) });
+      return;
+    }
     const sysId = game.system.id;
     const childIds = (item.getFlag(sysId, "childItemIds") as string[] | undefined) ?? [];
     const supplementIds = (item.getFlag(sysId, "supplementItemIds") as string[] | undefined) ?? [];

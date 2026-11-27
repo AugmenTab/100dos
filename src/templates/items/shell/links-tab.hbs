@@ -55,6 +55,7 @@
                   </span>
                 </td>
                 <td>
+                  {{#unless this.stored}}
                   <button
                     type="button"
                     class="icon-button"
@@ -62,6 +63,7 @@
                     data-identifier="{{this.id}}"
                     aria-label="{{localize 'DOS100.item.links.children.edit'}}"
                   ><i class="fa-solid fa-pen-to-square" inert></i></button>
+                  {{/unless}}
                   <button
                     type="button"
                     class="icon-button"
@@ -109,6 +111,7 @@
                   </span>
                 </td>
                 <td>
+                  {{#unless this.stored}}
                   <button
                     type="button"
                     class="icon-button"
@@ -116,6 +119,7 @@
                     data-identifier="{{this.id}}"
                     aria-label="{{localize 'DOS100.item.links.supplements.edit'}}"
                   ><i class="fa-solid fa-pen-to-square" inert></i></button>
+                  {{/unless}}
                   <button
                     type="button"
                     class="icon-button"

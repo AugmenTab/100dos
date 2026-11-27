@@ -93,7 +93,7 @@ Each journey lists its beats, with **(pending)** marking beats the system can't 
 **`gm-prepares-content.sim.ts`: the GM prepares content before a session.**
 1. Write a Trait with a Change raising Wounds, from the Items directory.
 2. Write an Ability with an XP cost, a summary, a once-per-encounter melee attack (activation, uses, attack Characteristic and bonus, damage dice, base and pierce) and a Change to all Characteristic Tests.
-3. **(pending)** Link the Trait to the Ability so taking the Ability grants it.
+3. Link the Trait to the Ability so taking the Ability grants it.
 4. Write a three-round Effect with a Change.
 5. Reopen each Item and find it as written, on screen and in storage.
 6. **(pending)** Set the attack's maximum uses.
