@@ -162,7 +162,8 @@ export class Dos100Item extends Item {
         name: g.name,
         type: g.type,
         ...(g.img ? { img: g.img } : {}),
-        system: g.system,
+        // A child starts in its parent's active state, as it would after any later toggle.
+        system: g.kind === "child" ? { ...g.system, active: (this.system as { active?: boolean }).active } : g.system,
         flags: { [sysId]: { grantedBy: this.id, _grantSlot: i } },
       })),
     );
