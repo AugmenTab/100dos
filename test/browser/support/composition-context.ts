@@ -59,11 +59,14 @@ export function buildCompositionContext(
     ...(bodyLocations !== undefined ? { bodyLocations } : {}),
     advances: { ...emptyAdvances(), ...advances },
   };
+  // Composition types have no Actions; drop the Ability shell's.
+  const { actions: _actions, ...base } = shell.item.system;
   return {
     ...shell,
-    item: { ...shell.item, type, system: { ...shell.item.system, ...composition } },
+    item: { ...shell.item, type, system: { ...base, ...composition } },
     itemTypeLabel: LABELS[type],
     showCombatTab: false,
+    hasActions: false,
     typeDetailsPartial: "systems/100dos/templates/items/composition-details-fields.hbs",
     composition: compositionContext(composition, MODES[type]),
   };

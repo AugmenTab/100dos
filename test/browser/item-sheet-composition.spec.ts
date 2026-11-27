@@ -38,6 +38,17 @@ test("all three sheets use the abstract shell with Description, Details, Changes
   }
 });
 
+test("composition sheets have no Pinned checkbox and no Actions, shared uses, or Action notes; their Actions come from linked Items", async ({ page }) => {
+  for (const type of ["template", "race", "soldierType"] as const) {
+    const details = await renderSheet(page, type);
+    await expect(page.locator('input[name="system.actions.pinned"]')).toHaveCount(0);
+    await expect(details.locator('button[data-action="addAction"]')).toHaveCount(0);
+    await expect(details.locator('[name^="system.actions."]')).toHaveCount(0);
+    await expect(details.locator(".dos100-item-notes")).toHaveCount(0);
+    await expect(details.locator(".dos100-advances")).toBeVisible();
+  }
+});
+
 test("Template Details is the Advances table plus the shared sections, with no XP Cost or foundational editors", async ({ page }) => {
   const details = await renderSheet(page, "template");
   await expect(details.locator(".dos100-advances")).toBeVisible();

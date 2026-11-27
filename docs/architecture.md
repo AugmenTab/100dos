@@ -167,8 +167,13 @@ the base Characteristics from a Race and add supplemental benefits from a
 Soldier Type. One data model covers both, with no setting-specific code. The
 planned single `archetype` Item type was dropped in favor of this model.
 
-**Item types.** All three build on `AbstractItemData` (Changes, Actions,
-child links, tags, identifier, `active`) and share `CompositionItemSheet`:
+**Item types.** All three build on `BaseItemData` (Changes, child links,
+tags, identifier, `active`) and share `CompositionItemSheet`. Unlike
+Ability, Trait and Effect (`AbstractItemData`), they carry no Actions and no
+Pinned flag. An Action a Race, Soldier Type or Template provides lives on a
+linked child Trait or Ability, which has its own uses, recharge and pin, and
+which follows the parent's `active` state, so switching Race disables the
+old Race's racial Traits without removing them.
 
 | Field | Template | Race | Soldier Type |
 |---|---|---|---|

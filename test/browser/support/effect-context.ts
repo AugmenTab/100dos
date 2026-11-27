@@ -81,6 +81,7 @@ export function buildEffectContext(
     tabs: { primary: primaryTabs, links: linksTabs },
     itemTypeLabel: "Effect",
     showCombatTab: false,
+    hasActions: true,
     typeDetailsPartial: "systems/100dos/templates/items/effect-details-fields.hbs",
     grantSource: item.grantSource ?? null,
     durationUnits: {

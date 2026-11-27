@@ -4,15 +4,16 @@ import { CHARACTERISTIC_IDS } from "../characteristic.js";
 import { uniqueIdentifier } from "../identifier.js";
 import { EXCLUSIVE_ITEM_TYPES, exclusiveActivationUpdates } from "../exclusive-activation.js";
 
-// Character-composition Item types: built on the shared AbstractItemData
-// (Changes, Actions, child links, activation) but not themselves linkable
-// as another Item's children/supplements.
+// Character-composition Item types: built on the shared BaseItemData
+// (Changes, child links, activation) without Actions, and not themselves
+// linkable as another Item's children/supplements. Their Actions come from
+// linked child Items.
 export const COMPOSITION_ITEM_TYPES = new Set(["template", "race", "soldierType"]);
 
 // Item types whose system data carries the shared Actions structure —
 // checked explicitly rather than duck-typed, since not every Item type
 // has (or will have) one.
-export const ACTIONS_ITEM_TYPES = new Set(["ability", "trait", "effect", "armor", "gear", ...COMPOSITION_ITEM_TYPES]);
+export const ACTIONS_ITEM_TYPES = new Set(["ability", "trait", "effect", "armor", "gear"]);
 
 // Item types that can be linked as children/supplements in the Link tab.
 export const ABSTRACT_ITEM_TYPES = new Set(["ability", "trait", "effect"]);
@@ -114,9 +115,10 @@ export class Dos100Item extends Item {
     const childIds = this.getFlag(game.system.id, "childItemIds") as string[] | undefined;
     if (!childIds?.length) return;
     const active = (this.system as { active?: boolean }).active;
+    // Children are always linkable types, which all carry `active`.
     const targets = childIds.flatMap(id => {
       const item = this.actor!.items.get(id);
-      return item && ACTIONS_ITEM_TYPES.has(item.type) ? [{ _id: item.id, "system.active": active }] : [];
+      return item && ABSTRACT_ITEM_TYPES.has(item.type) ? [{ _id: item.id, "system.active": active }] : [];
     });
     if (targets.length) void this.actor.updateEmbeddedDocuments("Item", targets);
   }

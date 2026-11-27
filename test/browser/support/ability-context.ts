@@ -79,6 +79,7 @@ export function buildAbilityContext(
     tabs: { primary: primaryTabs, links: linksTabs },
     itemTypeLabel: "Ability",
     showCombatTab: true,
+    hasActions: true,
     typeDetailsPartial: "systems/100dos/templates/items/ability-details-fields.hbs",
     grantSource: null,
     usagePeriods: {

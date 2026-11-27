@@ -73,6 +73,12 @@ export abstract class AbstractItemSheet extends HandlebarsApplicationMixin(ItemS
     return false;
   }
 
+  // Whether this type carries Actions: the Pinned checkbox, the Actions
+  // table, shared uses, and Action notes. Composition types don't.
+  protected get _hasActions(): boolean {
+    return true;
+  }
+
   protected get _typeDetailsPartial(): string | null {
     return null;
   }
@@ -118,6 +124,7 @@ export abstract class AbstractItemSheet extends HandlebarsApplicationMixin(ItemS
       nameClass: (item.system as { active?: boolean }).active === false ? "depleted" : "",
       itemTypeLabel: game.i18n.localize(`TYPES.Item.${item.type}`),
       showCombatTab: this._showCombatTab,
+      hasActions: this._hasActions,
       typeDetailsPartial: this._typeDetailsPartial,
       grantSource,
       usagePeriods: USAGE_PERIODS,

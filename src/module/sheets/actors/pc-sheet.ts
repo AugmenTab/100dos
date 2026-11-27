@@ -527,9 +527,11 @@ export class PcActorSheet extends Dos100ActorSheet {
   // Reduces one Item's Actions structure to what an Actions-bearing table
   // row needs to display — shared by Effects' tables, the Dashboard's
   // Active Effect Items list, Features' tables, and Inventory's Armor/Gear
-  // tables.
+  // tables. Template rows go through here too, but Templates carry no
+  // Actions of their own (their linked children do), so they read as none.
   private itemActionsRow(item: Dos100Item): ItemActionsRow {
-    const actions = (item.system as { actions: Actions }).actions;
+    const actions = (item.system as { actions?: Actions }).actions;
+    if (!actions) return { item, hasActions: false, uses: null };
     const hasActions = Object.keys(actions.items).length > 0;
     const uses =
       hasActions && actions.uses.per !== "unlimited"

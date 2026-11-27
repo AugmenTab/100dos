@@ -30,6 +30,11 @@ export abstract class CompositionItemSheet extends AbstractItemSheet {
 
   protected abstract get _foundationMode(): FoundationMode;
 
+  // Actions come from linked child Traits and Abilities instead.
+  protected override get _hasActions(): boolean {
+    return false;
+  }
+
   protected override get _typeDetailsPartial(): string | null {
     return "systems/100dos/templates/items/composition-details-fields.hbs";
   }

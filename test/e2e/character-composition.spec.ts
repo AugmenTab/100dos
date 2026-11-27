@@ -115,19 +115,20 @@ function details(sheet: Locator): Locator {
 }
 
 /**
- * Scrolls the sheet's tab panels to the bottom, then just far enough back to
- * show `control`, and returns the offset. Playwright scrolls a control into
- * view before clicking it, so the offset has to be read after that, or the
- * click itself would move it.
+ * Scrolls the sheet's tab panels so `control` sits just below their top
+ * edge, as far down as the panels allow, and returns the offset. The control
+ * stays fully visible, so Playwright's click doesn't scroll it into view and
+ * move the offset itself.
  */
 async function scrollDownTo(sheet: Locator, control: Locator): Promise<number> {
-  const panels = sheet.locator(".dos100-item-tab-panels");
-  await panels.evaluate((el) => {
-    el.scrollTop = el.scrollHeight;
-  });
-  await control.scrollIntoViewIfNeeded();
-  const top = await panels.evaluate((el) => el.scrollTop);
-  expect(top, "the Details tab should still be scrolled down").toBeGreaterThan(0);
+  const handle = await control.elementHandle();
+  const top = await sheet.locator(".dos100-item-tab-panels").evaluate((el, target) => {
+    if (!target) return 0;
+    const offset = target.getBoundingClientRect().top - el.getBoundingClientRect().top;
+    el.scrollTop += offset - 4;
+    return el.scrollTop;
+  }, handle);
+  expect(top, "the Details tab should be scrolled down").toBeGreaterThan(0);
   return top;
 }
 
