@@ -5,10 +5,6 @@ export class TraitItemSheet extends AbstractItemSheet {
     classes: ["dos100", "sheet", "item", "trait"],
   };
 
-  static override PARTS = {
-    body: { template: "systems/100dos/templates/items/shell/item-shell.hbs" },
-  };
-
   protected override get _showCombatTab(): boolean {
     return true;
   }

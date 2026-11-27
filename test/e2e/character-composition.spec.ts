@@ -114,6 +114,28 @@ function details(sheet: Locator): Locator {
   return sheet.locator('.tab[data-group="primary"][data-tab="details"]');
 }
 
+/**
+ * Scrolls the sheet's tab panels to the bottom, then just far enough back to
+ * show `control`, and returns the offset. Playwright scrolls a control into
+ * view before clicking it, so the offset has to be read after that, or the
+ * click itself would move it.
+ */
+async function scrollDownTo(sheet: Locator, control: Locator): Promise<number> {
+  const panels = sheet.locator(".dos100-item-tab-panels");
+  await panels.evaluate((el) => {
+    el.scrollTop = el.scrollHeight;
+  });
+  await control.scrollIntoViewIfNeeded();
+  const top = await panels.evaluate((el) => el.scrollTop);
+  expect(top, "the Details tab should still be scrolled down").toBeGreaterThan(0);
+  return top;
+}
+
+/** Waits until the tab panels' scroll offset is back where it was. */
+async function expectScrollKept(sheet: Locator, top: number): Promise<void> {
+  await expect.poll(() => sheet.locator(".dos100-item-tab-panels").evaluate((el) => el.scrollTop)).toBe(top);
+}
+
 test("Race and Soldier Type foundational editors persist through their modals, and Cancel changes nothing", async ({
   foundryPage: page,
   fixtureLane,
@@ -179,8 +201,11 @@ test("Race and Soldier Type foundational editors persist through their modals, a
     .poll(async () => (await itemSystem(page, actorId, ids.race!)).bodyLocations)
     .toEqual({ leftWing: { type: "wing", label: "Left Wing", placement: "left", order: 0 } });
 
-  // Editing keeps the stable identifier even as the label changes.
-  await details(sheet).locator('button[data-action="editBodyLocation"][data-identifier="leftWing"]').click();
+  // Editing keeps the stable identifier even as the label changes. Saving
+  // from a modal re-renders the sheet without losing its scroll position.
+  const editLocation = details(sheet).locator('button[data-action="editBodyLocation"][data-identifier="leftWing"]');
+  let scrolled = await scrollDownTo(sheet, editLocation);
+  await editLocation.click();
   await expect(locationDialog.locator('input[name="identifier"]')).toHaveAttribute("readonly", "");
   await locationDialog.locator('input[name="label"]').fill("Port Wing");
   await locationDialog.locator('button[data-action="saveAndClose"]').click();
@@ -188,9 +213,16 @@ test("Race and Soldier Type foundational editors persist through their modals, a
   await expect
     .poll(async () => Object.keys((await itemSystem(page, actorId, ids.race!)).bodyLocations as object))
     .toEqual(["leftWing"]);
+  await expect(details(sheet).locator('[data-body-location-id="leftWing"]')).toContainText("Port Wing");
+  await expectScrollKept(sheet, scrolled);
 
-  await details(sheet).locator('button[data-action="addAdvance"]').click();
+  // Adding a table row keeps it too.
+  const addAdvance = details(sheet).locator('button[data-action="addAdvance"]');
+  scrolled = await scrollDownTo(sheet, addAdvance);
+  await addAdvance.click();
   await expect.poll(async () => ((await itemSystem(page, actorId, ids.race!)).advances as Record<string, number>).str).toBe(1);
+  await expect(details(sheet).locator('select[data-advance-row="str"]')).toBeVisible();
+  await expectScrollKept(sheet, scrolled);
   await details(sheet).locator('select[name="system.advances.str"]').selectOption({ label: "Intermediate" });
   await expect.poll(async () => ((await itemSystem(page, actorId, ids.race!)).advances as Record<string, number>).str).toBe(3);
   await details(sheet).locator('select[data-advance-row="str"]').selectOption({ label: "PER" });

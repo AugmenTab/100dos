@@ -43,6 +43,13 @@ export abstract class AbstractItemSheet extends HandlebarsApplicationMixin(ItemS
     },
   };
 
+  // `scrollable` has Foundry save and restore the tab panels' scroll
+  // position across re-renders. Without it, every update (a field edit, an
+  // added row, a dialog save) re-renders the sheet scrolled to the top.
+  static override PARTS: Record<string, { template: string; scrollable?: string[] }> = {
+    body: { template: "systems/100dos/templates/items/shell/item-shell.hbs", scrollable: [".dos100-item-tab-panels"] },
+  };
+
   static override TABS = {
     primary: {
       initial: "description",

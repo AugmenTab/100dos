@@ -28,10 +28,6 @@ export abstract class CompositionItemSheet extends AbstractItemSheet {
     },
   };
 
-  static override PARTS = {
-    body: { template: "systems/100dos/templates/items/shell/item-shell.hbs" },
-  };
-
   protected abstract get _foundationMode(): FoundationMode;
 
   protected override get _typeDetailsPartial(): string | null {
