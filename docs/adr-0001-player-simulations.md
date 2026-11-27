@@ -79,7 +79,7 @@ SIMULATION_SLOW_MO=500 npx playwright test --project=simulations --headed
 ## Consequences
 
 - Every common journey now has a script that runs on every test run, and every regression that breaks one fails with a player-level description.
-- Gaps between features surface as pending beats or as failing journeys. Writing the first three surfaced two gaps that no feature test catches: Links don't work on world Items, and an Action's maximum uses can't be set.
+- Gaps between features surface as pending beats or as failing journeys. Writing the first three surfaced two gaps that no feature test catches: Links don't work on world Items (since fixed), and an Action's maximum uses can't be set.
 - Journeys are coupled to the UI, by design. Renaming an accessible label or restructuring a dialog breaks every journey through it. The `sheets.ts` verbs keep that coupling in one place.
 - Journeys depend on features in order. A broken early beat, such as creating the PC, hides everything after it. That's acceptable, because a player who can't create a character can't do anything else either.
 - The harness itself had to grow: in-page globals for `game.items`, `getName` and `Combat`, a per-project viewport in the worker session, and lane-scoped cleanup by name.

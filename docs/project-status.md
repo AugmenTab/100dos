@@ -9,7 +9,7 @@ Template, Race and Soldier Type Item types now exist, replacing the planned
 Archetype (removed: schema field, Dashboard selector, strings). See
 docs/architecture.md, "Character composition". They are authorable (Advances,
 Base Characteristics, Base Mythic Characteristics, Base Size, Body Locations,
-XP Cost, plus the shared Changes/Links), selectable from independent Race and
+XP Cost, plus the shared Changes/Links, but no Actions), selectable from independent Race and
 Soldier Type Dashboard selectors (at most one active of each), acquirable by
 drop through the XP ledger, and Templates are wired into Features. None of
 it is derived onto the Actor yet. Body Locations were split out of Damage
@@ -17,6 +17,14 @@ Resistance (`body-location.ts`). The e2e tier was run for the first time
 since the review-fix branch, using `docker run --network host` (see
 .local/phase-01-handoff.md); four pre-existing e2e failures are listed
 there.
+
+**Update (2026-11-27, `review-all`).** The four e2e failures above were
+stale tests, now fixed. Player simulations were added (see
+docs/adr-0001-player-simulations.md). Links now work on world Items: a drop
+on a sidebar Item stores a copy that becomes a real Item when the parent
+lands on an Actor. Race, Soldier Type and Template no longer carry Actions
+or a Pinned flag; their Actions come from linked child Traits and
+Abilities. Item sheets keep their scroll position across re-renders.
 
 The short version: the **PC sheet and the Item editors are far along as
 authoring and record-keeping tools**, but **the system computes almost
@@ -55,8 +63,9 @@ In rough order of how much they block:
    Educations, Characteristics, Initiative, Feature/Effect/Inventory rows) is
    an inert button. The crit threshold settings exist but are only read as
    defaults for new Action attacks.
-4. **No Changes engine.** Changes can be fully authored on Abilities, Traits
-   and Effects, with a complete target vocabulary. Nothing gathers, evaluates
+4. **No Changes engine.** Changes can be fully authored on Abilities,
+   Traits, Effects, Races, Soldier Types and Templates, with a complete
+   target vocabulary. Nothing gathers, evaluates
    or applies them. Every `contributions` array on the Actor is a breakdown
    slot that nothing fills. `Result<T, E>` is still unused outside its tests,
    because the formula and Change code it was built for doesn't exist.
@@ -108,10 +117,15 @@ Shared through `AbstractItemSheet`:
   duplicate and delete. Targets are chosen in a picker covering the full
   target vocabulary (`change-targets.ts`, `conditional-note-targets.ts`),
   including dynamic Skill and DR-location targets.
-- **Links** tab: child and supplement grants, added by drag-and-drop. Grants
-  create embedded Items on the owning Actor. Deleting the granter
-  cascade-deletes its children. Toggling `active` on the granter propagates
-  to its children.
+- **Links** tab: child and supplement grants, added by drag-and-drop.
+  - On an owned Item, a drop creates the linked Item on the Actor.
+  - On a world Item, a drop stores a copy in `system.grants`. The copies
+    become embedded Items when the parent is added to an Actor.
+  - Deleting the granter cascade-deletes its children.
+  - Children start in the granter's `active` state, and toggling `active`
+    on the granter propagates to them.
+  - Race, Soldier Type and Template share the Links and Changes tabs
+    through `CompositionItemSheet`, but have no Actions or Pinned flag.
 - Identifiers are seeded batch-wide on creation, unique per Actor, with the
   Characteristic IDs reserved.
 
@@ -163,8 +177,8 @@ special rule or opposed test (see §4).
 
 - Vite build, strict TypeScript, ESLint and Prettier.
 - 337 Vitest unit tests.
-- Two Playwright tiers: 88 browser-tier template tests and 80 e2e tests
-  against live Foundry.
+- Two Playwright tiers: 90 browser-tier template tests, and 80 e2e tests
+  plus 3 player simulations against live Foundry.
 - Three typecheck configs: `typecheck`, `typecheck:e2e` and
   `typecheck:browser`.
 - Localization in `en.json`.

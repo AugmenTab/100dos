@@ -153,6 +153,8 @@ The project uses three test tiers.
 
 **Playwright e2e tier** (`test/e2e/`) covers behavior that needs Foundry's runtime: click handlers that open ApplicationV2 windows, form persistence and Document re-render, ProseMirror, and window lifecycle. It runs against a dedicated Foundry instance and world, separate from the development instance, and is the slow tier — new tests here should share setup where they can.
 
+**Player simulations** (`test/simulations/`) run alongside the e2e tier against the same Foundry instance. Each is one long scripted journey through the UI rather than a feature test; see `docs/adr-0001-player-simulations.md`.
+
 `scripts/ui-test` runs both Playwright tiers (the browser tier concurrently with Foundry startup); it is separate from `scripts/build`. See the README for running them, and `test/CLAUDE.md` for how to classify a new test into a tier.
 
 **Rule:** whenever a new data type or utility module is added to `src/module/`, a test file must be added alongside it before the story is considered complete. The test must cover every field default (for data models) or every exported function (for utility modules).

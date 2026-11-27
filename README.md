@@ -60,7 +60,11 @@ The `dev` service is excluded from `docker compose up` by default (it uses a Doc
 | `npm run build` | Compile and bundle source files to `dist/` |
 | `npm run watch` | Watch for changes and rebuild automatically |
 | `npm run typecheck` | Run TypeScript type checking |
+| `npm run typecheck:browser` | Type-check the browser-tier tests and fixtures |
+| `npm run typecheck:e2e` | Type-check the E2E tests and simulations |
 | `npm run lint` | Lint source files |
+| `npm test` | Unit tests (Vitest) |
+| `npm run test:ui` | E2E tests and player simulations (Playwright; needs a running test Foundry) |
 | `npm run format` | Format source files with Prettier |
 | `npm run format:check` | Check formatting without writing |
 | `scripts/build` | Full static/unit validation: typecheck, lint, unit tests, build |
@@ -89,8 +93,11 @@ This will:
    credentials from `.env`, listens on host port `30001` (optional, for
    manual inspection), and creates or reuses one deterministic world:
    `100dos-e2e`.
-3. Wait for the instance to become responsive, then run the Playwright suite.
-4. Stop the dedicated instance (data persists in `./foundrytestdata/` between
+3. Run the browser tier (`test/browser/`, `playwright.browser.config.ts`)
+   while Foundry starts. It renders the system's templates without Foundry.
+4. Wait for the instance to become responsive, then run the E2E tests
+   (`test/e2e/`) and the player simulations (`test/simulations/`).
+5. Stop the dedicated instance (data persists in `./foundrytestdata/` between
    runs; nothing is re-downloaded).
 
 Reports and traces are written to `playwright-report/` and `test-results/`
@@ -127,5 +134,10 @@ static/         Foundry manifest and static files
 dist/           Generated build output (not committed)
 docs/           Documentation
 test/
-  e2e/          Playwright UI tests and support helpers (see scripts/ui-test)
+  browser/      Playwright template tests, no Foundry (browser tier)
+  e2e/          Playwright tests against live Foundry, and support helpers
+  simulations/  Scripted player journeys (docs/adr-0001-player-simulations.md)
 ```
+
+Unit tests live next to the modules they cover, as `src/**/*.test.ts`. See
+`test/CLAUDE.md` for which tier a new test belongs in.

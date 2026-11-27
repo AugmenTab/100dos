@@ -1,9 +1,8 @@
 # Development Testing
 
-This document describes how to verify the system skeleton. As of the UI test
-harness (`scripts/ui-test`), the core PC and Ability sheet persistence flows
-have automated coverage — see [Automated coverage](#automated-coverage)
-below. Everything else is still verified manually; the intent is to keep
+This document describes how to verify the system. Most of it is covered
+automatically by the test tiers below. NPC, Vehicle and the bare Trait and
+Effect name round-trip are still checked by hand; the intent is to keep
 moving checklist items into Playwright as their UI stabilizes.
 
 ## Automated coverage
@@ -14,49 +13,29 @@ Run:
 scripts/ui-test
 ```
 
-This drives the real Foundry UI (see `test/e2e/system-smoke.spec.ts`,
-`test/e2e/pc-sheet-navigation.spec.ts`, and `test/e2e/pc-sheet-dashboard.spec.ts`)
-and proves:
+This runs both Playwright tiers (see the README). `docs/architecture.md`,
+"Testing", describes the tiers, and `test/CLAUDE.md` says which one a new
+test belongs in.
 
-- A PC Actor's name can be changed through its rendered sheet, persists after
-  closing and reopening the sheet, and matches the underlying Actor document.
-- An embedded Ability Item's name can be changed through its rendered sheet,
-  persists after closing and reopening the sheet, matches the underlying
-  Item document, and the embedded Ability can be removed cleanly.
-- The PC sheet's primary navigation (Dashboard, Record, Combat, Medical,
-  Inventory, Features, Skills, Spells, Effects, Settings) and Record's nested
-  secondary navigation (Basics, XP, Finances, Biography) render in the
-  required order, switch correctly, and expose the expected tab semantics.
-- Record remembers its most recently selected secondary tab across primary
-  navigation and across a forced rerender of the open sheet.
-- Both tab levels are operable by keyboard (Arrow/Home/End focus movement,
-  Enter/Space activation, independent primary/Record tablists).
-- Primary and Record navigation remain usable — without clipped or
-  overlapping controls — at representative wide, medium, and narrow sheet
-  widths.
-- The PC Dashboard renders the Actor portrait, name, Race and Soldier Type selectors,
-  Initiative, Luck, Wounds, Fatigue, all six Damage Resistance locations, all
-  ten Characteristics (in order, each with an accessible full name and a
-  working temporary-modifier input), and stable empty states for the
-  quick-use, pinned-Skills, and active-Effects regions — all bound to real
-  schema-backed Actor/Item data, not fixture-only presentation values.
-- Editing a Characteristic's temporary modifier persists `system.characteristics.<id>.temp`
-  without altering `.value` or `.mod.value`.
-- The contribution tooltip renders an already-populated `Contributions`
-  collection in stored order with correctly signed values (including
-  negative contributions), is reachable by both hover and keyboard focus,
-  and is absent entirely when the collection is empty.
-- Pinning an Ability Item surfaces it as an image-based quick-use control
-  whose activation delegates to the Item's existing Action-use path.
-- Only Effect Items with `system.active === true` appear in the
-  active-Effects region.
-- The Dashboard remains usable — Characteristics and Damage Resistance
-  locations reachable, order preserved, no uncontrolled horizontal overflow —
-  at representative wide, medium, and narrow sheet widths.
+- **Browser tier** (`test/browser/`): template rendering for the PC sheet
+  (Dashboard, Skills, Educations, Inventory, ledgers, composition) and the
+  Item sheets (Ability, Effect, Action editor, Details, Links, Race, Soldier
+  Type and Template), plus the shared dialogs.
+- **E2E tier** (`test/e2e/`), against live Foundry:
+  - PC sheet: navigation and its keyboard and width behaviour, the
+    Dashboard, Skills, Educations, Inventory, and the XP and Finances
+    ledgers.
+  - Ability acquisition by drop, with its XP prompt.
+  - Item sheets: Ability, Trait and Effect, Changes and Conditionals with
+    the target picker, the Action editor, and Links.
+  - Character composition: Race and Soldier Type editors, acquisition, the
+    exclusive Dashboard selectors, Templates, and scroll kept across
+    re-renders.
+- **Player simulations** (`test/simulations/`): see below.
 
-It also fails on uncaught browser page errors, `100DOS`-originated console
-errors, and failed requests for `/systems/100dos/` assets, and retains a
-screenshot and trace for any failing test.
+The E2E tier fails on uncaught browser page errors, `100DOS`-originated
+console errors, and failed requests for `/systems/100dos/` assets, and
+retains a screenshot and trace for any failing test.
 
 ## Remaining manual smoke checks
 

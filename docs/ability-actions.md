@@ -4,6 +4,8 @@ Items can carry one or more **actions**: discrete activations with their own act
 
 Actions are not limited to Abilities. Every Item type in `ACTIONS_ITEM_TYPES` (`src/module/documents/item.ts`) carries them: `ability`, `trait`, `effect`, `armor`, and `gear`.
 
+Race, Soldier Type and Template deliberately carry no Actions and no Pinned flag. An Action one of them provides belongs on a linked child Trait or Ability, which has its own uses, recharge and pin, and follows its parent's `active` state (see `architecture.md`, "Character composition").
+
 ---
 
 ## Data model
