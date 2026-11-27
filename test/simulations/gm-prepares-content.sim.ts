@@ -33,10 +33,14 @@ test("the GM prepares a Trait, an attack Ability and an Effect for the session",
     await table.close(sheet.root);
   });
 
-  await table.pending(
-    "link Tough as Nails to Power Strike so taking the Ability grants the Trait",
-    "Links only accept drops on an Item an Actor owns, so world content can't carry child grants",
-  );
+  await table.beat("link Tough as Nails to Power Strike so taking the Ability grants the Trait", async () => {
+    const sheet = new ItemSheetView(table, await table.open("items", ability));
+    const links = await sheet.tab("links");
+    const children = links.locator('section[data-group="links"][data-tab="children"]');
+    await table.drag("items", trait, children);
+    await expect(children.locator("tbody tr").first()).toContainText(trait);
+    await table.close(sheet.root);
+  });
 
   await table.beat("write a three-round Effect", async () => {
     const sheet = new ItemSheetView(table, await table.create("items", "effect", effect));
@@ -66,6 +70,9 @@ test("the GM prepares a Trait, an attack Ability and an Effect for the session",
     });
     expect((saved.system.changes as { computed: unknown[] }).computed).toMatchObject([
       { mode: "add", formula: "10", target: "allCharacteristicTests" },
+    ]);
+    expect(saved.system.grants).toMatchObject([
+      { kind: "child", type: "trait", name: trait, system: { changes: { computed: [{ target: "wounds", formula: "5" }] } } },
     ]);
     expect((await table.worldItem(trait)).system.changes).toMatchObject({ computed: [{ target: "wounds", formula: "5" }] });
     expect((await table.worldItem(effect)).system).toMatchObject({ duration: { formula: "3" } });

@@ -159,6 +159,7 @@ export class Dos100Item extends Item {
       grants.map((g, i) => ({
         name: g.name,
         type: g.type,
+        ...(g.img ? { img: g.img } : {}),
         system: g.system,
         flags: { [sysId]: { grantedBy: this.id, _grantSlot: i } },
       })),
